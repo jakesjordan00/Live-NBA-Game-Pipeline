@@ -9,7 +9,7 @@ import urllib3
 #If it's before 6am, use Yesterday's scoreboard instead. This will catch any games that are ongoing past midnight
 date = (datetime.now() - timedelta(days=1) if datetime.now().hour < 6 else datetime.now()).strftime("%Y-%m-%d")
 
-# date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
 def GetTodaysScoreboard1():
     '''
@@ -35,7 +35,6 @@ Hits the NBA api and retrieves the Scoreboard for today's (or yesterday's) games
     return dfScoreboard
 
 def GetTodaysScoreboard():
-    url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
     try:
         response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
         data = response.json()
