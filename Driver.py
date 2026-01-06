@@ -1,8 +1,8 @@
 from GetScoreboard import GetTodaysScoreboard
 from Directions import GetGamesInProgress
 from SQL_Reads import FirstIteration
-from DBConfig import engine, nbaConnection, nbaCursor
-from GetDataNBA import GetBox, GetPlayByPlay
+from DBConfig import nbaEngine, nbaConnection, nbaCursor
+from GetDataNBA import GetBox, GetPlayByPlay, InsertBox
 
 
 
@@ -27,7 +27,9 @@ def MainFunction(iterations: int):
         existingGames = FirstIteration(nbaCursor, gamesInProg)
         notInDbGames = [game for game in gamesInProg if game not in existingGames]
         for GameID in notInDbGames:
-            dfBox = GetBox(GameID)
+            Box = GetBox(GameID)
+            if Box != None:
+                InsertBox(Box)
 
         test = 1
 

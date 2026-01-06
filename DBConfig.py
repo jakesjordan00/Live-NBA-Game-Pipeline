@@ -35,6 +35,6 @@ def GetPyodbcConnection():
     return pyodbc.connect(connectionString)
 
 
-engine = GetEngineConnection()
+nbaEngine = GetEngineConnection()
 nbaConnection = GetPyodbcConnection()
 nbaCursor = nbaConnection.cursor()

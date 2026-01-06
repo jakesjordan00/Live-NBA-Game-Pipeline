@@ -2,7 +2,7 @@ from URLs import BoxScore, PlayByPlay
 import requests
 import pandas as pd
 from ParseBox import InitiateBox
-
+from SQL_Writes import InsertGame, InsertTeamBox, InsertPlayerBox
 
 def GetBox(GameID: int):
     '''
@@ -15,14 +15,20 @@ def GetBox(GameID: int):
         response = requests.get(f'{BoxScore}00{GameID}.json')
         data = response.json()
         game = data['game']
-        status = InitiateBox(game)
+        Box = InitiateBox(game)
     except Exception as e:
-        status = False
+        Box = None
         print(f"Error downloading BoxScore: {e}")
 
-    return status
+    return Box
 
 
+def InsertBox(Box: dict):
+    gStatus = InsertGame(Box['Game'], Box['GameExt'])
+    tBoxStatus = InsertTeamBox(Box['TeamBox'])
+    pBoxStatus = InsertPlayerBox(Box['PlayerBox'])
+    
+    return f'{gStatus}, {tBoxStatus}, {pBoxStatus}'
 
 
 def GetPlayByPlay():

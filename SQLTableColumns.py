@@ -1,0 +1,25 @@
+keys_Game = ['SeasonID', 'GameID','Date', 'GameType', 'HomeID', 'HScore', 'AwayID', 'AScore',
+                'WinnerID', 'WScore', 'LoserID', 'LScore', 'SeriesID', 'Datetime']
+
+keys_GameExt = ['SeasonID', 'GameID', 'ArenaID', 'Attendance', 'Sellout', 'Label', 'LabelDetail', 
+    'OfficialID', 'Official2ID', 'Official3ID', 'OfficialAlternateID', 'Status', 'Periods']
+    
+keys_TeamBox = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'Points', 'PointsAgainst', 'FG2M', 'FG2A', 'FG2%', 'FG3M', 'FG3A', 'FG3%', 
+            'FGM', 'FGA', 'FG%', 'FieldGoalsEffectiveAdjusted', 'FTM', 'FTA', 'FT%', 'SecondChancePointsMade', 'SecondChancePointsAttempted', 
+            'SecondChancePointsPercentage', 'TrueShootingAttempts', 'TrueShootingPercentage', 'PointsFromTurnovers', 'PointsSecondChance', 
+            'PointsInThePaint', 'PointsInThePaintMade', 'PointsInThePaintAttempted', 'PointsInThePaintPercentage', 'PointsFastBreak', 
+            'FastBreakPointsMade', 'FastBreakPointsAttempted', 'FastBreakPointsPercentage', 'BenchPoints', 'ReboundsDefensive', 
+            'ReboundsOffensive', 'ReboundsPersonal', 'ReboundsTeam', 'ReboundsTeamDefensive', 'ReboundsTeamOffensive', 'ReboundsTotal', 
+            'Assists', 'AssistsTurnoverRatio', 'BiggestLead', 'BiggestLeadScore', 'BiggestScoringRun', 'BiggestScoringRunScore', 
+            'TimeLeading', 'TimesTied', 'LeadChanges', 'Steals', 'Turnovers', 'TurnoversTeam', 'TurnoversTotal', 'Blocks', 'BlocksReceived', 
+            'FoulsDrawn', 'FoulsOffensive', 'FoulsPersonal', 'FoulsTeam', 'FoulsTeamTechnical', 'FoulsTechnical', 'Wins', 
+            'Losses', 'Win', 'Seed']
+
+keys_PlayerBox = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID', 'Status', 'Starter', 'Position', 'Minutes', 'MinutesCalculated', 
+            'Points', 'Assists', 'ReboundsTotal', 'FG2M', 'FG2A', 'FG2%', 'FG3M', 'FG3A', 'FG3%', 'FGM', 'FGA', 'FG%', 'FTM', 'FTA', 'FT%', 'ReboundsDefensive', 'ReboundsOffensive', 'Blocks', 'BlocksReceived', 'Steals', 'Turnovers', 'AssistsTurnoverRatio', 'Plus', 'Minus', 'PlusMinusPoints', 'PointsFastBreak', 'PointsInThePaint', 'PointsSecondChance', 'FoulsOffensive', 'FoulsDrawn', 'FoulsPersonal', 
+            'FoulsTechnical', 'StatusReason', 'StatusDescription']
+
+
+
+
+

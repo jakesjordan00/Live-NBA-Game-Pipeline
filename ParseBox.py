@@ -14,35 +14,44 @@ def InitiateBox(game: dict):
     away = game['awayTeam']
 
     Game, GameExt = FormatGame(game)
-
     Arena = FormatArena(Game['SeasonID'], Game['HomeID'], arena)
+    Official = FormatOfficial(Game['SeasonID'], officials)
+    Team, TeamBox, Player, PlayerBox, StartingLineups = BoxscoreLoop(Game['SeasonID'], Game['GameID'], Game['HomeID'], Game['AwayID'], [home, away])
 
-    Team = FormatTeam(Game['SeasonID'], Game['GameID'], Game['HomeID'], Game['AwayID'], [home, away])
-
+    BoxData = {
+        'Game': Game,
+        'GameExt': GameExt,
+        'Team': Team,
+        'TeamBox': TeamBox,
+        'Player': Player,
+        'PlayerBox': PlayerBox,
+        'StartingLineups': StartingLineups,
+        'Arena': Arena,
+        'Official': Official
+    }
     #Return status message of some sort
-    return 1
+    return BoxData
 
-
-
+#region Game, Arena and Official
 def FormatGame(game: dict):
     SeasonID = int(f'20{game['gameId'][3:5]}')
     GameID = int(game['gameId'])
     Date = game['gameEt'].split('T')[0]
     Datetime = game['gameEt'][:-6]
     HomeID = int(game['homeTeam']['teamId'])
-    hScore = game['homeTeam']['score']
+    HScore = game['homeTeam']['score']
     AwayID = int(game['awayTeam']['teamId'])
-    aScore = game['awayTeam']['score']
-    if hScore >= aScore:
+    AScore = game['awayTeam']['score']
+    if HScore >= AScore:
         WinnerID = HomeID
-        WScore = hScore
+        WScore = HScore
         LoserID = AwayID
-        LScore = aScore
+        LScore = AScore
     else:
         WinnerID = AwayID
-        WScore = aScore
+        WScore = AScore
         LoserID = HomeID
-        LScore = hScore
+        LScore = HScore
     gType = int(game['gameId'][2])
     GameType = 'RS' if gType == 2 else 'PRE' if gType == 1 else 'PS' if gType == 4 else 'PI' if gType == 5 else 'CUP'
     SeriesID = str(GameID)[:7] if GameType == 'PS' else None
@@ -53,13 +62,13 @@ def FormatGame(game: dict):
         'Date': Date,
         'GameType': GameType,
         'HomeID': HomeID,
-        'hScore': hScore,
+        'HScore': HScore,
         'AwayID': AwayID,
-        'aScore': aScore,
+        'AScore': AScore,
         'WinnerID': WinnerID,
         'WScore': WScore,
         'LoserID': LoserID,
-        'LScore': LoserID,
+        'LScore': LScore,
         'SeriesID': SeriesID,
         'Datetime': Datetime,        
     }
@@ -69,9 +78,14 @@ def FormatGame(game: dict):
     Sellout     = int(game['sellout'])
     Label       = None
     LabelDetail = None
-    Officials = [ref['personId'] for ref in game['officials']]
     Status = game['gameStatusText']
     Periods = game['period']
+    Officials = [ref['personId'] for ref in game['officials']]
+    officialAssignments = {ref['assignment']: ref['personId'] for ref in game['officials']}
+    OfficialID = officialAssignments.get('OFFICIAL1')
+    Official2ID = officialAssignments.get('OFFICIAL2')
+    Official3ID = officialAssignments.get('OFFICIAL3')
+    OfficialAlternateID = officialAssignments.get('ALTERNATE') 
 
     GameExt = {
         'SeasonID': SeasonID,
@@ -114,48 +128,94 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict):
     }
     return Arena
 
+def FormatOfficial(SeasonID: int, officials: list):
+    Official = []
+    for official in officials:            
+        Official.append({
+            'SeasonID': SeasonID,
+            'OfficialID': official['personId'],
+            'Name': official['name'],
+            'Number': official['jerseyNum']
+        })
+    return Official
+#endregion Game, Arena and Officials
 
 
-    
-def FormatTeam(SeasonID: int, GameID: int, HomeID: int, AwayID: int, 
-               teams: list):
-
-    for team in teams:
-        # for key in team['statistics']:            
-            # print(f"'{key[0].upper()}{key[1:]}': team['statistics']['{key}'],")
- 
-        isHome = team['teamId'] == HomeID
-        TeamID = HomeID if isHome else AwayID
-        MatchupID = AwayID if isHome else HomeID
-
-        TeamBox = FormatTeamBox(SeasonID, GameID, TeamID, MatchupID, team)
-
-        test= 1
-
+#region Boxscore - Team, TeamBox, Player, PlayerBox, StartingLineups
+def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: list):
+    Team = []
+    TeamBox = []
+    TeamBoxExt = []
+    Player = []
+    PlayerBox = []
+    StartingLineups = []
+    for index, team in enumerate(teams): 
+        opTeam = teams[1- index]
+        TeamID = team['teamId']
+        Team.append(FormatTeam(SeasonID, TeamID, team))
         
-        PlayerBox = FormatPlayerBox(SeasonID, GameID, TeamID, MatchupID, team['players'])
+        isHome = team['teamId'] == HomeID
+        MatchupID = AwayID if isHome else HomeID
+        TeamBox.append(FormatTeamBox(SeasonID, GameID, TeamID, MatchupID, team))        
+        for i, qtr in enumerate(team['periods']):            
+            TeamBoxExt.append(FormatTeamBoxExt(SeasonID, GameID, TeamID, MatchupID, qtr, opTeam['periods'][i]))
+
+        for player in team['players']:                
+            PlayerID = player['personId']
+            Position = player['position'] if 'position' in player.keys() else None
+            Player.append(FormatPlayer(SeasonID, PlayerID, Position, player))
+            PlayerBox.append(FormatPlayerBox(SeasonID, GameID, TeamID, MatchupID, PlayerID, Position, player))
+            StartingLineups.append(FormatStartingLineups(SeasonID, GameID, TeamID, MatchupID, PlayerID, Position, player))
 
         test = 1
+    test = 1
+
+    return Team, TeamBox, Player, PlayerBox, StartingLineups
 
 
-
+#region Team - Team, TeamBox
+def FormatTeam(SeasonID: int, TeamID: int, team: dict):
+    City = team['teamCity']
+    Name = team['teamName']
+    Tricode = team['teamTricode'] 
+    if TeamID in   [1610612738, 1610612751, 1610612752, 1610612755, 1610612761]:
+        Division = 'Atlantic'
+        Conference = 'East'
+    elif TeamID in [1610612741, 1610612739, 1610612765, 1610612754, 1610612749]:
+        Division = 'Central'
+        Conference = 'East'
+    elif TeamID in [1610612737, 1610612766, 1610612748, 1610612753, 1610612764]:
+        Division = 'Southeast'
+        Conference = 'East'
+    elif TeamID in [1610612743, 1610612750, 1610612760, 1610612757, 1610612762]:
+        Division = 'Northwest'
+        Conference = 'West'
+    elif TeamID in [1610612744, 1610612746, 1610612747, 1610612756, 1610612758]:
+        Division = 'Pacific'
+        Conference = 'West'
+    elif TeamID in [1610612742, 1610612745, 1610612763, 1610612740, 1610612759]:
+        Division = 'Southwest'
+        Conference = 'West'
 
     Team = {
-
-
+        'SeasonID': SeasonID,
+        'TeamID': TeamID,
+        'City': City,
+        'Name': Name,
+        'Tricode': Tricode,
+        'Wins': None,
+        'Losses': None,
+        'FullName': f'({Tricode}) {City} {Name}',
+        'Conference': Conference,
+        'Division': Division
     }
     return Team
 
-
-
 def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team: dict):
-
-
-    test = 1
     Win = team['statistics']['points'] > team['statistics']['pointsAgainst']
     TeamBox = {
         'SeasonID': SeasonID,
-        'GameID': 'GameID',
+        'GameID': GameID,
         'TeamID': TeamID,
         'MatchupID': MatchupID,
         'Points': team['statistics']['points'],
@@ -224,78 +284,113 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
     }
     return TeamBox
 
+def FormatTeamBoxExt(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, qtr: dict, opQtr: dict):
+
+    TeamBoxExt = {
+        'SeasonID': SeasonID,
+        'GameID': GameID,
+        'TeamID': TeamID,
+        'MatchupID': MatchupID,
+        'Qtr': qtr['period'],
+        'Points': qtr['score'],
+        'PointsAgainst': opQtr['score']
+    }
+    return TeamBoxExt
+#endregion Team
 
 
-def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, players: list):
-    print('\n')
-    PlayerBoxes = []
-    for player in players:
+#region Player - Player, PlayerBox, StartingLineups
+def FormatPlayer(SeasonID: int, PlayerID: int, Position: str, player: dict):
+    Player = {
+        'SeasonID': SeasonID,
+        'PlayerID': PlayerID,
+        'Name': player['name'],
+        'Number': player['jerseyNum'],
+        'Position': Position,
+        'NameInitial': player['nameI'],
+        'NameLast': player['familyName'],
+        'NameFirst': player['firstName']
+    }
+    return Player
 
-        Min = player['statistics']['minutes']
-        Minutes = Min.replace('PT', '')[:2]
-        Seconds = Min[5:].replace('S', '')
-        SecCalc = float(Seconds)/60
-        MinCalc = int(Minutes) + SecCalc
-        if player['statistics']['assists'] != 0 and player['statistics']['turnovers'] == 0:
-            atr = player['statistics']['assists']
-        elif player['statistics']['assists'] != 0 and player['statistics']['turnovers'] != 0:
-            atr = player['statistics']['assists'] / player['statistics']['turnovers']
-        else:
-            atr = 0
+def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str, player: dict):
+    Min = player['statistics']['minutes']
+    Minutes = Min.replace('PT', '')[:2]
+    Seconds = Min[5:].replace('S', '')
+    SecCalc = float(Seconds)/60
+    MinCalc = int(Minutes) + SecCalc
+    if player['statistics']['assists'] != 0 and player['statistics']['turnovers'] == 0:
+        atr = player['statistics']['assists']
+    elif player['statistics']['assists'] != 0 and player['statistics']['turnovers'] != 0:
+        atr = player['statistics']['assists'] / player['statistics']['turnovers']
+    else:
+        atr = 0
+
+    StatusReason = player['notPlayingReason'] if 'notPlayingReason' in player.keys() else None
+    StatusDescription = player['notPlayingDescription'] if 'notPlayingDescription' in player.keys() else None
+
+    PlayerBox = {
+        'SeasonID': SeasonID,
+        'GameID': GameID,
+        'TeamID': TeamID,
+        'MatchupID': MatchupID,
+        'PlayerID': PlayerID,
+        'Status': player['status'],
+        'Starter': int(player['starter']),
+        'Position': Position,
+        'Minutes': player['statistics']['minutes'],
+        'MinutesCalculated': MinCalc,
+        'Points': player['statistics']['points'],
+        'Assists': player['statistics']['assists'],
+        'ReboundsTotal': player['statistics']['reboundsTotal'],
+        'FG2M': player['statistics']['twoPointersMade'],
+        'FG2A': player['statistics']['twoPointersAttempted'],
+        'FG2%': player['statistics']['twoPointersPercentage'],
+        'FG3M': player['statistics']['threePointersMade'],
+        'FG3A': player['statistics']['threePointersAttempted'],
+        'FG3%': player['statistics']['threePointersPercentage'],
+        'FGM': player['statistics']['fieldGoalsMade'],
+        'FGA': player['statistics']['fieldGoalsAttempted'],
+        'FG%': player['statistics']['fieldGoalsPercentage'],
+        'FTM': player['statistics']['freeThrowsMade'],
+        'FTA': player['statistics']['freeThrowsAttempted'],
+        'FT%': player['statistics']['freeThrowsPercentage'],
+        'ReboundsDefensive': player['statistics']['reboundsDefensive'],
+        'ReboundsOffensive': player['statistics']['reboundsOffensive'],
+        'Blocks': player['statistics']['blocks'],
+        'BlocksReceived': player['statistics']['blocksReceived'],
+        'Steals': player['statistics']['steals'],
+        'Turnovers': player['statistics']['turnovers'],
+        'AssistsTurnoverRatio': atr,
+        'Plus': player['statistics']['plus'],
+        'Minus': player['statistics']['minus'],
+        'PlusMinusPoints': player['statistics']['plusMinusPoints'],
+        'PointsFastBreak': player['statistics']['pointsFastBreak'],
+        'PointsInThePaint': player['statistics']['pointsInThePaint'],
+        'PointsSecondChance': player['statistics']['pointsSecondChance'],
+        'FoulsOffensive': player['statistics']['foulsOffensive'],
+        'FoulsDrawn': player['statistics']['foulsDrawn'],
+        'FoulsPersonal': player['statistics']['foulsPersonal'],
+        'FoulsTechnical': player['statistics']['foulsTechnical'],
+        'Status': player['status'],
+        'StatusReason': StatusReason,
+        'StatusDescription': StatusDescription
+    }
+    return PlayerBox
+
+def FormatStartingLineups(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str, player: dict):
+    Unit = 'Starters' if player['starter'] == '1' else 'Bench'
+    LineupRecord = {
+        'SeasonID': SeasonID,
+        'GameID': GameID,
+        'TeamID': TeamID,
+        'MatchupID': MatchupID,
+        'PlayerID': PlayerID,
+        'Unit': Unit,
+        'Position': Position
+    }
+    return LineupRecord
+#endregion Player
 
 
-        Position = player['position'] if 'position' in player.keys() else None
-        StatusReason = player['notPlayingReason'] if 'notPlayingReason' in player.keys() else None
-        StatusDescription = player['notPlayingDescription'] if 'notPlayingDescription' in player.keys() else None
-
-       
-        PlayerBox = {
-            'SeasonID': SeasonID,
-            'GameID': GameID,
-            'TeamID': TeamID,
-            'MatchupID': MatchupID,
-            'PlayerID': player['personId'],
-            'Status': player['status'],
-            'Starter': int(player['starter']),
-            'Position': Position,
-            'Minutes': player['statistics']['minutes'],
-            'MinutesCalculated': MinCalc,
-            'Points': player['statistics']['points'],
-            'Assists': player['statistics']['assists'],
-            'ReboundsTotal': player['statistics']['reboundsTotal'],
-            'FG2M': player['statistics']['twoPointersMade'],
-            'FG2A': player['statistics']['twoPointersAttempted'],
-            'FG2%': player['statistics']['twoPointersPercentage'],
-            'FG3M': player['statistics']['threePointersMade'],
-            'FG3A': player['statistics']['threePointersAttempted'],
-            'FG3%': player['statistics']['threePointersPercentage'],
-            'FGM': player['statistics']['fieldGoalsMade'],
-            'FGA': player['statistics']['fieldGoalsAttempted'],
-            'FG%': player['statistics']['fieldGoalsPercentage'],
-            'FTM': player['statistics']['freeThrowsMade'],
-            'FTA': player['statistics']['freeThrowsAttempted'],
-            'FT%': player['statistics']['freeThrowsPercentage'],
-            'ReboundsDefensive': player['statistics']['reboundsDefensive'],
-            'ReboundsOffensive': player['statistics']['reboundsOffensive'],
-            'Blocks': player['statistics']['blocks'],
-            'BlocksReceived': player['statistics']['blocksReceived'],
-            'Steals': player['statistics']['steals'],
-            'Turnovers': player['statistics']['turnovers'],
-            'AssistsTurnoverRatio': atr,
-            'Plus': player['statistics']['plus'],
-            'Minus': player['statistics']['minus'],
-            'PlusMinusPoints': player['statistics']['plusMinusPoints'],
-            'PointsFastBreak': player['statistics']['pointsFastBreak'],
-            'PointsInThePaint': player['statistics']['pointsInThePaint'],
-            'PointsSecondChance': player['statistics']['pointsSecondChance'],
-            'FoulsOffensive': player['statistics']['foulsOffensive'],
-            'FoulsDrawn': player['statistics']['foulsDrawn'],
-            'FoulsPersonal': player['statistics']['foulsPersonal'],
-            'FoulsTechnical': player['statistics']['foulsTechnical'],
-            'Status': player['status'],
-            'StatusReason': StatusReason,
-            'StatusDescription': StatusDescription
-        }
-        PlayerBoxes.append(PlayerBox)
-
-    return PlayerBoxes
+#endregion Boxscore - Team, TeamBox, Player, PlayerBox, StartingLineups
