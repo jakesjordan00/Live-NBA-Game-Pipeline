@@ -9,11 +9,12 @@ from GetDataNBA import GetBox, GetPlayByPlay
 
 
 
-def MainFunction(iterations):
+def MainFunction(iterations: int):
     '''
     Function that runs pipeline
     
     :param iterations: How many times MainFunction has executed
+    :type iterations: int
     '''
     #Get the Games in Today's Scoreboard
     dfScoreboard = GetTodaysScoreboard()
