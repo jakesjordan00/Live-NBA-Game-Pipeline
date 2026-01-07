@@ -5,10 +5,15 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
     print(f'     Formatting...')
     PlayByPlay = []
     print(f'     {len(actions[startPosition:])} actions to insert')
-    a = 1
+    finalAction = actions[-1]
+    periods = finalAction['period'] if finalAction['period'] > 3 else 4
+    gameTime = 48 if periods == 4 else (5 * (periods - 4))
+    a= 1
     for index, action in enumerate(actions[startPosition:]):
         try:
-            test = action.keys()
+            Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
+            Period = action['period']
+            PointInGame = CalculatePointInGame(Clock, Period)
 
             ShotResult = action['shotResult'] if 'shotResult' in action.keys() else None
             ShotValue = int(action['actionType'][0]) if ShotResult != None and action['actionType'] != 'freethrow' else 1 if action['actionType'] == 'freethrow' else None
@@ -53,7 +58,6 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
             PlayerIDJumpW = int(action['jumpBallWonPersonId']) if 'jumpBallWonPersonId' in action.keys() else None
             PlayerIDJumpL = int(action['jumpBallLostPersonId']) if 'jumpBallLostPersonId' in action.keys() else None
             OfficialID = int(action['officialId']) if 'officialId' in action.keys() else None
-            Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
             Possession = action['possession'] if action['possession'] != 0 else None
             PlayerID = action['personId'] if 'personId' in action.keys() and action['personId'] != 0 else None
             IsFieldGoal = action['isFieldGoal'] if action['isFieldGoal'] == 1 else None
@@ -68,7 +72,8 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
                 'GameID': GameID,
                 'ActionID': int(index + 1) if startPosition == 0 else int(index + 1 + startPosition),
                 'ActionNumber': action['actionNumber'],
-                'Qtr': action['period'],
+                'PointInGame': PointInGame,
+                'Qtr': Period,
                 'Clock': Clock,
                 'TimeActual': action['timeActual'],
                 'ScoreHome': action['scoreHome'],
@@ -109,10 +114,18 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
                 'PlayerIDJumpW': PlayerIDJumpW,
                 'PlayerIDJumpL': PlayerIDJumpL,
                 'OfficialID': OfficialID,
-                'QtrType': action['periodType'],
+                'QtrType': action['periodType']
             })
         except Exception as e:
             print(e)
             test = 1
 
     return PlayByPlay
+
+
+
+def CalculatePointInGame(Clock: str, Period: int):
+    cMinutes = int(Clock[0:2])
+    cSeconds = float(Clock[-5:])
+    PointInGame = 12 - (cMinutes + (cSeconds / 60)) + ((Period - 1) * 12)
+    return PointInGame

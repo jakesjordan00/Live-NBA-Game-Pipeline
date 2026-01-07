@@ -41,10 +41,8 @@ def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str):
         response = requests.get(urlPbp)
         data = response.json()
         actions = data['game']['actions']
-        if sender == 'MainFunction':
-            PlayByPlay = InitiatePlayByPlay(SeasonID, GameID, actions, 0)
-        else:            
-            PlayByPlay = InitiatePlayByPlay(SeasonID, GameID, actions, ActionCount)
+        
+        PlayByPlay = InitiatePlayByPlay(SeasonID, GameID, actions, ActionCount) if sender == 'RecurringFunction' else InitiatePlayByPlay(SeasonID, GameID, actions, 0)
     except Exception as e:
         Box = None
         print(f"Error getting PlayByPlay data: {e}")
