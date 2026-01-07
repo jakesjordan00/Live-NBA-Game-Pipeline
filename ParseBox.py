@@ -8,11 +8,12 @@ def InitiateBox(game: dict):
     :param game: Game BoxScore data and Extreneous info
     :type game: dict
     '''
+    print(f'     Formatting...')
     arena = game['arena']
     officials = game['officials']
     home = game['homeTeam']
-    away = game['awayTeam']
-
+    away = game['awayTeam']    
+           
     Game, GameExt = FormatGame(game)
     Arena = FormatArena(Game['SeasonID'], Game['HomeID'], arena)
     Official = FormatOfficial(Game['SeasonID'], officials)
@@ -102,7 +103,7 @@ def FormatGame(game: dict):
         'Status': Status,
         'Periods': Periods
     }
-
+    
     return Game, GameExt
 
 
@@ -151,7 +152,7 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
     StartingLineups = []
     for index, team in enumerate(teams): 
         opTeam = teams[1- index]
-        TeamID = team['teamId']
+        TeamID = team['teamId'] 
         Team.append(FormatTeam(SeasonID, TeamID, team))
         
         isHome = team['teamId'] == HomeID
@@ -174,7 +175,7 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
 
 
 #region Team - Team, TeamBox
-def FormatTeam(SeasonID: int, TeamID: int, team: dict):
+def FormatTeam(SeasonID: int, TeamID: int, team: dict):   
     City = team['teamCity']
     Name = team['teamName']
     Tricode = team['teamTricode'] 
@@ -300,7 +301,7 @@ def FormatTeamBoxExt(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, qt
 
 
 #region Player - Player, PlayerBox, StartingLineups
-def FormatPlayer(SeasonID: int, PlayerID: int, Position: str, player: dict):
+def FormatPlayer(SeasonID: int, PlayerID: int, Position: str | None, player: dict):
     Player = {
         'SeasonID': SeasonID,
         'PlayerID': PlayerID,
@@ -313,7 +314,7 @@ def FormatPlayer(SeasonID: int, PlayerID: int, Position: str, player: dict):
     }
     return Player
 
-def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str, player: dict):
+def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str | None, player: dict):
     Min = player['statistics']['minutes']
     Minutes = Min.replace('PT', '')[:2]
     Seconds = Min[5:].replace('S', '')
@@ -328,7 +329,7 @@ def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, Pla
 
     StatusReason = player['notPlayingReason'] if 'notPlayingReason' in player.keys() else None
     StatusDescription = player['notPlayingDescription'] if 'notPlayingDescription' in player.keys() else None
-
+    Minutes = player['statistics']['minutes'].replace('PT', '').replace('M', ':').replace('S', '')
     PlayerBox = {
         'SeasonID': SeasonID,
         'GameID': GameID,
@@ -338,7 +339,7 @@ def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, Pla
         'Status': player['status'],
         'Starter': int(player['starter']),
         'Position': Position,
-        'Minutes': player['statistics']['minutes'],
+        'Minutes': Minutes,
         'MinutesCalculated': MinCalc,
         'Points': player['statistics']['points'],
         'Assists': player['statistics']['assists'],
@@ -378,7 +379,7 @@ def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, Pla
     }
     return PlayerBox
 
-def FormatStartingLineups(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str, player: dict):
+def FormatStartingLineups(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str | None, player: dict):
     Unit = 'Starters' if player['starter'] == '1' else 'Bench'
     LineupRecord = {
         'SeasonID': SeasonID,

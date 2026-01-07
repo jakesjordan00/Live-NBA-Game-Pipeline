@@ -19,7 +19,9 @@ keys_PlayerBox = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID', 'Stat
             'Points', 'Assists', 'ReboundsTotal', 'FG2M', 'FG2A', 'FG2%', 'FG3M', 'FG3A', 'FG3%', 'FGM', 'FGA', 'FG%', 'FTM', 'FTA', 'FT%', 'ReboundsDefensive', 'ReboundsOffensive', 'Blocks', 'BlocksReceived', 'Steals', 'Turnovers', 'AssistsTurnoverRatio', 'Plus', 'Minus', 'PlusMinusPoints', 'PointsFastBreak', 'PointsInThePaint', 'PointsSecondChance', 'FoulsOffensive', 'FoulsDrawn', 'FoulsPersonal', 
             'FoulsTechnical', 'StatusReason', 'StatusDescription']
 
+keys_PlayByPlay = ['SeasonID', 'GameID', 'ActionID', 'ActionNumber', 'Qtr', 'Clock', 'TimeActual', 'ScoreHome', 'ScoreAway', 'Possession', 'TeamID', 'Tricode', 'PlayerID', 'Description', 'SubType', 'IsFieldGoal', 'ShotResult', 'ShotValue', 'ActionType', 'ShotDistance', 'Xlegacy', 'Ylegacy', 'X', 'Y', 'Location', 'Area', 'AreaDetail', 'Side', 'ShotType', 'PtsGenerated', 'Descriptor', 'Qual1', 'Qual2', 'Qual3', 'ShotActionNbr', 'PlayerIDAst', 'PlayerIDBlk', 'PlayerIDStl', 
+                   'PlayerIDFoulDrawn', 'PlayerIDJumpW', 'PlayerIDJumpL', 'OfficialID', 'QtrType']
 
 
-
+keys_StartingLineups = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID', 'Unit', 'Position']
 

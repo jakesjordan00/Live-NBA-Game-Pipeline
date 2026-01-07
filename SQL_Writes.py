@@ -15,9 +15,9 @@ def InsertGame(Game: dict, GameExt: dict):
     '''
 
     try:
-        # nbaCursor.execute(gameCommand, DictToParams(Game, gameKeys))
-        # nbaCursor.execute(gameExtCommand, DictToParams(GameExt, gameExtKeys))
-        # nbaCursor.commit()
+        nbaCursor.execute(gameCommand, DictToParams(Game, keys_Game))
+        nbaCursor.execute(gameExtCommand, DictToParams(GameExt, keys_GameExt))
+        nbaCursor.commit()
         status = 'Game/GameExt success!'
     except Exception as e:
         print(e)
@@ -32,10 +32,10 @@ def InsertTeamBox(TeamBox: list):
         insert into TeamBox ({', '.join(keys_TeamBox)})
         values ({', '.join(['?'] * len(keys_TeamBox))})
     '''
-    teamBoxParams = [DictToParams(tb, keys_TeamBox) for tb in TeamBox]
+    teamBoxParams = DictToParams(TeamBox[0], keys_TeamBox) 
     try:
-        # nbaCursor.execute(teamBoxCommand, teamBoxParams)
-        # nbaCursor.commit()
+        nbaCursor.execute(teamBoxCommand, teamBoxParams)
+        nbaCursor.commit()
         status = 'TeamBox success!'
     except Exception as e:
         print(e)
@@ -45,14 +45,14 @@ def InsertTeamBox(TeamBox: list):
 
 def InsertPlayerBox(PlayerBox: list):
     playerBoxCommand = f'''
-        insert into TeamBox ({', '.join(keys_PlayerBox)})
+        insert into PlayerBox ({', '.join(keys_PlayerBox)})
         values ({', '.join(['?'] * len(keys_PlayerBox))})
     '''
     playerBoxParams = [DictToParams(tb, keys_PlayerBox) for tb in PlayerBox]
 
     try:
-        # nbaCursor.execute(playerBoxCommand, playerBoxParams)
-        # nbaCursor.commit()
+        nbaCursor.execute(playerBoxCommand, playerBoxParams)
+        nbaCursor.commit()
         status = 'PlayerBox success!'
     except Exception as e:
         print(e)
@@ -60,14 +60,66 @@ def InsertPlayerBox(PlayerBox: list):
     return status
 
 
+def InsertBoxscores(TeamBox: list, PlayerBox: list, StartingLineups: list):
+    teamBoxCommand = f'''
+        insert into TeamBox ({', '.join(keys_TeamBox)})
+        values ({', '.join(['?'] * len(keys_TeamBox))})
+    '''
+    playerBoxCommand = f'''
+        insert into PlayerBox ({', '.join(keys_PlayerBox)})
+        values ({', '.join(['?'] * len(keys_PlayerBox))})
+    '''
+    startingLineupsCommand = f'''
+        insert into StartingLineups ({', '.join(keys_StartingLineups)})
+        values ({', '.join(['?'] * len(keys_StartingLineups))})
+    '''
+
+    teamBoxCommand = teamBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
+    playerBoxCommand = playerBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
+    
+    teamBoxParams = [DictToParams(tb, keys_TeamBox) for tb in TeamBox]
+    playerBoxParams = [DictToParams(pb, keys_PlayerBox) for pb in PlayerBox]
+    startingLineupsParams = [DictToParams(sl, keys_StartingLineups) for sl in StartingLineups]
+
+    try:
+        nbaCursor.executemany(teamBoxCommand, teamBoxParams)
+        nbaCursor.executemany(playerBoxCommand, playerBoxParams)
+        nbaCursor.executemany(startingLineupsCommand, startingLineupsParams)
+        nbaCursor.commit()
+        status = 'TeamBox/PlayerBox/StartingLineups success!'
+    except Exception as e:
+        print(e)
+        status = f'TeamBox/PlayerBox/StartingLineups failure!\n\n{e}\n\nTeamBox/PlayerBox/StartingLineups Failure!'
+    return status
 
 
 
+def InsertPlayByPlay(PlayByPlay: list):
+
+    playByPlayCommand = f'''
+        insert into PlayByPlay ({', '.join(keys_PlayByPlay)})
+        values ({', '.join(['?'] * len(keys_PlayByPlay))})
+    '''
+    playByPlayParams = [DictToParams(action, keys_PlayByPlay) for action in PlayByPlay]
+
+    try:
+        nbaCursor.executemany(playByPlayCommand, playByPlayParams)
+        nbaCursor.commit()
+        status = 'PlayByPlay success!'
+    except Exception as e:
+        print(e)
+        status = f'PlayByPlay failure!\n\n{e}\n\nPlayByPlay Failure!'
+    return status
 
 
+def FormatInsert():
+
+    insertCmd = ''
+    return insertCmd
 
 
 
 
 def DictToParams(d: dict, keys: list) -> tuple:
     return tuple(d[k] for k in keys)
+
