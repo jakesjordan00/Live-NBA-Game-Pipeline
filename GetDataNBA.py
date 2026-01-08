@@ -3,7 +3,8 @@ import requests
 import pandas as pd
 from ParseBox import InitiateBox
 from ParsePlayByPlay import InitiatePlayByPlay
-from SQL_Writes import InsertBoxscores, InsertGame, InsertTeamBox, InsertPlayerBox, InsertPlayByPlay, FormatBox
+from SQL_Writes import InsertBoxscores, InsertGame, InsertTeamBox, InsertPlayerBox, InsertPlayByPlay
+from FormatBoxUpdates import *
 
 def GetBox(GameID: int):
     '''
@@ -33,8 +34,8 @@ def InsertBox(Box: dict):
     return f'{gStatus}\n{boxStatus}'
 
 def UpdateBox(Box: dict):
-    status = FormatBox(Box)
-    return status
+    updateStatus = FormatUpdates(Box)
+    return updateStatus
 
 
 def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str):

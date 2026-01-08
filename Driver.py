@@ -64,7 +64,6 @@ def MainFunction(iterations: int, dbGames: list):
                 'PlayByPlay': PlayByPlay,
                 'Actions': game['Actions']
             })
-            UpdateBox(Box)
             
 
         test = 1
@@ -122,11 +121,14 @@ def RecurringFunction(iterations: int, existingGames: list):
         game['PlayByPlay'] = PlayByPlayFull
         game['Actions'] = len(PlayByPlayFull)
         if len(PlayByPlay) > 0:
-            pbpStatus = InsertPbp(PlayByPlay)
-        test = 1
-        if iterations % 25 == 0:
+            # pbpStatus = InsertPbp(PlayByPlay)
+            test = 1
+        if iterations % 25 == 1: #change that back to == 0
+            print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
             Box = GetBox(game['GameID'])
-            UpdateBox(Box)
+            print('.', end='', flush=True)
+            updateStatus = UpdateBox(Box)
+            print(f'.{updateStatus}', end='', flush=True)
             test = 1
     return existingGames
 

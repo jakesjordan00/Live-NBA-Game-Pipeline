@@ -1,9 +1,10 @@
 
 
 #region Game and GameExt
-columns_Game = ['SeasonID', 'GameID','Date', 'GameType', 'HomeID', 'HScore', 'AwayID', 'AScore',
+keys_Game = ['SeasonID', 'GameID']
+columns_Game = ['SeasonID', 'GameID', 'Date', 'GameType', 'HomeID', 'HScore', 'AwayID', 'AScore',
                 'WinnerID', 'WScore', 'LoserID', 'LScore', 'SeriesID', 'Datetime']
-updateColumns_Game = ['HScore', 'aScore', 'WinnerID', 'WScore', 'LoserID', 'LScore']
+updateColumns_Game = ['HScore', 'AScore', 'WinnerID', 'WScore', 'LoserID', 'LScore']
 
 
 columns_GameExt = ['SeasonID', 'GameID', 'ArenaID', 'Attendance', 'Sellout', 'Label', 'LabelDetail', 

@@ -1,6 +1,7 @@
 import pyodbc
 from DBConfig import nbaConnection, nbaCursor, nbaEngine
 from SQLTableColumns import *
+import pyperclip
 
 
 def InsertGame(Game: dict, GameExt: dict):
@@ -113,27 +114,24 @@ def InsertPlayByPlay(PlayByPlay: list):
     return status
 
 
-def FormatBox(Box: dict):
-    updateBoxCmd = 'update PlayerBox set '
-    boxUpdateColumns = columns_PlayerBox[5:]
-    for column in boxUpdateColumns:
-        # value = Box[]
-        test = f"{column} = " 
-    test = str(col for col in boxUpdateColumns).join(" = ")
-    boxParams = ''
+def UpdateBoxData(updateStr):
+    pyperclip.copy(updateStr)
     try:
-        nbaCursor.fast_executemany = True
-        nbaCursor.executemany(updateBoxCmd, boxParams)
+        # nbaCursor.fast_executemany = True
+        nbaCursor.executemany(updateStr)
         nbaCursor.commit()
-        status = 'Box success!'
+        status = 'Game, GameExt, TeamBox and Playerbox updated successfully!'
     except Exception as e:
         print(e)
-        status = f'PlayByPlay failure!\n\n{e}\n\nPlayByPlay Failure!'
+        status = f'Game, GameExt, TeamBox and Playerbox update failed!\n\n{e}\n\nGame, GameExt, TeamBox and Playerbox update failed!'
     return status
-
 
 
 
 def DictToParams(d: dict, keys: list) -> tuple:
     return tuple(d[k] for k in keys)
+
+
+
+
 

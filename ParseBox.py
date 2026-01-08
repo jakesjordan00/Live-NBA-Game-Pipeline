@@ -286,6 +286,8 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
     '''
     Win = team['statistics']['points'] > team['statistics']['pointsAgainst']
     BiggestLeadScore = team['statistics']['biggestLeadScore'] if team['statistics']['biggestLeadScore'] in team['statistics'].keys() else None
+    TimeLeading = team['statistics']['timeLeading'].replace('PT', '').replace('M', ':').replace('S', '')
+    Win = 1 if True else 0
     TeamBox = {
         'SeasonID': SeasonID,
         'GameID': GameID,
@@ -335,7 +337,7 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
         'BiggestLeadScore': BiggestLeadScore,
         'BiggestScoringRun': team['statistics']['biggestScoringRun'],
         'BiggestScoringRunScore': team['statistics']['biggestScoringRunScore'],
-        'TimeLeading': team['statistics']['timeLeading'],
+        'TimeLeading': TimeLeading,
         'TimesTied': team['statistics']['timesTied'],
         'LeadChanges': team['statistics']['leadChanges'],
         'Steals': team['statistics']['steals'],
