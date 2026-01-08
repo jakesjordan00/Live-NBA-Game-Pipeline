@@ -6,17 +6,17 @@ from SQLTableColumns import *
 def InsertGame(Game: dict, GameExt: dict):
     
     gameCommand = f'''
-        insert into Game ({', '.join(keys_Game)})
-        values ({', '.join(['?'] * len(keys_Game))})
+        insert into Game ({', '.join(columns_Game)})
+        values ({', '.join(['?'] * len(columns_Game))})
     '''
     gameExtCommand = f'''
-        insert into GameExt ({', '.join(keys_GameExt)})
-        values ({', '.join(['?'] * len(keys_GameExt))})
+        insert into GameExt ({', '.join(columns_GameExt)})
+        values ({', '.join(['?'] * len(columns_GameExt))})
     '''
 
     try:
-        nbaCursor.execute(gameCommand, DictToParams(Game, keys_Game))
-        nbaCursor.execute(gameExtCommand, DictToParams(GameExt, keys_GameExt))
+        nbaCursor.execute(gameCommand, DictToParams(Game, columns_Game))
+        nbaCursor.execute(gameExtCommand, DictToParams(GameExt, columns_GameExt))
         nbaCursor.commit()
         status = 'Game/GameExt success!'
     except Exception as e:
@@ -29,10 +29,10 @@ def InsertGame(Game: dict, GameExt: dict):
 def InsertTeamBox(TeamBox: list):
 
     teamBoxCommand = f'''
-        insert into TeamBox ({', '.join(keys_TeamBox)})
-        values ({', '.join(['?'] * len(keys_TeamBox))})
+        insert into TeamBox ({', '.join(columns_TeamBox)})
+        values ({', '.join(['?'] * len(columns_TeamBox))})
     '''
-    teamBoxParams = DictToParams(TeamBox[0], keys_TeamBox) 
+    teamBoxParams = DictToParams(TeamBox[0], columns_TeamBox) 
     try:
         nbaCursor.execute(teamBoxCommand, teamBoxParams)
         nbaCursor.commit()
@@ -45,10 +45,10 @@ def InsertTeamBox(TeamBox: list):
 
 def InsertPlayerBox(PlayerBox: list):
     playerBoxCommand = f'''
-        insert into PlayerBox ({', '.join(keys_PlayerBox)})
-        values ({', '.join(['?'] * len(keys_PlayerBox))})
+        insert into PlayerBox ({', '.join(columns_PlayerBox)})
+        values ({', '.join(['?'] * len(columns_PlayerBox))})
     '''
-    playerBoxParams = [DictToParams(tb, keys_PlayerBox) for tb in PlayerBox]
+    playerBoxParams = [DictToParams(tb, columns_PlayerBox) for tb in PlayerBox]
 
     try:
         nbaCursor.execute(playerBoxCommand, playerBoxParams)
@@ -62,24 +62,24 @@ def InsertPlayerBox(PlayerBox: list):
 
 def InsertBoxscores(TeamBox: list, PlayerBox: list, StartingLineups: list):
     teamBoxCommand = f'''
-        insert into TeamBox ({', '.join(keys_TeamBox)})
-        values ({', '.join(['?'] * len(keys_TeamBox))})
+        insert into TeamBox ({', '.join(columns_TeamBox)})
+        values ({', '.join(['?'] * len(columns_TeamBox))})
     '''
     playerBoxCommand = f'''
-        insert into PlayerBox ({', '.join(keys_PlayerBox)})
-        values ({', '.join(['?'] * len(keys_PlayerBox))})
+        insert into PlayerBox ({', '.join(columns_PlayerBox)})
+        values ({', '.join(['?'] * len(columns_PlayerBox))})
     '''
     startingLineupsCommand = f'''
-        insert into StartingLineups ({', '.join(keys_StartingLineups)})
-        values ({', '.join(['?'] * len(keys_StartingLineups))})
+        insert into StartingLineups ({', '.join(columns_StartingLineups)})
+        values ({', '.join(['?'] * len(columns_StartingLineups))})
     '''
 
     teamBoxCommand = teamBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
     playerBoxCommand = playerBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
     
-    teamBoxParams = [DictToParams(tb, keys_TeamBox) for tb in TeamBox]
-    playerBoxParams = [DictToParams(pb, keys_PlayerBox) for pb in PlayerBox]
-    startingLineupsParams = [DictToParams(sl, keys_StartingLineups) for sl in StartingLineups]
+    teamBoxParams = [DictToParams(tb, columns_TeamBox) for tb in TeamBox]
+    playerBoxParams = [DictToParams(pb, columns_PlayerBox) for pb in PlayerBox]
+    startingLineupsParams = [DictToParams(sl, columns_StartingLineups) for sl in StartingLineups]
 
     try:
         nbaCursor.executemany(teamBoxCommand, teamBoxParams)
@@ -97,12 +97,13 @@ def InsertBoxscores(TeamBox: list, PlayerBox: list, StartingLineups: list):
 def InsertPlayByPlay(PlayByPlay: list):
 
     playByPlayCommand = f'''
-        insert into PlayByPlay ({', '.join(keys_PlayByPlay)})
-        values ({', '.join(['?'] * len(keys_PlayByPlay))})
+        insert into PlayByPlay ({', '.join(columns_PlayByPlay)})
+        values ({', '.join(['?'] * len(columns_PlayByPlay))})
     '''
-    playByPlayParams = [DictToParams(action, keys_PlayByPlay) for action in PlayByPlay]
+    playByPlayParams = [DictToParams(action, columns_PlayByPlay) for action in PlayByPlay]
 
     try:
+        # nbaCursor.fast_executemany = True
         nbaCursor.executemany(playByPlayCommand, playByPlayParams)
         nbaCursor.commit()
         status = 'PlayByPlay success!'
@@ -112,10 +113,19 @@ def InsertPlayByPlay(PlayByPlay: list):
     return status
 
 
-def FormatInsert():
-
-    insertCmd = ''
-    return insertCmd
+def FormatBox(Box: dict):
+    boxUpdateColumns = columns_PlayerBox.remove(key for key in keys_PlayerBox)
+    updateBoxCmd = 'update PlayerBox set 'f'{columns_PlayerBox}'
+    boxParams = ''
+    try:
+        nbaCursor.fast_executemany = True
+        nbaCursor.executemany(updateBoxCmd, boxParams)
+        nbaCursor.commit()
+        status = 'Box success!'
+    except Exception as e:
+        print(e)
+        status = f'PlayByPlay failure!\n\n{e}\n\nPlayByPlay Failure!'
+    return status
 
 
 

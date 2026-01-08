@@ -1,7 +1,8 @@
 from GetScoreboard import GetTodaysScoreboard
 from Directions import GetGamesInProgress, Wait
 from SQL_Reads import FirstIteration
-from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp
+from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
+
 import time
 print('-')
 
@@ -119,6 +120,10 @@ def RecurringFunction(iterations: int, existingGames: list):
         if len(PlayByPlay) > 0:
             pbpStatus = InsertPbp(PlayByPlay)
         test = 1
+        if iterations % 25 == 0:
+            Box = GetBox(game['GameID'])
+            UpdateBox(Box)
+            test = 1
     return existingGames
 
 
