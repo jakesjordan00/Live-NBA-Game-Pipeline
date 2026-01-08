@@ -1,12 +1,18 @@
+from typing import TypedDict
 
 
 
-def InitiateBox(game: dict):
+def InitiateBox(game: dict) -> dict:
     '''
-    Docstring for InitiateBox
+    Formats all data to be derived from the Game's BoxScore.
     
     :param game: Game BoxScore data and Extreneous info
     :type game: dict
+    :return BoxData: Formatted data for the following tables
+
+            * **Game, GameExt, TeamBox, PlayerBox, StartingLineups**
+            * *Team, Player, Arena, Official*
+    :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
     print(f'     Formatting...')
     arena = game['arena']
@@ -34,7 +40,16 @@ def InitiateBox(game: dict):
     return BoxData
 
 #region Game, Arena and Official
-def FormatGame(game: dict):
+def FormatGame(game: dict) -> tuple[dict, dict]:
+    '''
+    Formats game dictionary into Game and GameExt    
+
+    :param game: Unformatted game dictionary
+    :type game: dict
+    :return Game: Formatted data for Game table
+    :return GameExt: Formatted data for GameExt table
+    :rtype: tuple[dict[Any, Any], dict[Any, Any]]
+    '''
     SeasonID = int(f'20{game['gameId'][3:5]}')
     GameID = int(game['gameId'])
     Date = game['gameEt'].split('T')[0]
@@ -107,7 +122,19 @@ def FormatGame(game: dict):
     return Game, GameExt
 
 
-def FormatArena(SeasonID: int, TeamID: int, arena: dict):
+def FormatArena(SeasonID: int, TeamID: int, arena: dict) -> dict:
+    '''
+    Recieves arena dictionary and SeasonID and TeamID. Formats for SQL table
+    
+    :param SeasonID: SeasonID of Game
+    :type SeasonID: int
+    :param TeamID: TeamID of Team that Arena belongs to
+    :type TeamID: int
+    :param arena: Unformatted arena dictionary
+    :type arena: dict
+    :return Arena: Formatted Arena data for SQL table
+    :rtype: dict[Any, Any]
+    '''
     ArenaID = arena['arenaId']
     Name = arena['arenaName']
     City = arena['arenaCity']
@@ -129,7 +156,7 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict):
     }
     return Arena
 
-def FormatOfficial(SeasonID: int, officials: list):
+def FormatOfficial(SeasonID: int, officials: list) -> list[dict]:
     Official = []
     for official in officials:            
         Official.append({
@@ -143,7 +170,23 @@ def FormatOfficial(SeasonID: int, officials: list):
 
 
 #region Boxscore - Team, TeamBox, Player, PlayerBox, StartingLineups
-def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: list):
+def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: list) -> tuple[list, list, list, list, list]:
+    '''
+    Function to format all Box data requiring the same iteration structure
+    
+    :param SeasonID: SeasonID of Game
+    :type SeasonID: int
+    :param GameID:  GameID of Game
+    :type GameID: int
+    :param HomeID: TeamID of Home Team
+    :type HomeID: int
+    :param AwayID: TeamID of Away Team
+    :type AwayID: int
+    :param teams: Unformatted dictionary with Team data
+    :type teams: list
+    :return Team: Description
+    :rtype: tuple[list[Any], list[Any], list[Any], list[Any], list[Any]]
+    '''
     Team = []
     TeamBox = []
     TeamBoxExt = []
@@ -175,7 +218,19 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
 
 
 #region Team - Team, TeamBox
-def FormatTeam(SeasonID: int, TeamID: int, team: dict):   
+def FormatTeam(SeasonID: int, TeamID: int, team: dict) -> dict:
+    '''
+    Formats team dictionary
+    
+    :param SeasonID: SeasonID of Game
+    :type SeasonID: int
+    :param TeamID: TeamID of Team
+    :type TeamID: int
+    :param team: Unformatted dictionary containing Team data
+    :type team: dict
+    :return Team: Formatted Team data for SQL table
+    :rtype: dict[Any, Any]
+    ''' 
     City = team['teamCity']
     Name = team['teamName']
     Tricode = team['teamTricode'] 
@@ -212,8 +267,25 @@ def FormatTeam(SeasonID: int, TeamID: int, team: dict):
     }
     return Team
 
-def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team: dict):
+def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team: dict) -> dict:
+    '''
+    Formats TeamBox data for SQL
+    
+    :param SeasonID: SeasonID of Game
+    :type SeasonID: int
+    :param GameID: GameID of Game
+    :type GameID: int
+    :param TeamID: TeamID of Team
+    :type TeamID: int
+    :param MatchupID: TeamID of opponent
+    :type MatchupID: int
+    :param team: Unformatted team dictionary
+    :type team: dict
+    :return TeamBox: Formatted TeamBox data
+    :rtype: dict[Any, Any]
+    '''
     Win = team['statistics']['points'] > team['statistics']['pointsAgainst']
+    BiggestLeadScore = team['statistics']['biggestLeadScore'] if team['statistics']['biggestLeadScore'] in team['statistics'].keys() else None
     TeamBox = {
         'SeasonID': SeasonID,
         'GameID': GameID,
@@ -260,7 +332,7 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
         'Assists': team['statistics']['assists'],
         'AssistsTurnoverRatio': team['statistics']['assistsTurnoverRatio'],
         'BiggestLead': team['statistics']['biggestLead'],
-        'BiggestLeadScore': team['statistics']['biggestLeadScore'],
+        'BiggestLeadScore': BiggestLeadScore,
         'BiggestScoringRun': team['statistics']['biggestScoringRun'],
         'BiggestScoringRunScore': team['statistics']['biggestScoringRunScore'],
         'TimeLeading': team['statistics']['timeLeading'],
@@ -285,8 +357,7 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
     }
     return TeamBox
 
-def FormatTeamBoxExt(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, qtr: dict, opQtr: dict):
-
+def FormatTeamBoxExt(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, qtr: dict, opQtr: dict) -> dict:
     TeamBoxExt = {
         'SeasonID': SeasonID,
         'GameID': GameID,
@@ -301,7 +372,21 @@ def FormatTeamBoxExt(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, qt
 
 
 #region Player - Player, PlayerBox, StartingLineups
-def FormatPlayer(SeasonID: int, PlayerID: int, Position: str | None, player: dict):
+def FormatPlayer(SeasonID: int, PlayerID: int, Position: str | None, player: dict) -> dict:
+    '''
+    Formats Player data for SQL
+    
+    :param SeasonID: SeasonID of Game
+    :type SeasonID: int
+    :param PlayerID: PlayerID of Player
+    :type PlayerID: int
+    :param Position: Position of Player
+    :type Position: str | None
+    :param player: Unformatted dictionary with Player data
+    :type player: dict
+    :return Player: Formatted Player data
+    :rtype: dict[Any, Any]
+    '''
     Player = {
         'SeasonID': SeasonID,
         'PlayerID': PlayerID,
@@ -314,7 +399,27 @@ def FormatPlayer(SeasonID: int, PlayerID: int, Position: str | None, player: dic
     }
     return Player
 
-def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str | None, player: dict):
+def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str | None, player: dict) -> dict:
+    '''
+    Formats PlayerBox data for SQL
+    
+    :param SeasonID: SeasonID of Game
+    :type SeasonID: int
+    :param GameID: GameID of Game
+    :type GameID: int
+    :param TeamID: TeamID of Player's Team
+    :type TeamID: int
+    :param MatchupID: TeamID of opposing Team
+    :type MatchupID: int
+    :param PlayerID: PlayerID of Player
+    :type PlayerID: int
+    :param Position: Position of Player
+    :type Position: str | None
+    :param player: Unformatted dictionary with Player data
+    :type player: dict
+    :return PlayerBox: Formatted PlayerBox data
+    :rtype: dict[Any, Any]
+    '''
     Min = player['statistics']['minutes']
     Minutes = Min.replace('PT', '')[:2]
     Seconds = Min[5:].replace('S', '')
@@ -379,7 +484,27 @@ def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, Pla
     }
     return PlayerBox
 
-def FormatStartingLineups(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str | None, player: dict):
+def FormatStartingLineups(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, PlayerID: int, Position: str | None, player: dict) -> dict:
+    '''
+    Formats StartingLineup data for SQL
+    
+    :param SeasonID: SeasonID of Game
+    :type SeasonID: int
+    :param GameID: GameID of Game
+    :type GameID: int
+    :param TeamID: TeamID of Player's Team
+    :type TeamID: int
+    :param MatchupID: TeamID of opposing Team
+    :type MatchupID: int
+    :param PlayerID: PlayerID of Player
+    :type PlayerID: int
+    :param Position: Position of Player
+    :type Position: str | None
+    :param player: Unformatted dictionary with Player data
+    :type player: dict
+    :return: Description
+    :rtype: dict[Any, Any]
+    '''
     Unit = 'Starters' if player['starter'] == '1' else 'Bench'
     LineupRecord = {
         'SeasonID': SeasonID,
@@ -395,3 +520,7 @@ def FormatStartingLineups(SeasonID: int, GameID: int, TeamID: int, MatchupID: in
 
 
 #endregion Boxscore - Team, TeamBox, Player, PlayerBox, StartingLineups
+
+
+
+

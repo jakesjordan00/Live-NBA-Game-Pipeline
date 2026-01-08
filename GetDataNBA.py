@@ -18,7 +18,7 @@ def GetBox(GameID: int):
         response = requests.get(urlBox)
         data = response.json()
         game = data['game']
-        Box = InitiateBox(game=game)
+        Box = InitiateBox(game)
     except Exception as e:
         Box = None
         print(f"Error getting Boxscore data: {e}")
@@ -41,8 +41,7 @@ def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str):
         response = requests.get(urlPbp)
         data = response.json()
         actions = data['game']['actions']
-        
-        PlayByPlay = InitiatePlayByPlay(SeasonID, GameID, actions, ActionCount) if sender == 'RecurringFunction' else InitiatePlayByPlay(SeasonID, GameID, actions, 0)
+        PlayByPlay = InitiatePlayByPlay(SeasonID, GameID, actions, ActionCount, sender)
     except Exception as e:
         Box = None
         print(f"Error getting PlayByPlay data: {e}")

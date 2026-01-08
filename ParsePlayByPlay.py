@@ -1,10 +1,12 @@
 
 
 
-def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition: int):
-    print(f'     Formatting...')
+def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition: int, sender: str):
+    totalActions = len(actions[startPosition:])
+    if totalActions > 0:
+        print(f'     Formatting...')
+        print(f'     {len(actions[startPosition:])} actions to insert') if sender != 'MainFunctionAlt' else print(f'     {len(actions[startPosition:])} total actions')
     PlayByPlay = []
-    print(f'     {len(actions[startPosition:])} actions to insert')
     finalAction = actions[-1]
     periods = finalAction['period'] if finalAction['period'] > 3 else 4
     gameTime = 48 if periods == 4 else (5 * (periods - 4))
@@ -119,7 +121,8 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
         except Exception as e:
             print(e)
             test = 1
-
+    if len(PlayByPlay) == 0:
+        test = 1
     return PlayByPlay
 
 

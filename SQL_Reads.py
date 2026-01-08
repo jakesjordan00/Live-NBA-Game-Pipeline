@@ -1,17 +1,19 @@
 import pandas as pd
 import pyodbc
-def FirstIteration(nbaCursor: pyodbc.Cursor, gamesInProg: list):
+from DBConfig import nbaConnection, nbaCursor, nbaEngine
+def FirstIteration(gamesInProg: list) -> list[dict]:
     '''
-Returns GameIDs of Games from list that already exist in the database
+Returns a list of Game dictionaries (dbGames/existingGames). Contains SeasonID, GameID and a count of the PlayByPlay actions
 
 :param nbaCursor: pyodbc Cursor for SQL connection
-:param dfScoreboard: Scoreboard DataFrame
+:param gamesInProg: List of GameIDs of Games that are in progress
 '''
+
     query = f'''
 select g.SeasonID, g.GameID, (select count(p.GameID) from PlayByPlay p where g.SeasonID = p.SeasonID and g.GameID = p.GameID) Actions
 from Game g
 where g.SeasonID = 2025 and g.GameID in({', '.join(str(s) for s in gamesInProg)})
-'''
+'''.replace("in()", "in('')")
     nbaCursor.execute(query)
     existingGames = []
     for row in nbaCursor.fetchall():
