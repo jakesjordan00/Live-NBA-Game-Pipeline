@@ -55,13 +55,17 @@ def MainFunction(iterations: int, dbGames: list):
         inDbGames = [game for game in gamesInProg if game in existingGameIDs]
         for game in existingGames:
             print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
+            Box = Box if Box != None else GetBox(game['GameID'])
+            PlayByPlay = PlayByPlay if PlayByPlay != None else GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt')
             dbGames.append({
                 'SeasonID': game['SeasonID'],
                 'GameID': game['GameID'],
-                'Box': Box if Box != None else GetBox(game['GameID']),
-                'PlayByPlay': PlayByPlay if PlayByPlay != None else GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt'),
+                'Box': Box,
+                'PlayByPlay': PlayByPlay,
                 'Actions': game['Actions']
             })
+            UpdateBox(Box)
+            
 
         test = 1
     elif iterations % 10 == 0:

@@ -114,8 +114,12 @@ def InsertPlayByPlay(PlayByPlay: list):
 
 
 def FormatBox(Box: dict):
-    boxUpdateColumns = columns_PlayerBox.remove(key for key in keys_PlayerBox)
-    updateBoxCmd = 'update PlayerBox set 'f'{columns_PlayerBox}'
+    updateBoxCmd = 'update PlayerBox set '
+    boxUpdateColumns = columns_PlayerBox[5:]
+    for column in boxUpdateColumns:
+        # value = Box[]
+        test = f"{column} = " 
+    test = str(col for col in boxUpdateColumns).join(" = ")
     boxParams = ''
     try:
         nbaCursor.fast_executemany = True
