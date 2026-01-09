@@ -25,6 +25,8 @@ def MainFunction(iterations: int, dbGames: list):
 
     #Using Today's Scoreboard, get the Games that are in progress
     gamesInProg, completedGames = GetGamesInProgress(dfScoreboard)
+    #If game is completed, we should update it and check playbyplay one more time. After that, drop it.
+    #^^^^ still need to implement as of 1:09am 1/9/26!
     print(f'{len(gamesInProg)} Games in progress')
 
     #Declare Box and PlayByPlay as none
@@ -123,11 +125,12 @@ def RecurringFunction(iterations: int, existingGames: list):
         if len(PlayByPlay) > 0:
             # pbpStatus = InsertPbp(PlayByPlay)
             test = 1
-        if iterations % 25 == 1: #change that back to == 0
+        if iterations % 25 == 0:
             print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
             Box = GetBox(game['GameID'])
             print('.', end='', flush=True)
-            updateStatus = UpdateBox(Box)
+            if Box != None:
+                updateStatus = UpdateBox(Box)
             print(f'.{updateStatus}', end='', flush=True)
             test = 1
     return existingGames

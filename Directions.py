@@ -15,8 +15,8 @@ Returns a list of GameIDs of only those games in progress
         GameID = game['GameID']
         if game['GameStatus'] == 1:
             continue
-        elif game['GameStatus'] != 1: #Testing
-        # elif game['GameStatus'] == 2: #Prod
+        # elif game['GameStatus'] != 1: #Testing
+        elif game['GameStatus'] == 2: #Prod
             gamesInProg.append(GameID)
         else:
             completedGames.append(GameID)

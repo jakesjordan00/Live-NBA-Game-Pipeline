@@ -115,10 +115,10 @@ def InsertPlayByPlay(PlayByPlay: list):
 
 
 def UpdateBoxData(updateStr):
-    pyperclip.copy(updateStr)
+    # pyperclip.copy(updateStr)
     try:
         # nbaCursor.fast_executemany = True
-        nbaCursor.executemany(updateStr)
+        nbaCursor.execute(updateStr)
         nbaCursor.commit()
         status = 'Game, GameExt, TeamBox and Playerbox updated successfully!'
     except Exception as e:
