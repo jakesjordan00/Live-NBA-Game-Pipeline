@@ -6,7 +6,7 @@ from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 import time
 print('-')
 
-
+completedUpdatedGames = []
 
 
 def MainFunction(iterations: int, dbGames: list):
@@ -66,13 +66,15 @@ def MainFunction(iterations: int, dbGames: list):
                 'PlayByPlay': PlayByPlay,
                 'Actions': game['Actions']
             })
+            Box = None
+            PlayByPlay = None
             
 
         test = 1
     elif iterations % 10 == 0:
         print('\n\n----------------------------Checking for any new Games...')
         existingGames = dbGames.copy()
-        existingGames = RecurringFunction(iterations, existingGames)
+        existingGames = RecurringFunction(iterations, existingGames, completedGames, dbGames)
         existingGameIDs = list(g['GameID']for g in existingGames )
         notInDbGames = [game for game in gamesInProg if game not in existingGameIDs]
         for GameID in notInDbGames:
@@ -93,13 +95,15 @@ def MainFunction(iterations: int, dbGames: list):
         
         test = 1
     else:
-    #If not, 
         existingGames = dbGames.copy()
-        existingGames = RecurringFunction(iterations, existingGames)
+        existingGames = RecurringFunction(iterations, existingGames, completedGames, dbGames)
+        for game in existingGames:
+            if game['GameID'] in completedUpdatedGames:
+                dbGames.remove(game)
     iterations += 1
     return dbGames, iterations
 
-def RecurringFunction(iterations: int, existingGames: list):
+def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames):
     '''
     Docstring for RecurringFunction
     
@@ -112,8 +116,10 @@ def RecurringFunction(iterations: int, existingGames: list):
         - Should be the same as dbGames
         - Contains SeasonID, GameID
         - Includes a count of the PlayByPlay actions
-
     :type existingGames: list[dict]
+    
+    :param completedGames: Games that are have a GameStatus value of 3 from scoreboard
+    :type iterations: list
     '''
     for game in existingGames:
         print(f'\n{game['GameID']}                                        RecurringFunction v{iterations}')
@@ -123,7 +129,7 @@ def RecurringFunction(iterations: int, existingGames: list):
         game['PlayByPlay'] = PlayByPlayFull
         game['Actions'] = len(PlayByPlayFull)
         if len(PlayByPlay) > 0:
-            # pbpStatus = InsertPbp(PlayByPlay)
+            pbpStatus = InsertPbp(PlayByPlay)
             test = 1
         if iterations % 25 == 0:
             print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
@@ -133,6 +139,17 @@ def RecurringFunction(iterations: int, existingGames: list):
                 updateStatus = UpdateBox(Box)
             print(f'.{updateStatus}', end='', flush=True)
             test = 1
+        
+        if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
+            print(f'{game['GameID']} complete! Performing last upsert', end='', flush=True)
+            Box = GetBox(game['GameID'])
+            if Box != None:
+                updateStatus = UpdateBox(Box)
+            print(f'{updateStatus}')
+            completedUpdatedGames.append(game['GameID'])
+            existingGames.remove(game)
+            #Update Box and Insert PlayByPlay, add game to completedUpdatedGames
+
     return existingGames
 
 
@@ -146,3 +163,4 @@ if iterations > 0:
     while True:
        dbGames, iterations = MainFunction(iterations, dbGames)
        Wait(len(dbGames))
+
