@@ -2,6 +2,7 @@ from GetScoreboard import GetTodaysScoreboard
 from Directions import GetGamesInProgress, Wait
 from SQL_Reads import FirstIteration
 from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
+from FirstRunCoDriver import NewGameData, ExistingGameData
 
 import time
 print('-')
@@ -38,36 +39,10 @@ def MainFunction(iterations: int, dbGames: list):
         existingGames = FirstIteration(gamesInProg)
         existingGameIDs = list(g['GameID']for g in existingGames )
         notInDbGames = [game for game in gamesInProg if game not in existingGameIDs]
-        for GameID in notInDbGames:
-            print(f'\n{GameID}                                        MainFunction, in notInDbGames')
-            Box = GetBox(GameID)
-            if Box != None:
-                boxStatus = InsertBox(Box)
-                SeasonID = Box['Game']['SeasonID']
-                PlayByPlay = GetPlayByPlay(SeasonID, GameID, 0, 'MainFunction')
-                pbpStatus = InsertPbp(PlayByPlay)
-                dbGames.append({
-                    'SeasonID': SeasonID,
-                    'GameID': GameID,
-                    'Box': Box,
-                    'PlayByPlay': PlayByPlay,
-                    'Actions': len(PlayByPlay)
-                })
-
-        inDbGames = [game for game in gamesInProg if game in existingGameIDs]
-        for game in existingGames:
-            print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
-            Box = Box if Box != None else GetBox(game['GameID'])
-            PlayByPlay = PlayByPlay if PlayByPlay != None else GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt')
-            dbGames.append({
-                'SeasonID': game['SeasonID'],
-                'GameID': game['GameID'],
-                'Box': Box,
-                'PlayByPlay': PlayByPlay,
-                'Actions': game['Actions']
-            })
-            Box = None
-            PlayByPlay = None
+        if len(notInDbGames) > 0:
+            dbGames.extend(NewGameData(notInDbGames))
+        if len(existingGames) > 0:
+            dbGames.extend(ExistingGameData(existingGames))
             
 
         test = 1
