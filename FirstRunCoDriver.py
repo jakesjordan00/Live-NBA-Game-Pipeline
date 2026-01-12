@@ -5,6 +5,16 @@ from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 
 
 def NewGameData(notInDbGames: list):
+    '''
+    This function will only be hit on the first iteration of the program.\n
+    Additionally, this function will only be hit if the length of notInDbGames > 0. (We need to insert games we dont have)
+    
+    :param notInDbGames: List of GameIDs of Games not found in the Database, thus requiring inserts to the tables filled through the Box dataset
+    :type notInDbGames: list
+    
+    :return: dbGames
+    :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
+    '''
     dbGames = []
     for GameID in notInDbGames:
         print(f'\n{GameID} not in Database...')
@@ -24,7 +34,17 @@ def NewGameData(notInDbGames: list):
     return dbGames
 
 
-def ExistingGameData(existingGames: list):
+def ExistingGameData(existingGames: list) -> list[dict]:
+    '''
+    This function will only be hit on the first iteration of the program.\n
+    Different from NewGameData, this function is only hit if the length of existingGames > 0. (We need to update games that we already have in the db)
+    
+    :param existingGames: List of GameIDs of 
+    :type existingGames: list
+
+    :return: dbGames
+    :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
+    '''
     dbGames = []
     for game in existingGames:
         print(f'\n{game['GameID']}                                        MainFunction, in existingGames')

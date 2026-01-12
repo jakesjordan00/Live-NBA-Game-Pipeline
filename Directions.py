@@ -8,6 +8,7 @@ Receives dfScoreboard\n
 Returns a list of GameIDs of only those games in progress
     
 :param dfScoreboard: Scoreboard DataFrame
+:type dfScoreboard: pd.DataFrame
 '''
     gamesInProg = []
     completedGames = []
