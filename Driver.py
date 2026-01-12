@@ -10,7 +10,7 @@ print('-')
 completedUpdatedGames = []
 
 
-def MainFunction(iterations: int, dbGames: list):
+def MainFunction(iterations: int, dbGames: list, sender: str):
     '''
     Function that runs pipeline. Will get Box and/or PlayByPlay data
     
@@ -25,9 +25,11 @@ def MainFunction(iterations: int, dbGames: list):
     dfScoreboard = GetTodaysScoreboard()
 
     #Using Today's Scoreboard, get the Games that are in progress
-    gamesInProg, completedGames = GetGamesInProgress(dfScoreboard)
+    gamesInProg, completedGames, halftimeGames = GetGamesInProgress(dfScoreboard, sender)
     #If game is completed, we should update it and check playbyplay one more time. After that, drop it.
     #^^^^ still need to implement as of 1:09am 1/9/26!
+    #^ Should be implements....1/11/25. Just need to make sure its working as expected.
+
     print(f'{len(gamesInProg)} Games in progress')
 
     #Declare Box and PlayByPlay as none
@@ -49,12 +51,12 @@ def MainFunction(iterations: int, dbGames: list):
     elif iterations % 10 == 0:
         print('\n\n----------------------------Checking for any new Games...')
         existingGames = dbGames.copy()
-        existingGames = RecurringFunction(iterations, existingGames, completedGames, dbGames)
+        existingGames = RecurringFunction(iterations, existingGames, completedGames, dbGames, halftimeGames)
         existingGameIDs = list(g['GameID']for g in existingGames )
         notInDbGames = [game for game in gamesInProg if game not in existingGameIDs]
         for GameID in notInDbGames:
             print(f'\n{GameID}                                        MainFunction, in notInDbGames')
-            Box = GetBox(GameID)
+            Box = GetBox(GameID, 'MainFunction')
             if Box != None:
                 boxStatus = InsertBox(Box)
                 SeasonID = Box['Game']['SeasonID']
@@ -71,14 +73,14 @@ def MainFunction(iterations: int, dbGames: list):
         test = 1
     else:
         existingGames = dbGames.copy()
-        existingGames = RecurringFunction(iterations, existingGames, completedGames, dbGames)
+        existingGames = RecurringFunction(iterations, existingGames, completedGames, dbGames, halftimeGames)
         for game in existingGames:
             if game['GameID'] in completedUpdatedGames:
                 dbGames.remove(game)
     iterations += 1
     return dbGames, iterations
 
-def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames):
+def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames, halftimeGames: list):
     '''
     Docstring for RecurringFunction
     
@@ -98,6 +100,9 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
     '''
     for game in existingGames:
         print(f'\n{game['GameID']}                                        RecurringFunction v{iterations}')
+        if game['GameID'] in halftimeGames:
+            print(f'     Halftime - skipping game for now.')
+            continue
         PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], game['Actions'], 'RecurringFunction')
         PlayByPlayFull = game['PlayByPlay']
         PlayByPlayFull.extend(PlayByPlay)
@@ -106,9 +111,9 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         if len(PlayByPlay) > 0:
             pbpStatus = InsertPbp(PlayByPlay)
             test = 1
-        if iterations % 25 == 0:
+        if iterations % 12 == 0:
             print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
-            Box = GetBox(game['GameID'])
+            Box = GetBox(game['GameID'], 'RecurringFunction')
             print('.', end='', flush=True)
             if Box != None:
                 updateStatus = UpdateBox(Box)
@@ -117,7 +122,7 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         
         if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
             print(f'{game['GameID']} complete! Performing last upsert', end='', flush=True)
-            Box = GetBox(game['GameID'])
+            Box = GetBox(game['GameID'], 'RecurringFunction')
             if Box != None:
                 updateStatus = UpdateBox(Box)
             print(f'{updateStatus}')
@@ -131,11 +136,11 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
 
 #When file is executed, it starts here
 iterations = 0
-dbGames, iterations = MainFunction(iterations, [])
+dbGames, iterations = MainFunction(iterations, [], 'Default')
 Wait(len(dbGames))
 
 if iterations > 0:
     while True:
-       dbGames, iterations = MainFunction(iterations, dbGames)
+       dbGames, iterations = MainFunction(iterations, dbGames, 'Recurring')
        Wait(len(dbGames))
 

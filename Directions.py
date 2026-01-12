@@ -2,7 +2,7 @@ import pandas as pd
 import time
 
 
-def GetGamesInProgress(dfScoreboard: pd.DataFrame):
+def GetGamesInProgress(dfScoreboard: pd.DataFrame, sender: str):
     '''
 Receives dfScoreboard\n
 Returns a list of GameIDs of only those games in progress
@@ -11,17 +11,21 @@ Returns a list of GameIDs of only those games in progress
 '''
     gamesInProg = []
     completedGames = []
+    halftimeGames = []
     for index, game in dfScoreboard.iterrows():
         GameID = game['GameID']
+        gameStatusText = game['GameStatusText']
         if game['GameStatus'] == 1:
             continue
         # elif game['GameStatus'] != 1: #Testing
         elif game['GameStatus'] == 2: #Prod
             gamesInProg.append(GameID)
         else:
-            completedGames.append(GameID)
+            completedGames.append(GameID)        
+        if sender == 'Recurring' and gameStatusText == 'Half':
+            halftimeGames.append(GameID)
     gamesInProg.sort()
-    return gamesInProg, completedGames
+    return gamesInProg, completedGames, halftimeGames
             
         
 
@@ -43,4 +47,4 @@ def Wait(dbGamesLen: int):
             print(printStr, end='\r')
     
     time.sleep(remaining)
-    print(f'{printStr}\nDone waiting!\n-') 
+    print(f'{printStr}Done waiting!\n-') 

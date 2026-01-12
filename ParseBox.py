@@ -2,7 +2,7 @@ from typing import TypedDict
 
 
 
-def InitiateBox(game: dict) -> dict:
+def InitiateBox(game: dict, sender: str) -> dict:
     '''
     Formats all data to be derived from the Game's BoxScore.
     
@@ -14,7 +14,8 @@ def InitiateBox(game: dict) -> dict:
             * *Team, Player, Arena, Official*
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    print(f'     Formatting...')
+    if 'MainFunction' in sender:
+        print(f'     Formatting...')
     arena = game['arena']
     officials = game['officials']
     home = game['homeTeam']
@@ -285,9 +286,13 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
     :rtype: dict[Any, Any]
     '''
     Win = team['statistics']['points'] > team['statistics']['pointsAgainst']
-    BiggestLeadScore = team['statistics']['biggestLeadScore'] if team['statistics']['biggestLeadScore'] in team['statistics'].keys() else None
+    Wins = team.get('wins')
+    Losses = team.get('losses')
+    Seed = team.get('seed')
+    BiggestLeadScore = team['statistics'].get('biggestLeadScore')  
+    BiggestScoringRunScore = team['statistics'].get('biggestScoringRunScore')      
     TimeLeading = team['statistics']['timeLeading'].replace('PT', '').replace('M', ':').replace('S', '')
-    Win = 1 if True else 0
+    Win = 1 if Win else 0
     TeamBox = {
         'SeasonID': SeasonID,
         'GameID': GameID,
@@ -336,7 +341,7 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
         'BiggestLead': team['statistics']['biggestLead'],
         'BiggestLeadScore': BiggestLeadScore,
         'BiggestScoringRun': team['statistics']['biggestScoringRun'],
-        'BiggestScoringRunScore': team['statistics']['biggestScoringRunScore'],
+        'BiggestScoringRunScore': BiggestScoringRunScore,
         'TimeLeading': TimeLeading,
         'TimesTied': team['statistics']['timesTied'],
         'LeadChanges': team['statistics']['leadChanges'],
@@ -352,10 +357,10 @@ def FormatTeamBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, team:
         'FoulsTeam': team['statistics']['foulsTeam'],
         'FoulsTeamTechnical': team['statistics']['foulsTeamTechnical'],
         'FoulsTechnical': team['statistics']['foulsTechnical'],
-        'Wins': None,
-        'Losses': None,
+        'Wins': Wins,
+        'Losses': Losses,
         'Win': Win,
-        'Seed': None,
+        'Seed': Seed,
     }
     return TeamBox
 
@@ -434,8 +439,8 @@ def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, Pla
     else:
         atr = 0
 
-    StatusReason = player['notPlayingReason'] if 'notPlayingReason' in player.keys() else None
-    StatusDescription = player['notPlayingDescription'] if 'notPlayingDescription' in player.keys() else None
+    StatusReason = player.get('notPlayingReason')
+    StatusDescription = player.get('notPlayingDescription')
     Minutes = player['statistics']['minutes'].replace('PT', '').replace('M', ':').replace('S', '')
     PlayerBox = {
         'SeasonID': SeasonID,
@@ -480,7 +485,6 @@ def FormatPlayerBox(SeasonID: int, GameID: int, TeamID: int, MatchupID: int, Pla
         'FoulsDrawn': player['statistics']['foulsDrawn'],
         'FoulsPersonal': player['statistics']['foulsPersonal'],
         'FoulsTechnical': player['statistics']['foulsTechnical'],
-        'Status': player['status'],
         'StatusReason': StatusReason,
         'StatusDescription': StatusDescription
     }

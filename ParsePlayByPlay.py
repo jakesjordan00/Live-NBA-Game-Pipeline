@@ -4,8 +4,12 @@
 def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition: int, sender: str):
     totalActions = len(actions[startPosition:])
     if totalActions > 0:
-        print(f'     Formatting...')
-        print(f'     {len(actions[startPosition:])} actions to insert') if sender != 'MainFunctionAlt' else print(f'     {len(actions[startPosition:])} total actions')
+        if 'MainFunction' in sender:
+            print(f'     Formatting...') 
+        singularPlural = 'action' if totalActions == 1 else 'actions'
+        print(f'     {len(actions[startPosition:])} {singularPlural} to insert') if sender != 'MainFunctionAlt' else print(f'     {len(actions[startPosition:])} total {singularPlural}')
+    else:
+        print(f'     No new actions')
     PlayByPlay = []
     finalAction = actions[-1]
     periods = finalAction['period'] if finalAction['period'] > 3 else 4
@@ -17,7 +21,7 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
             Period = action['period']
             PointInGame = CalculatePointInGame(Clock, Period)
 
-            ShotResult = action['shotResult'] if 'shotResult' in action.keys() else None
+            ShotResult = action.get('shotResult')
             ShotValue = int(action['actionType'][0]) if ShotResult != None and action['actionType'] != 'freethrow' else 1 if action['actionType'] == 'freethrow' else None
 
             if ShotResult == 'Made':
@@ -35,34 +39,35 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
 
             if ShotType != None and len(ShotType) > 4:
                 test = 1
-            Area = action['area'] if 'area' in action.keys() else None
-            AreaDetail = action['areaDetail'] if 'areaDetail' in action.keys() else None
+            Area = action.get('area')
+            AreaDetail = action.get('areaDetail')
             Qual1 = action['qualifiers'][0] if 'qualifiers' in action.keys() and len(action['qualifiers']) > 0 else None
             Qual2 = action['qualifiers'][1] if 'qualifiers' in action.keys() and len(action['qualifiers']) > 1 else None
             Qual3 = action['qualifiers'][2] if 'qualifiers' in action.keys() and len(action['qualifiers']) > 2 else None
-            Description = action['description'].replace("'", "''") if 'description' in action.keys() else None
-            Descriptor = action['descriptor'] if 'descriptor' in action.keys() else None
+            Description = action.get('description').replace("'", "''")
+            Descriptor = action.get('descriptor')
 
-            X = action['x'] if 'x' in action.keys() else None
-            XLegacy = action['xLegacy'] if 'xLegacy' in action.keys() else None
+            X = action.get('x')
+            XLegacy = action.get('xLegacy')
             
-            Y = action['y'] if 'y' in action.keys() else None
-            YLegacy = action['yLegacy'] if 'yLegacy' in action.keys() else None
+            Y = action.get('y')
+            YLegacy = action.get('yLegacy')
+            action.get('')
+            TeamID = action.get('teamId')
+            Tricode = action.get('teamTricode')
+            ShotDistance = action.get('shotDistance')
+            ShotActionNbr = action.get('shotActionNbr')
+            PlayerIDAst = action.get('assistPersonId')
+            PlayerIDBlk = action.get('blockPersonId')
+            PlayerIDStl = action.get('stealPersonId')
+            PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
+            PlayerIDJumpW = action.get('jumpBallWonPersonId')
+            PlayerIDJumpL = action.get('jumpBallLostPersonId')
+            OfficialID = action.get('officialId')
+            Possession = action.get('possession')
+            PlayerID = action.get('personId')
+            IsFieldGoal = action.get('isFieldGoal')
 
-            TeamID =  action['teamId'] if 'teamId' in action.keys() else None
-            Tricode = action['teamTricode'] if 'teamTricode' in action.keys() else None
-            ShotDistance = action['shotDistance'] if 'shotDistance' in action.keys() else None
-            ShotActionNbr = action['shotActionNbr'] if 'shotActionNbr' in action.keys() else None
-            PlayerIDAst = int(action['assistPersonId']) if 'assistPersonId' in action.keys() else None
-            PlayerIDBlk = int(action['blockPersonId']) if 'blockPersonId' in action.keys() else None
-            PlayerIDStl = int(action['stealPersonId']) if 'stealPersonId' in action.keys() else None
-            PlayerIDFoulDrawn = int(action['foulDrawnPersonId']) if 'foulDrawnPersonId' in action.keys() else None
-            PlayerIDJumpW = int(action['jumpBallWonPersonId']) if 'jumpBallWonPersonId' in action.keys() else None
-            PlayerIDJumpL = int(action['jumpBallLostPersonId']) if 'jumpBallLostPersonId' in action.keys() else None
-            OfficialID = int(action['officialId']) if 'officialId' in action.keys() else None
-            Possession = action['possession'] if action['possession'] != 0 else None
-            PlayerID = action['personId'] if 'personId' in action.keys() and action['personId'] != 0 else None
-            IsFieldGoal = action['isFieldGoal'] if action['isFieldGoal'] == 1 else None
 
             test = 1
         except Exception as e:
