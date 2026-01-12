@@ -4,8 +4,9 @@ import urllib.parse
 import os
 import socket
 from dotenv import load_dotenv
+from pathlib import Path
+load_dotenv(Path(__file__).parent / 'Drivers' / '.env')
 
-load_dotenv()
 def GetEngineConnection():
     hostname = socket.gethostname()
     database = os.getenv('Database')

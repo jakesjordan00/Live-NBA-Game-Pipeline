@@ -10,7 +10,7 @@ import json
 
 def GetTodaysScoreboard():
     try:
-        # with open('todaysScoreboard_00_011026.json', 'r', encoding='utf-8-sig') as f: #Testing
+        # with open('Scoreboards/todaysScoreboard_00_011026.json', 'r', encoding='utf-8-sig') as f: #Testing
         #     data = json.load(f) #testing
         response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
         data = response.json()
