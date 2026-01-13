@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import datetime, timedelta
 import time
 
 
@@ -13,10 +14,12 @@ Returns a list of GameIDs of only those games in progress
     gamesInProg = []
     completedGames = []
     halftimeGames = []
+    allStartTimes = []
     for index, game in dfScoreboard.iterrows():
         GameID = game['GameID']
         gameStatusText = game['GameStatusText']
         if game['GameStatus'] == 1:
+            allStartTimes.append(datetime.strptime(game['GameEt'], '%Y-%m-%dT%H:%M:%SZ') + timedelta(minutes=10))
             continue
         # elif game['GameStatus'] != 1: #Testing
         elif game['GameStatus'] == 2: #Prod
@@ -26,14 +29,22 @@ Returns a list of GameIDs of only those games in progress
         if sender == 'Recurring' and gameStatusText == 'Half':
             halftimeGames.append(GameID)
     gamesInProg.sort()
-    return gamesInProg, completedGames, halftimeGames
+    allStartTimes.sort()
+    return gamesInProg, completedGames, halftimeGames, allStartTimes
             
         
 
 
-def Wait(dbGamesLen: int):
-    waitTime = 60 if dbGamesLen == 0 else 3
-    checkpoints = [59, 58, 57, 56, 45, 30, 20, 15, 10, 5, 4, 3, 2, 1]
+def Wait(dbGamesLen: int, allStartTimes: list):
+    if len(allStartTimes) > 0:
+        nextGameTip =(allStartTimes[0] - datetime.now()).seconds
+    else:
+        nextGameTip = 60
+    waitTime = nextGameTip if dbGamesLen == 0 else 3
+    if waitTime > 3:
+        checkpoints = [waitTime-1, waitTime-2, waitTime-3, waitTime-4, int(waitTime * .75), int(waitTime/2), int(waitTime/3), int(waitTime/4), int(waitTime/6), int(waitTime/10), 5, 4, 3, 2, 1]
+    else:
+        checkpoints = [3, 2, 1]
     
     printStr = f'Waiting {waitTime} seconds...'
     print('-')

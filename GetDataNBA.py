@@ -22,7 +22,6 @@ def GetBox(GameID: int, sender: str):
         game = data['game']
         Box = InitiateBox(game, sender)
     except Exception as e:
-        Box = None
         print(f"Error getting Boxscore data: {e}")
 
     return Box

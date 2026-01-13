@@ -28,7 +28,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str):
     dfScoreboard = GetTodaysScoreboard()
 
     #Using Today's Scoreboard, get the Games that are in progress
-    gamesInProg, completedGames, halftimeGames = GetGamesInProgress(dfScoreboard, sender)
+    gamesInProg, completedGames, halftimeGames, allStartTimes = GetGamesInProgress(dfScoreboard, sender)
     #If game is completed, we should update it and check playbyplay one more time. After that, drop it.
     #^^^^ still need to implement as of 1:09am 1/9/26!
     #^ Should be implements....1/11/25. Just need to make sure its working as expected.
@@ -63,6 +63,9 @@ def MainFunction(iterations: int, dbGames: list, sender: str):
             if Box != None:
                 boxStatus = InsertBox(Box)
                 SeasonID = Box['Game']['SeasonID']
+                HomeID = Box['Game']['HomeID']
+                AwayID = Box['Game']['AwayID']
+                # PlayByPlay = GetPlayByPlay(SeasonID, GameID, HomeID, AwayID, 0, 'MainFunction')
                 PlayByPlay = GetPlayByPlay(SeasonID, GameID, 0, 'MainFunction')
                 pbpStatus = InsertPbp(PlayByPlay)
                 dbGames.append({
@@ -81,7 +84,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str):
             if game['GameID'] in completedUpdatedGames:
                 dbGames.remove(game)
     iterations += 1
-    return dbGames, iterations
+    return dbGames, iterations, allStartTimes
 
 def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames, halftimeGames: list):
     '''
@@ -106,6 +109,9 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         if game['GameID'] in halftimeGames:
             print(f'     Halftime - skipping game for now.')
             continue
+        HomeID = game['Box']['Game']['HomeID']
+        AwayID = game['Box']['Game']['AwayID']
+        # PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], HomeID, AwayID, game['Actions'], 'RecurringFunction')
         PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], game['Actions'], 'RecurringFunction')
         PlayByPlayFull = game['PlayByPlay']
         PlayByPlayFull.extend(PlayByPlay)
@@ -139,11 +145,11 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
 
 #When file is executed, it starts here
 iterations = 0
-dbGames, iterations = MainFunction(iterations, [], 'Default')
-Wait(len(dbGames))
+dbGames, iterations, allStartTimes = MainFunction(iterations, [], 'Default')
+Wait(len(dbGames), allStartTimes)
 
 if iterations > 0:
     while True:
-       dbGames, iterations = MainFunction(iterations, dbGames, 'Recurring')
-       Wait(len(dbGames))
+       dbGames, iterations, allStartTimes = MainFunction(iterations, dbGames, 'Recurring')
+       Wait(len(dbGames), allStartTimes)
 
