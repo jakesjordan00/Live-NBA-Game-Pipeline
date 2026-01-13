@@ -14,7 +14,7 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> tuple[d
             * *Team, Player, Arena, Official*
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    programMap += 'ParseBox.InitiateBox ➡️ '
+    programMap += 'ParseBox.InitiateBox ➡️ ' 
     if 'MainFunction' in sender:
         print(f'     Formatting...')
     arena = game['arena']
