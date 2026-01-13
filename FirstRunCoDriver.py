@@ -18,11 +18,12 @@ def NewGameData(notInDbGames: list, programMap: str):
     '''
     programMap += 'FirstRunCoDriver.NewGameData ➡️ '
     dbGames = []
-    for GameID in notInDbGames:
+    for game in notInDbGames:
         homeLineup = []
         awayLineup = []
+        GameID = game['GameID']
         print(f'\n{GameID} not in Database...')
-        Box, programMap = GetBox(GameID, 'MainFunction', programMap)
+        Box, programMap = GetBox(GameID, game['Data'], 'MainFunction', programMap)
         if Box != None:
             SeasonID = Box['Game']['SeasonID']
             HomeID = Box['Game']['HomeID']
@@ -43,12 +44,12 @@ def NewGameData(notInDbGames: list, programMap: str):
                 'PlayByPlay': PlayByPlay,
                 'Actions': len(PlayByPlay)
             })
-            boxStatus = InsertBox(Box)
-            pbpStatus = InsertPbp(PlayByPlay)
+            boxStatus, programMap = InsertBox(Box, programMap)
+            pbpStatus, programMap = InsertPbp(PlayByPlay, programMap)
     return dbGames
 
 
-def ExistingGameData(existingGames: list, programMap: str) -> list[dict]:
+def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], str]:
     '''
     This function will only be hit on the first iteration of the program.\n
     Different from NewGameData, this function is only hit if the length of existingGames > 0. (We need to update games that we already have in the db)
@@ -76,7 +77,7 @@ def ExistingGameData(existingGames: list, programMap: str) -> list[dict]:
         })
         pbp = PlayByPlay[game['Actions']:]
         if len(pbp) > 0:
-            pbpStatus = InsertPbp(pbp)
+            pbpStatus, programMap = InsertPbp(pbp, programMap)
             print(f'     {len(pbp)} new actions inserted')
         else:            
             print(f'     No new actions')

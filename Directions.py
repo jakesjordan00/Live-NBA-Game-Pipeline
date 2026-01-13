@@ -11,13 +11,15 @@ Returns a list of GameIDs of only those games in progress
 :param dfScoreboard: Scoreboard DataFrame
 :type dfScoreboard: pd.DataFrame
 '''
-    programMap += 'GetGamesInProgress ➡️ '
+    programMap += 'Directions.GetGamesInProgress ➡️ '
     gamesInProgDict = []
     completedGamesDict = []
     gamesInProg = []
     completedGames = []
     halftimeGames = []
     allStartTimes = []
+    
+    gameDictHits = 0
     for index, game in dfScoreboard.iterrows():
         GameID = game['GameID']
         gameStatusText = game['GameStatusText']
@@ -27,24 +29,25 @@ Returns a list of GameIDs of only those games in progress
         # elif game['GameStatus'] != 1: #Testing
         elif game['GameStatus'] == 2: #Prod
             gamesInProg.append(GameID)
-            programMap += 'GameDictionary ➡️ '
             gamesInProgDict.append(GameDictionary(game))
+            gameDictHits += 1
         else:
             completedGames.append(GameID)  
-            programMap += 'GameDictionary ➡️ '
-            completedGamesDict.append(GameDictionary(game))      
+            completedGamesDict.append(GameDictionary(game))
+            gameDictHits += 1
         if sender == 'Recurring' and gameStatusText == 'Half':
             halftimeGames.append(GameID)
     gamesInProg.sort()
     allStartTimes.sort()
+    if gameDictHits > 0:
+        programMap += f'Directions.GameDictionary x{gameDictHits} 🔁 '
 
     return halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, programMap
-    return gamesInProg, completedGames, halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, programMap
 
         
 
 
-def GameDictionary(game: dict):
+def GameDictionary(game):
     GameID = game['GameID']
     gameStatusText = game['GameStatusText']
 

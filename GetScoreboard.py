@@ -11,10 +11,10 @@ import json
 def GetTodaysScoreboard(programMap: str):
     programMap += 'GetTodaysScoreboard ➡️ '
     try:
-        with open('Scoreboards/todaysScoreboard_00_011326.json', 'r', encoding='utf-8-sig') as f: #Testing
-            data = json.load(f) #testing
-        # response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
-        # data = response.json()
+        # with open('Scoreboards/todaysScoreboard_00_011326.json', 'r', encoding='utf-8-sig') as f: #Testing
+        #     data = json.load(f) #testing
+        response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
+        data = response.json()
         columns = data['scoreboard']['games']
         dfScoreboard = pd.DataFrame(data['scoreboard']['games'])
         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)
@@ -93,25 +93,25 @@ date = (datetime.now() - timedelta(days=1) if datetime.now().hour < 6 else datet
 
 date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-def GetTodaysScoreboard1():
-    '''
-Hits the NBA api and retrieves the Scoreboard for today's (or yesterday's) games depending on the time.
- '''   
-    url = 'https://stats.nba.com/stats/scoreboardv2'
-    parameters = {
-        'LeagueID':'00',
-        'DayOffset': 0,
-        'GameDate': date
-        }
+# def GetTodaysScoreboard1():
+#     '''
+# Hits the NBA api and retrieves the Scoreboard for today's (or yesterday's) games depending on the time.
+#  '''   
+#     url = 'https://stats.nba.com/stats/scoreboardv2'
+#     parameters = {
+#         'LeagueID':'00',
+#         'DayOffset': 0,
+#         'GameDate': date
+#         }
     
-    try:
-        response = requests.get(url, params=parameters, headers=scoreboard, timeout=30)
-        data = response.json()
-        columns = data['resultSets'][0]['headers']
-        rows = data['resultSets'][0]['rowSet']
-        dfScoreboard = pd.DataFrame(rows, columns=columns)
-        dfScoreboard = ParseScoreboard(dfScoreboard)
-    except Exception as e:
-        df = pd.DataFrame()
-        print(f"Error downloading PlayerGameLogs: {e}")
-    return dfScoreboard
+#     try:
+#         response = requests.get(url, params=parameters, headers=scoreboard, timeout=30)
+#         data = response.json()
+#         columns = data['resultSets'][0]['headers']
+#         rows = data['resultSets'][0]['rowSet']
+#         dfScoreboard = pd.DataFrame(rows, columns=columns)
+#         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)
+#     except Exception as e:
+#         df = pd.DataFrame()
+#         print(f"Error downloading PlayerGameLogs: {e}")
+#     return dfScoreboard

@@ -2,7 +2,7 @@ from typing import TypedDict
 
 
 
-def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> dict:
+def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> tuple[dict, str]:
     '''
     Formats all data to be derived from the Game's BoxScore.
     
@@ -14,7 +14,7 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> dict:
             * *Team, Player, Arena, Official*
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    programMap += 'InitiateBox ➡️ '
+    programMap += 'ParseBox.InitiateBox ➡️ '
     if 'MainFunction' in sender:
         print(f'     Formatting...')
     arena = game['arena']
@@ -48,7 +48,7 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> dict:
     return BoxData, programMap
 
 #region Game, Arena and Official
-def FormatGame(game: dict, Data: dict, programMap: str) -> tuple[dict, dict]:
+def FormatGame(game: dict, Data: dict, programMap: str):
     '''
     Formats game dictionary into Game and GameExt    
 
@@ -58,7 +58,7 @@ def FormatGame(game: dict, Data: dict, programMap: str) -> tuple[dict, dict]:
     :return GameExt: Formatted data for GameExt table
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    programMap += 'FormatGame ➡️ '
+    programMap += 'ParseBox.FormatGame ➡️ '
     SeasonID = int(f'20{game['gameId'][3:5]}')
     GameID = int(game['gameId'])
     Date = game['gameEt'].split('T')[0]
@@ -131,7 +131,7 @@ def FormatGame(game: dict, Data: dict, programMap: str) -> tuple[dict, dict]:
     return Game, GameExt, programMap
 
 
-def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> dict:
+def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> tuple[dict, str]:
     '''
     Recieves arena dictionary and SeasonID and TeamID. Formats for SQL table
     
@@ -144,7 +144,7 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> dic
     :return Arena: Formatted Arena data for SQL table
     :rtype: dict[Any, Any]
     '''
-    programMap += 'FormatArena ➡️ '
+    programMap += 'ParseBox.FormatArena ➡️ '
     ArenaID = arena['arenaId']
     Name = arena['arenaName']
     City = arena['arenaCity']
@@ -166,7 +166,7 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> dic
     }
     return Arena, programMap
 
-def FormatOfficial(SeasonID: int, officials: list, programMap: str) -> list[dict]:
+def FormatOfficial(SeasonID: int, officials: list, programMap: str):
     programMap += 'FormatOfficial ➡️ '
     Official = []
     for official in officials:            
@@ -181,7 +181,7 @@ def FormatOfficial(SeasonID: int, officials: list, programMap: str) -> list[dict
 
 
 #region Boxscore - Team, TeamBox, Player, PlayerBox, StartingLineups
-def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: list, programMap: str) -> tuple[list, list, list, list, list]:
+def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: list, programMap: str) -> tuple[list, list, list, list, list, str]:
     '''
     Function to format all Box data requiring the same iteration structure
     
@@ -198,38 +198,40 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
     :return Team: Description
     :rtype: tuple[list[Any], list[Any], list[Any], list[Any], list[Any]]
     '''
-    programMap += 'BoxscoreLoop ➡️ '
+    programMap += 'ParseBox.BoxscoreLoop ➡️ '
     Team = []
     TeamBox = []
     TeamBoxExt = []
     Player = []
     PlayerBox = []
     StartingLineups = []
+    teamFormatHits = 0
+    teamBoxExtFormatHits = 0  
+    playerFormatHits = 0
     for index, team in enumerate(teams): 
         opTeam = teams[1- index]
         TeamID = team['teamId'] 
-        programMap += 'FormatTeam ➡️ '
         Team.append(FormatTeam(SeasonID, TeamID, team))
         
         isHome = team['teamId'] == HomeID
         MatchupID = AwayID if isHome else HomeID
-        programMap += 'FormatTeamBox ➡️ '
-        TeamBox.append(FormatTeamBox(SeasonID, GameID, TeamID, MatchupID, team))        
+        TeamBox.append(FormatTeamBox(SeasonID, GameID, TeamID, MatchupID, team)) 
+    
         for i, qtr in enumerate(team['periods']):
-            programMap += 'FormatTeamBoxExt ➡️ '
             TeamBoxExt.append(FormatTeamBoxExt(SeasonID, GameID, TeamID, MatchupID, qtr, opTeam['periods'][i]))
+            teamBoxExtFormatHits += 1
 
         for player in team['players']:                
             PlayerID = player['personId']
             Position = player['position'] if 'position' in player.keys() else None
-            programMap += 'FormatPlayer ➡️ '
             Player.append(FormatPlayer(SeasonID, PlayerID, Position, player))
-            programMap += 'FormatPlayerBox ➡️ '
             PlayerBox.append(FormatPlayerBox(SeasonID, GameID, TeamID, MatchupID, PlayerID, Position, player))
-            programMap += 'FormatStartingLineups ➡️ '
             StartingLineups.append(FormatStartingLineups(SeasonID, GameID, TeamID, MatchupID, PlayerID, Position, player))
+            playerFormatHits += 1
 
+        teamFormatHits += 1
         test = 1
+    programMap += f'ParseBox.FormatTeam x{teamFormatHits} 🔁 ParseBox.FormatTeamBox x{teamFormatHits} 🔁 ParseBox.FormatTeamBoxExt x{teamBoxExtFormatHits} 🔁 ParseBox.FormatPlayer x{playerFormatHits} 🔁 ParseBox.FormatPlayerBox x{playerFormatHits} 🔁 ParseBox.FormatStartingLineups x{playerFormatHits} 🔁 '
     test = 1
 
     return Team, TeamBox, Player, PlayerBox, StartingLineups, programMap
