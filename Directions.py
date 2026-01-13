@@ -12,6 +12,7 @@ Returns a list of GameIDs of only those games in progress
 :type dfScoreboard: pd.DataFrame
 '''
     gamesInProg = []
+    gamesInProgDict = []
     completedGames = []
     halftimeGames = []
     allStartTimes = []

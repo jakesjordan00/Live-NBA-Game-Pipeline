@@ -64,7 +64,7 @@ def InsertPlayByPlay():
         'Actions': 0
         })
 
-    deleteCmd = ', '.join(game['GameID'] for game in gameList)
+    deleteCmd = ', '.join(str(game['GameID']) for game in gameList)
     DeleteGames(deleteCmd)
     ExistingGameData(gameList)
 
