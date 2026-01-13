@@ -28,6 +28,8 @@ def ParseDates(schedule):
     today = datetime.now().date()
     for date in schedule:
         gDate = datetime.strptime(date['gameDate'], '%m/%d/%Y %H:%M:%S').date()
+        if gDate < datetime(2025, 10, 21).date():  #Start of 2025-26 Season
+            continue
         for game in date['games']:
             gameDateTime = datetime.strptime(game['gameDateTimeEst'], '%Y-%m-%dT%H:%M:%SZ')
             if gameDateTime > now:

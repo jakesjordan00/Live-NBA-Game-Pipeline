@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import time
 
 
-def GetGamesInProgress(dfScoreboard: pd.DataFrame, sender: str):
+def GetGamesInProgress(dfScoreboard: pd.DataFrame, sender: str, programMap: str):
     '''
 Receives dfScoreboard\n
 Returns a list of GameIDs of only those games in progress
@@ -11,8 +11,10 @@ Returns a list of GameIDs of only those games in progress
 :param dfScoreboard: Scoreboard DataFrame
 :type dfScoreboard: pd.DataFrame
 '''
-    gamesInProg = []
+    programMap += 'GetGamesInProgress ➡️ '
     gamesInProgDict = []
+    completedGamesDict = []
+    gamesInProg = []
     completedGames = []
     halftimeGames = []
     allStartTimes = []
@@ -25,18 +27,60 @@ Returns a list of GameIDs of only those games in progress
         # elif game['GameStatus'] != 1: #Testing
         elif game['GameStatus'] == 2: #Prod
             gamesInProg.append(GameID)
+            programMap += 'GameDictionary ➡️ '
+            gamesInProgDict.append(GameDictionary(game))
         else:
-            completedGames.append(GameID)        
+            completedGames.append(GameID)  
+            programMap += 'GameDictionary ➡️ '
+            completedGamesDict.append(GameDictionary(game))      
         if sender == 'Recurring' and gameStatusText == 'Half':
             halftimeGames.append(GameID)
     gamesInProg.sort()
     allStartTimes.sort()
-    return gamesInProg, completedGames, halftimeGames, allStartTimes
-            
+
+    return halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, programMap
+    return gamesInProg, completedGames, halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, programMap
+
         
 
 
-def Wait(dbGamesLen: int, allStartTimes: list):
+def GameDictionary(game: dict):
+    GameID = game['GameID']
+    gameStatusText = game['GameStatusText']
+
+    Label= game['GameLabel'] if game['GameLabel'] != '' else None
+    LabelDetail =  game['GameSubLabel'] if game['GameSubLabel'] != '' else None
+    SubType =  game['GameSubtype'] if game['GameSubtype'] != '' else None
+    SeriesGameNumber =  int(game['SeriesGameNumber']) if game['SeriesGameNumber'] != '' else None
+    SeriesText =  game['SeriesText'] if game['SeriesText'] != '' else None
+    a = 1
+    return{
+    'GameID': GameID,
+    'HomeTeam': {
+        'teamId': game['HomeTeam']['teamId'],
+        'wins': game['HomeTeam']['wins'],
+        'losses': game['HomeTeam']['losses'],
+        'seed': game['HomeTeam']['seed']
+    },
+    'AwayTeam': {
+        'teamId': game['AwayTeam']['teamId'],
+        'wins': game['AwayTeam']['wins'],
+        'losses': game['AwayTeam']['losses'],
+        'seed': game['AwayTeam']['seed']
+    },    
+    'Status': game['GameStatus'],
+    'StatusText': gameStatusText,
+    'Label': Label,
+    'LabelDetail': LabelDetail,
+    'SubType': SubType,
+    'SeriesGameNumber': SeriesGameNumber,
+    'SeriesText': SeriesText,
+
+    }
+
+
+def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
+    programMap += 'Wait ➡️ '
     if len(allStartTimes) > 0:
         nextGameTip =(allStartTimes[0] - datetime.now()).seconds
     else:
@@ -61,3 +105,4 @@ def Wait(dbGamesLen: int, allStartTimes: list):
     
     time.sleep(remaining)
     print(f'{printStr}Done waiting!\n-') 
+    return programMap

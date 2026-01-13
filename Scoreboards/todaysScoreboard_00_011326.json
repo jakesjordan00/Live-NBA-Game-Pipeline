@@ -13,7 +13,7 @@
       {
         "gameId": "0022500558",
         "gameCode": "20260112/UTACLE",
-        "gameStatus": 3,
+        "gameStatus": 2,
         "gameStatusText": "Final",
         "period": 4,
         "gameClock": "",
@@ -130,7 +130,7 @@
       {
         "gameId": "0022500559",
         "gameCode": "20260112/BOSIND",
-        "gameStatus": 3,
+        "gameStatus": 2,
         "gameStatusText": "Final",
         "period": 4,
         "gameClock": "",
@@ -247,7 +247,7 @@
       {
         "gameId": "0022500560",
         "gameCode": "20260112/PHITOR",
-        "gameStatus": 3,
+        "gameStatus": 2,
         "gameStatusText": "Final",
         "period": 4,
         "gameClock": "",
@@ -364,7 +364,7 @@
       {
         "gameId": "0022500561",
         "gameCode": "20260112/BKNDAL",
-        "gameStatus": 3,
+        "gameStatus": 2,
         "gameStatusText": "Final",
         "period": 4,
         "gameClock": "",
@@ -481,7 +481,7 @@
       {
         "gameId": "0022500562",
         "gameCode": "20260112/LALSAC",
-        "gameStatus": 3,
+        "gameStatus": 2,
         "gameStatusText": "Final",
         "period": 4,
         "gameClock": "",
@@ -598,7 +598,7 @@
       {
         "gameId": "0022500563",
         "gameCode": "20260112/CHALAC",
-        "gameStatus": 3,
+        "gameStatus": 2,
         "gameStatusText": "Final",
         "period": 4,
         "gameClock": "",

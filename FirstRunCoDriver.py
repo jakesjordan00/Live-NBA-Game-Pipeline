@@ -5,7 +5,7 @@ from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 
 
 
-def NewGameData(notInDbGames: list):
+def NewGameData(notInDbGames: list, programMap: str):
     '''
     This function will only be hit on the first iteration of the program.\n
     Additionally, this function will only be hit if the length of notInDbGames > 0. (We need to insert games we dont have)
@@ -16,12 +16,13 @@ def NewGameData(notInDbGames: list):
     :return: dbGames
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
+    programMap += 'FirstRunCoDriver.NewGameData ➡️ '
     dbGames = []
     for GameID in notInDbGames:
         homeLineup = []
         awayLineup = []
         print(f'\n{GameID} not in Database...')
-        Box = GetBox(GameID, 'MainFunction')
+        Box, programMap = GetBox(GameID, 'MainFunction', programMap)
         if Box != None:
             SeasonID = Box['Game']['SeasonID']
             HomeID = Box['Game']['HomeID']
@@ -33,7 +34,7 @@ def NewGameData(notInDbGames: list):
                     homeLineup.append(player['PlayerID'])
                 elif AwayID == player['TeamID'] and player['Unit'] == 'Starters':
                     awayLineup.append(player['PlayerID'])
-            PlayByPlay = GetPlayByPlay(SeasonID, GameID, 0, 'MainFunction')
+            PlayByPlay, programMap = GetPlayByPlay(SeasonID, GameID, 0, 'MainFunction', programMap)
             # PlayByPlay = GetPlayByPlay(SeasonID, GameID, HomeID, AwayID, 0, 'MainFunction', homeLineup, awayLineup)
             dbGames.append({
                 'SeasonID': SeasonID,
@@ -47,7 +48,7 @@ def NewGameData(notInDbGames: list):
     return dbGames
 
 
-def ExistingGameData(existingGames: list) -> list[dict]:
+def ExistingGameData(existingGames: list, programMap: str) -> list[dict]:
     '''
     This function will only be hit on the first iteration of the program.\n
     Different from NewGameData, this function is only hit if the length of existingGames > 0. (We need to update games that we already have in the db)
@@ -58,13 +59,14 @@ def ExistingGameData(existingGames: list) -> list[dict]:
     :return: dbGames
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
+    programMap += 'FirstRunCoDriver.ExistingGameData ➡️ '
     dbGames = []
     for game in existingGames:
         print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
-        Box = GetBox(game['GameID'], 'MainFunction')
+        Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap)
         HomeID = Box['Game']['HomeID']
         AwayID = Box['Game']['AwayID']
-        PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt')
+        PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt', programMap)
         dbGames.append({
             'SeasonID': game['SeasonID'],
             'GameID': game['GameID'],
@@ -78,11 +80,11 @@ def ExistingGameData(existingGames: list) -> list[dict]:
             print(f'     {len(pbp)} new actions inserted')
         else:            
             print(f'     No new actions')
-        updateStatus = UpdateBox(Box) #type: ignore
+        updateStatus, programMap = UpdateBox(Box, programMap) #type: ignore
         print(f'     {updateStatus}')
 
 
-    return dbGames
+    return dbGames, programMap
 
 
 

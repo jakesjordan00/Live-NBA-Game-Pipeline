@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from GetSchedule import GetSchedule
-from Directions import GetGamesInProgress, Wait
+from Directions import GetGamesInProgress, Wait, GameDictionary
 from SQL_Reads import FirstIteration
 from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 from FirstRunCoDriver import NewGameData, ExistingGameData
@@ -29,20 +29,24 @@ def MainFunction():
     #^^^^ still need to implement as of 1:09am 1/9/26!
     #^ Should be implements....1/11/25. Just need to make sure its working as expected.
 
+    gamesInProgDict =[]
     print(f'{len(dfGames)} Games in progress')
-
+    for i, game in dfGames.iterrows():
+        gamesInProgDict.append(GameDictionary(game))
+        test = 1
     #Declare Box and PlayByPlay as none
     Box = None
     PlayByPlay = None
     gameIDs = dfGames['GameID'].to_list()
     #If we're on our first iteration or every fifth, see what games exist from the Scoreboard in the Db
-    existingGames = FirstIteration(gameIDs)
+    existingGames = FirstIteration(gamesInProgDict)
     existingGameIDs = list(g['GameID']for g in existingGames )
-    notInDbGames = [game for game in gameIDs if game not in existingGameIDs]
+    notInDbGames = [game for game in gamesInProgDict if game['GameID'] not in existingGameIDs]
     if len(notInDbGames) > 0:
         dbGames.extend(NewGameData(notInDbGames))
     if len(existingGames) > 0:
         dbGames.extend(ExistingGameData(existingGames))
+        
     test = 1
 
 
@@ -85,6 +89,6 @@ where SeasonID = 2025 and GameID in({deleteCmd})
 
 
 
-# MainFunction()
+MainFunction()
 
-InsertPlayByPlay()
+# InsertPlayByPlay()
