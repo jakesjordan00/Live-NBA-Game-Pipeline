@@ -11,6 +11,7 @@ from datetime import datetime
 print('-')
 
 programMap = ''
+fullProgramMap = []
 completedUpdatedGames = []
 
 
@@ -28,7 +29,15 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     -|
       ->
     '''
-    programMap = 'Driver.MainFunction ➡️ '
+    if programMap != '':
+        fullProgramMap.append(programMap)
+        # if iterations == 5:
+        #     print('\n\n\n')
+        #     for iteration in fullProgramMap:
+        #         print(iteration)
+        #     test = 1
+    underscore = '_' * 70
+    programMap = f'{underscore}\nDriver.MainFunction ➡️                                               v{iterations+1}'
     #Get the Games in Today's Scoreboard
     print('Getting Scoreboard...')
     dfScoreboard, programMap = GetTodaysScoreboard(programMap)
@@ -133,7 +142,7 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
     :param completedGames: Games that are have a GameStatus value of 3 from scoreboard
     :type iterations: list
     '''
-    programMap += 'Driver.RecurringFunction ➡️ '
+    programMap += '\n        Driver.RecurringFunction ➡️ ' if len(existingGames) > 0 else '\n        Driver.RecurringFunction\n        ↩️'
     for game in existingGames:
         print(f'\n{game['GameID']}                                        RecurringFunction v{iterations}')
         if game['GameID'] in halftimeGames:

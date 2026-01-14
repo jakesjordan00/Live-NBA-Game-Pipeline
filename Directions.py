@@ -11,7 +11,7 @@ Returns a list of GameIDs of only those games in progress
 :param dfScoreboard: Scoreboard DataFrame
 :type dfScoreboard: pd.DataFrame
 '''
-    programMap += '\n     Directions.GetGamesInProgress ➡️ '
+    programMap += '\n    Directions.GetGamesInProgress ➡️ '
     gamesInProgDict = []
     completedGamesDict = []
     gamesInProg = []
@@ -85,7 +85,7 @@ def GameDictionary(game):
 
 
 def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
-    programMap += 'Wait ➡️ '
+    programMap += '\n    Wait\n    ↩️'
     if len(allStartTimes) > 0:
         nextGameTip =(allStartTimes[0] - datetime.now()).seconds
     else:
@@ -100,6 +100,8 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
     print('-')
     print(printStr, end='\r')
     
+    bp = 'here'
+    # print(f'\n\n{programMap}')
     remaining = waitTime
     for checkpoint in checkpoints:
         if remaining > checkpoint:
@@ -107,7 +109,6 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
             remaining = checkpoint
             printStr = f'{printStr}{checkpoint}...' if checkpoint != 56 else f'{printStr}{checkpoint}......'
             print(printStr, end='\r')
-    
     time.sleep(remaining)
     print(f'{printStr}Done waiting!\n-') 
     return programMap

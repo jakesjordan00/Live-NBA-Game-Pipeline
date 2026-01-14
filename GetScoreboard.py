@@ -36,7 +36,7 @@ ParseScoreboard takes the original dfScoreboard and renames its columns to frien
 :param dfScoreboard: Scoreboard DataFrame
 '''
     spacer = '        '
-    programMap += f'\n{spacer}GetScoreboard.ParseScoreboard ↩️ '
+    programMap += f'\n{spacer}GetScoreboard.ParseScoreboard\n{spacer}↩️ '
     # for c in dfScoreboard.columns:
     #     PascalCase = c[:1].upper() + c[1:]
     #     print(f"'{c}': '{PascalCase}',")
