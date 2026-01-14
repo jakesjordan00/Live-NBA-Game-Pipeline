@@ -11,7 +11,7 @@ Returns a list of GameIDs of only those games in progress
 :param dfScoreboard: Scoreboard DataFrame
 :type dfScoreboard: pd.DataFrame
 '''
-    programMap += 'Directions.GetGamesInProgress ➡️ '
+    programMap += '\n     Directions.GetGamesInProgress ➡️ '
     gamesInProgDict = []
     completedGamesDict = []
     gamesInProg = []
@@ -20,7 +20,9 @@ Returns a list of GameIDs of only those games in progress
     allStartTimes = []
     
     gameDictHits = 0
+    games = 0
     for index, game in dfScoreboard.iterrows():
+        games += 1
         GameID = game['GameID']
         gameStatusText = game['GameStatusText']
         if game['GameStatus'] == 1:
@@ -40,9 +42,9 @@ Returns a list of GameIDs of only those games in progress
     gamesInProg.sort()
     allStartTimes.sort()
     if gameDictHits > 0:
-        programMap += f'Directions.GameDictionary x{gameDictHits} 🔁 '
+        programMap += f'\n          Directions.GameDictionary x{gameDictHits} 🔁\n        ↩️ '
 
-    return halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, programMap
+    return halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, games, programMap
 
         
 

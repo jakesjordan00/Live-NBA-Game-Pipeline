@@ -16,14 +16,14 @@ def NewGameData(notInDbGames: list, programMap: str):
     :return: dbGames
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
-    programMap += 'FirstRunCoDriver.NewGameData ➡️ '
+    programMap += '\n    FirstRunCoDriver.NewGameData ➡️'
     dbGames = []
     for game in notInDbGames:
         homeLineup = []
         awayLineup = []
         GameID = game['GameID']
         print(f'\n{GameID} not in Database...')
-        Box, programMap = GetBox(GameID, game['Data'], 'MainFunction', programMap)
+        Box, programMap = GetBox(GameID, game, 'MainFunction', programMap)
         if Box != None:
             SeasonID = Box['Game']['SeasonID']
             HomeID = Box['Game']['HomeID']
@@ -42,11 +42,12 @@ def NewGameData(notInDbGames: list, programMap: str):
                 'GameID': GameID,
                 'Box': Box,
                 'PlayByPlay': PlayByPlay,
-                'Actions': len(PlayByPlay)
+                'Actions': len(PlayByPlay),
+                'Data': game
             })
             boxStatus, programMap = InsertBox(Box, programMap)
             pbpStatus, programMap = InsertPbp(PlayByPlay, programMap)
-    return dbGames
+    return dbGames, programMap
 
 
 def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], str]:
@@ -60,20 +61,21 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     :return: dbGames
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
-    programMap += 'FirstRunCoDriver.ExistingGameData ➡️ '
+    programMap += '\n    FirstRunCoDriver.ExistingGameData ➡️'
     dbGames = []
     for game in existingGames:
         print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
         Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap)
         HomeID = Box['Game']['HomeID']
         AwayID = Box['Game']['AwayID']
-        PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt', programMap)
+        PlayByPlay, programMap = GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt', programMap)
         dbGames.append({
             'SeasonID': game['SeasonID'],
             'GameID': game['GameID'],
             'Box': Box,
             'PlayByPlay': PlayByPlay,
-            'Actions': len(PlayByPlay)
+            'Actions': len(PlayByPlay),
+            'Data': game['Data']
         })
         pbp = PlayByPlay[game['Actions']:]
         if len(pbp) > 0:

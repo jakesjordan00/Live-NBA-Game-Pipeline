@@ -14,7 +14,7 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> tuple[d
             * *Team, Player, Arena, Official*
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    programMap += 'ParseBox.InitiateBox ➡️ ' 
+    programMap += '\n            ParseBox.InitiateBox ➡️'
     if 'MainFunction' in sender:
         print(f'     Formatting...')
     arena = game['arena']
@@ -58,7 +58,7 @@ def FormatGame(game: dict, Data: dict, programMap: str):
     :return GameExt: Formatted data for GameExt table
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    programMap += 'ParseBox.FormatGame ➡️ '
+    programMap += '\n                ParseBox.FormatGame\n                ↩️'
     SeasonID = int(f'20{game['gameId'][3:5]}')
     GameID = int(game['gameId'])
     Date = game['gameEt'].split('T')[0]
@@ -144,7 +144,7 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> tup
     :return Arena: Formatted Arena data for SQL table
     :rtype: dict[Any, Any]
     '''
-    programMap += 'ParseBox.FormatArena ➡️ '
+    programMap += '\n                ParseBox.FormatArena\n                ↩️'
     ArenaID = arena['arenaId']
     Name = arena['arenaName']
     City = arena['arenaCity']
@@ -167,7 +167,7 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> tup
     return Arena, programMap
 
 def FormatOfficial(SeasonID: int, officials: list, programMap: str):
-    programMap += 'FormatOfficial ➡️ '
+    programMap += '\n                ParseBox.FormatOfficial\n                ↩️'
     Official = []
     for official in officials:            
         Official.append({
@@ -198,7 +198,8 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
     :return Team: Description
     :rtype: tuple[list[Any], list[Any], list[Any], list[Any], list[Any]]
     '''
-    programMap += 'ParseBox.BoxscoreLoop ➡️ '
+    programMap += '\n                ParseBox.BoxscoreLoop ➡️'
+    spacer = '\n                    '
     Team = []
     TeamBox = []
     TeamBoxExt = []
@@ -231,7 +232,7 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
 
         teamFormatHits += 1
         test = 1
-    programMap += f'ParseBox.FormatTeam x{teamFormatHits} 🔁 ParseBox.FormatTeamBox x{teamFormatHits} 🔁 ParseBox.FormatTeamBoxExt x{teamBoxExtFormatHits} 🔁 ParseBox.FormatPlayer x{playerFormatHits} 🔁 ParseBox.FormatPlayerBox x{playerFormatHits} 🔁 ParseBox.FormatStartingLineups x{playerFormatHits} 🔁 '
+    programMap += f'ParseBox.FormatTeam x{teamFormatHits} 🔁{spacer}ParseBox.FormatTeamBox x{teamFormatHits} 🔁{spacer}ParseBox.FormatTeamBoxExt x{teamBoxExtFormatHits} 🔁{spacer}ParseBox.FormatPlayer x{playerFormatHits} 🔁{spacer}ParseBox.FormatPlayerBox x{playerFormatHits} 🔁{spacer}ParseBox.FormatStartingLineups x{playerFormatHits} 🔁\n                ↩️'
     test = 1
 
     return Team, TeamBox, Player, PlayerBox, StartingLineups, programMap

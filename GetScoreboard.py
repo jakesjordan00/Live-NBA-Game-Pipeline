@@ -9,7 +9,8 @@ import json
 
 
 def GetTodaysScoreboard(programMap: str):
-    programMap += 'GetTodaysScoreboard ➡️ '
+    spacer = '    '
+    programMap += f'\n{spacer}GetScoreboard.GetTodaysScoreboard ➡️ '
     try:
         # with open('Scoreboards/todaysScoreboard_00_011326.json', 'r', encoding='utf-8-sig') as f: #Testing
         #     data = json.load(f) #testing
@@ -18,6 +19,7 @@ def GetTodaysScoreboard(programMap: str):
         columns = data['scoreboard']['games']
         dfScoreboard = pd.DataFrame(data['scoreboard']['games'])
         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)
+        programMap += f'\n    ↩️ '
     except Exception as e:
         dfScoreboard = pd.DataFrame()
         print(f"Error downloading PlayerGameLogs: {e}")
@@ -33,7 +35,8 @@ ParseScoreboard takes the original dfScoreboard and renames its columns to frien
 
 :param dfScoreboard: Scoreboard DataFrame
 '''
-    programMap += 'ParseScoreboard ➡️ '
+    spacer = '        '
+    programMap += f'\n{spacer}GetScoreboard.ParseScoreboard ↩️ '
     # for c in dfScoreboard.columns:
     #     PascalCase = c[:1].upper() + c[1:]
     #     print(f"'{c}': '{PascalCase}',")

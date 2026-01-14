@@ -13,7 +13,7 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str):
     :param GameID: GameID of game
     :type GameID: int
     '''
-    programMap += 'GetDataNBA.GetBox ➡️ '
+    programMap += '\n        GetDataNBA.GetBox ➡️'
     if sender == 'MainFunction':
         print(f'     Retrieving Box data')
     urlBox = f'{urlBoxScore}00{GameID}.json'
@@ -29,7 +29,7 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str):
 
 
 def InsertBox(Box: dict, programMap: str):
-    programMap += 'GetDataNBA.InsertBox ➡️ '
+    programMap += '\n        GetDataNBA.InsertBox ➡️'
     gStatus = InsertGame(Box['Game'], Box['GameExt'])
     boxStatus = InsertBoxscores(Box['TeamBox'], Box['PlayerBox'], Box['StartingLineups'])
 
@@ -38,14 +38,14 @@ def InsertBox(Box: dict, programMap: str):
 
 
 def UpdateBox(Box: dict, programMap: str):
-    programMap += 'GetDataNBA.UpdateBox ➡️ '
+    programMap += '\n        GetDataNBA.UpdateBox ➡️'
     updateStatus = FormatUpdates(Box)
     return updateStatus, programMap
 
 
 
 def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, programMap: str):
-    programMap += 'GetDataNBA.GetPlayByPlay ➡️ '
+    programMap += '\n        GetDataNBA.GetPlayByPlay ➡️'
     if 'MainFunction' in sender:
         print(f'     Retrieving PlayByPlay data')
     urlPbp = f'{urlPlayByPlay}00{GameID}.json'
@@ -62,6 +62,6 @@ def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, pro
 
 
 def InsertPbp(PlayByPlay, programMap: str):
-    programMap += 'GetDataNBA.InsertPbp ➡️ '
+    programMap += '\n        GetDataNBA.InsertPbp ➡️'
     pbpStatus = InsertPlayByPlay(PlayByPlay)
     return f'{pbpStatus}', programMap

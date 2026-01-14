@@ -2,7 +2,7 @@
 
 
 def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition: int, sender: str, programMap: str):
-    programMap += 'ParsePlayByPlay.InitiatePlayByPlay ➡️ '
+    programMap += '\n            ParsePlayByPlay.InitiatePlayByPlay\n            ↩️'
     totalActions = len(actions[startPosition:])
     if totalActions > 0:
         if 'MainFunction' in sender:
@@ -129,7 +129,7 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
             test = 1
     if len(PlayByPlay) == 0:
         test = 1
-    return PlayByPlay
+    return PlayByPlay, programMap
 
 
 

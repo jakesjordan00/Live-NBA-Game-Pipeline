@@ -6,8 +6,8 @@ from Directions import GetGamesInProgress, Wait
 from SQL_Reads import FirstIteration
 from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 from FirstRunCoDriver import NewGameData, ExistingGameData
-
 import time
+from datetime import datetime
 print('-')
 
 programMap = ''
@@ -28,15 +28,29 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     -|
       ->
     '''
-    programMap += 'Driver.MainFunction ➡️ \n'
+    programMap = 'Driver.MainFunction ➡️ '
     #Get the Games in Today's Scoreboard
     print('Getting Scoreboard...')
     dfScoreboard, programMap = GetTodaysScoreboard(programMap)
 
     #Using Today's Scoreboard, get the Games that are in progress
-    halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, programMap = GetGamesInProgress(dfScoreboard, sender, programMap)
-
-    print(f'{len(gamesInProgDict)} Games in progress')
+    halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, games, programMap = GetGamesInProgress(dfScoreboard, sender, programMap)
+    yetToStart = [time for time in allStartTimes if time >= datetime.now()]
+    yetToStartCount = len(yetToStart)
+    yetToStart = 'No more games tonight.' if yetToStartCount == 0 else f'{yetToStartCount} games yet to start.'
+    print(f'''-     -     -     -     -     -     -
+   -    -    -    -    -    -    -
+-     -     -     -     -     -     -
+{games} Games this evening.
+-
+{len(gamesInProgDict)} Games are in progress.
+-
+{len(completedGamesDict)} Games are completed.
+-
+{yetToStart}
+-     -     -     -     -     -     -
+   -    -    -    -    -    -    -
+-     -     -     -     -     -     -''')
 
     #Declare Box and PlayByPlay as none
     Box = None
@@ -53,6 +67,14 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         if len(existingGames) > 0:
             existingDbGames, programMap = ExistingGameData(existingGames, programMap)
             dbGames.extend(existingDbGames)
+
+        existingCompletedGames, programMap = FirstIteration(completedGamesDict, programMap)
+        existingCompletedGameIDs = list(g['GameID']for g in existingCompletedGames )
+        notInDbCompletedGames = [game for game in completedGamesDict if game['GameID'] not in existingCompletedGameIDs]
+        if len(notInDbCompletedGames) > 0:
+            newDbCompletedGames, programMap = NewGameData(notInDbCompletedGames, programMap)
+        if len(existingCompletedGames) > 0:
+            existingCompletedDbGames, programMap = ExistingGameData(existingCompletedGames, programMap)
             
 
         test = 1
@@ -65,7 +87,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         for game in notInDbGames:
             GameID = game['GameID']
             print(f'\n{GameID}                                        MainFunction, in notInDbGames')
-            Box, programMap = GetBox(GameID, game['Data'], 'MainFunction', programMap)
+            Box, programMap = GetBox(GameID, game, 'MainFunction', programMap)
             if Box != None:
                 boxStatus, programMap = InsertBox(Box, programMap)
                 SeasonID = Box['Game']['SeasonID']
@@ -90,6 +112,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
             if game['GameID'] in completedUpdatedGames:
                 dbGames.remove(game)
     iterations += 1
+    # print(programMap)
     return dbGames, iterations, allStartTimes, programMap
 
 def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames, halftimeGames: list, programMap: str):
@@ -119,7 +142,7 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         HomeID = game['Box']['Game']['HomeID']
         AwayID = game['Box']['Game']['AwayID']
         # PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], HomeID, AwayID, game['Actions'], 'RecurringFunction')
-        PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], game['Actions'], 'RecurringFunction', programMap)
+        PlayByPlay, programMap = GetPlayByPlay(game['SeasonID'], game['GameID'], game['Actions'], 'RecurringFunction', programMap)
         PlayByPlayFull = game['PlayByPlay']
         PlayByPlayFull.extend(PlayByPlay)
         game['PlayByPlay'] = PlayByPlayFull
@@ -140,13 +163,13 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
             print(f'{game['GameID']} complete! Performing last upsert', end='', flush=True)
             Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap)
             if Box != None:
-                updateStatus = UpdateBox(Box, programMap)
+                updateStatus, programMap = UpdateBox(Box, programMap)
             print(f'{updateStatus}')
             completedUpdatedGames.append(game['GameID'])
             existingGames.remove(game)
             #Update Box and Insert PlayByPlay, add game to completedUpdatedGames
 
-    return existingGames
+    return existingGames, programMap
 
 
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import pyodbc
 from DBConfig import nbaConnection, nbaCursor, nbaEngine
-from Drivers.Driver import programMap
+
 def FirstIteration(gamesInProg: list, programMap: str):
     '''
 Returns a list of Game dictionaries (dbGames/existingGames). Contains SeasonID, GameID and a count of the PlayByPlay actions
@@ -9,7 +9,7 @@ Returns a list of Game dictionaries (dbGames/existingGames). Contains SeasonID, 
 :param nbaCursor: pyodbc Cursor for SQL connection
 :param gamesInProg: List of GameIDs of Games that are in progress
 '''
-    programMap += 'SQL_Reads.FirstIteration ➡️ '
+    programMap += '\n    SQL_Reads.FirstIteration\n    ↩️'
     query = f'''
 select g.SeasonID, g.GameID, (select count(p.GameID) from PlayByPlay p where g.SeasonID = p.SeasonID and g.GameID = p.GameID) Actions
 from Game g
