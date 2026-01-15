@@ -2,14 +2,16 @@
 
 
 def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition: int, sender: str, programMap: str):
-    programMap += '\n            ParsePlayByPlay.InitiatePlayByPlay\n            ↩️'
     totalActions = len(actions[startPosition:])
     if totalActions > 0:
+        programMap += '\n            ParsePlayByPlay.InitiatePlayByPlay ➡️'
+        programMap += f'\n                ParsePlayByPlay.CalculatePointInGame x{totalActions}\n            ↩️'
         if 'MainFunction' in sender:
             print(f'     Formatting...') 
         singularPlural = 'action' if totalActions == 1 else 'actions'
         print(f'     {len(actions[startPosition:])} {singularPlural} to insert') if sender != 'MainFunctionAlt' else print(f'     {len(actions[startPosition:])} total {singularPlural}')
     else:
+        programMap += '\n            ParsePlayByPlay.InitiatePlayByPlay\n            ↩️'
         print(f'     No new actions')
     PlayByPlay = []
     finalAction = actions[-1]

@@ -8,8 +8,8 @@ from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 from FirstRunCoDriver import NewGameData, ExistingGameData
 import time
 from datetime import datetime
+from ProgramMapHelper import level
 print('-')
-
 programMap = ''
 fullProgramMap = []
 completedUpdatedGames = []
@@ -26,16 +26,15 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     :type dbGames: list[dict]
     '''
     '''
-    -|
-      ->
+    ╰╼╾╼
     '''
-    if programMap != '':
-        fullProgramMap.append(programMap)
-        # if iterations == 5:
-        #     print('\n\n\n')
-        #     for iteration in fullProgramMap:
-        #         print(iteration)
-        #     test = 1
+    # if programMap != '':
+    #     fullProgramMap.append(programMap)
+    #     if iterations == 1:
+    #         print('\n\n\n')
+    #         for iteration in fullProgramMap:
+    #             print(iteration)
+    #         test = 1
     underscore = '_' * 70
     programMap = f'{underscore}\nDriver.MainFunction ➡️                                               v{iterations+1}'
     #Get the Games in Today's Scoreboard
@@ -67,7 +66,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
 
     #If we're on our first iteration or every fifth, see what games exist from the Scoreboard in the Db
     if iterations == 0:
-        existingGames, programMap = FirstIteration(gamesInProgDict, programMap)
+        existingGames, programMap = FirstIteration(gamesInProgDict, programMap)    
         existingGameIDs = list(g['GameID']for g in existingGames )
         notInDbGames = [game for game in gamesInProgDict if game['GameID'] not in existingGameIDs]
         if len(notInDbGames) > 0:
@@ -76,7 +75,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         if len(existingGames) > 0:
             existingDbGames, programMap = ExistingGameData(existingGames, programMap)
             dbGames.extend(existingDbGames)
-
+    
         existingCompletedGames, programMap = FirstIteration(completedGamesDict, programMap)
         existingCompletedGameIDs = list(g['GameID']for g in existingCompletedGames )
         notInDbCompletedGames = [game for game in completedGamesDict if game['GameID'] not in existingCompletedGameIDs]

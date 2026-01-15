@@ -9,7 +9,7 @@ Returns a list of Game dictionaries (dbGames/existingGames). Contains SeasonID, 
 :param nbaCursor: pyodbc Cursor for SQL connection
 :param gamesInProg: List of GameIDs of Games that are in progress
 '''
-    programMap += '\n    SQL_Reads.FirstIteration\n    ↩️'
+    programMap += 'SQL_Reads.FirstIteration╼╮ \n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯ '
     query = f'''
 select g.SeasonID, g.GameID, (select count(p.GameID) from PlayByPlay p where g.SeasonID = p.SeasonID and g.GameID = p.GameID) Actions
 from Game g

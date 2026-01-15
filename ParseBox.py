@@ -14,9 +14,31 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> tuple[d
             * *Team, Player, Arena, Official*
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    programMap += '\n            ParseBox.InitiateBox ➡️'
-    if 'MainFunction' in sender:
-        print(f'     Formatting...')
+
+    '''
+    ╰╼╾╼
+    ╼╾
+    ╼
+    ╾
+    ╯  ╰ 
+    ╭  ╮
+    
+    ╼╮
+    '''
+
+    programMap += 'ParseBox.InitiateBox╼╮\n'
+    last = programMap.split('\n')[-2]
+    last2 = programMap.split('\n')[-3]
+    programMap += f'{(len(last2) - 1) * ' '}║'
+    programMap += f'{((len(last) - len(last2)) - 1) * ' '}╰╼'
+
+    # secondLast = programMap.split('\n')[-2]
+    # loop = (len(last) - len(secondLast) - 2)
+    # loop = f'{(int(loop/2)) * '╼╾'}' if loop % 2 == 0 else f'{(int(loop/2)) * '╼╾'}╼'
+    # programMap += f'\n{(len(secondLast) - 1) * ' '}╠╾{loop}╯'
+    print(programMap)
+    # if 'MainFunction' in sender:
+    #     print(f'     Formatting...')
     arena = game['arena']
     officials = game['officials']
     home = game['homeTeam']
@@ -31,6 +53,9 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> tuple[d
     Game, GameExt, programMap = FormatGame(game, Data, programMap)
     Arena, programMap = FormatArena(Game['SeasonID'], Game['HomeID'], arena, programMap)
     Official, programMap = FormatOfficial(Game['SeasonID'], officials, programMap)
+    
+    programMap += f'\n{(len(last2) - 1) * ' '}╠╼'
+    print(programMap)
     Team, TeamBox, Player, PlayerBox, StartingLineups, programMap = BoxscoreLoop(Game['SeasonID'], Game['GameID'], Game['HomeID'], Game['AwayID'], [home, away], programMap)
 
     BoxData = {
@@ -58,7 +83,13 @@ def FormatGame(game: dict, Data: dict, programMap: str):
     :return GameExt: Formatted data for GameExt table
     :rtype: tuple[dict[Any, Any], dict[Any, Any]]
     '''
-    programMap += '\n                ParseBox.FormatGame\n                ↩️'
+    programMap += 'ParseBox.FormatGame╼╮\n'
+    last5 = programMap.split('\n')[-5]
+    last4 = programMap.split('\n')[-4]
+    last3 = programMap.split('\n')[-3]
+    length = len(last3) - len(last5)+1
+    loop = f'{(int(length/2)) * '╼╾'}' if length % 2 == 0 else f'{(int(length/2)) * '╼╾'}╼'
+    programMap += f'{(len(last4) - 1) * ' '}╠{loop}╯'
     SeasonID = int(f'20{game['gameId'][3:5]}')
     GameID = int(game['gameId'])
     Date = game['gameEt'].split('T')[0]
@@ -144,7 +175,7 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> tup
     :return Arena: Formatted Arena data for SQL table
     :rtype: dict[Any, Any]
     '''
-    programMap += '\n                ParseBox.FormatArena\n                ↩️'
+    # programMap += '\n                ParseBox.FormatArena\n                ↩️'
     ArenaID = arena['arenaId']
     Name = arena['arenaName']
     City = arena['arenaCity']
@@ -167,7 +198,7 @@ def FormatArena(SeasonID: int, TeamID: int, arena: dict, programMap: str) -> tup
     return Arena, programMap
 
 def FormatOfficial(SeasonID: int, officials: list, programMap: str):
-    programMap += '\n                ParseBox.FormatOfficial\n                ↩️'
+    # programMap += '\n                ParseBox.FormatOfficial\n                ↩️'
     Official = []
     for official in officials:            
         Official.append({
@@ -198,8 +229,24 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
     :return Team: Description
     :rtype: tuple[list[Any], list[Any], list[Any], list[Any], list[Any]]
     '''
-    programMap += '\n                ParseBox.BoxscoreLoop ➡️'
-    spacer = '\n                    '
+    '''
+    ╰╼╾╼
+    ╼╾
+    ╼
+    ╾
+    ╯  ╰ 
+    ╭  ╮
+    
+    ╼╮
+    '''
+    programMap += 'ParseBox.BoxscoreLoop╼╮\n'
+    last5 = programMap.split('\n')[-5]
+    last4 = programMap.split('\n')[-4]
+    last3 = programMap.split('\n')[-3]
+    last = programMap.split('\n')[-2]
+    length = len(last3) - len(last5)+1
+    spacer = f'\n{(len(last) - 1) * ' '}'
+    spacer2 = f'\n{(len(last3) - 1) * ' '}'
     Team = []
     TeamBox = []
     TeamBoxExt = []
@@ -232,9 +279,22 @@ def BoxscoreLoop(SeasonID: int, GameID: int, HomeID: int, AwayID: int, teams: li
 
         teamFormatHits += 1
         test = 1
-    programMap += f'ParseBox.FormatTeam x{teamFormatHits} 🔁{spacer}ParseBox.FormatTeamBox x{teamFormatHits} 🔁{spacer}ParseBox.FormatTeamBoxExt x{teamBoxExtFormatHits} 🔁{spacer}ParseBox.FormatPlayer x{playerFormatHits} 🔁{spacer}ParseBox.FormatPlayerBox x{playerFormatHits} 🔁{spacer}ParseBox.FormatStartingLineups x{playerFormatHits} 🔁\n                ↩️'
+    programMap += f'{spacer.replace('\n', '')}╠╾ParseBox.FormatTeam╼╮ x{teamFormatHits}'
+    programMap += f'{spacer}╠╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯'
+    programMap += f'{spacer}╠╾ParseBox.FormatTeamBox╼╮ x{teamFormatHits}'
+    programMap += f'{spacer}╠╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
+    programMap += f'{spacer}╠╾ParseBox.FormatTeamBoxExt╼╮ x{teamBoxExtFormatHits}'
+    programMap += f'{spacer}╠╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯'
+    programMap += f'{spacer}╠╾ParseBox.FormatPlayer╼╮ x{playerFormatHits}'
+    programMap += f'{spacer}╠╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯'
+    programMap += f'{spacer}╠╾ParseBox.FormatPlayerBox╼╮ x{playerFormatHits}'
+    programMap += f'{spacer}╠╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
+    programMap += f'{spacer}╠╾ParseBox.FormatStartingLineups╼╮ x{playerFormatHits}'
+    programMap += f'{spacer}╠╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯\n'
+    programMap += f'{(len(spacer) - len('╼ParseBox.BoxscoreLoop╼╮') - 1)* ' '}╠╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯\n'
+    
+    # 🔁{spacer}ParseBox.FormatTeamBox x{teamFormatHits} 🔁{spacer}ParseBox.FormatTeamBoxExt x{teamBoxExtFormatHits} 🔁{spacer}ParseBox.FormatPlayer x{playerFormatHits} 🔁{spacer}ParseBox.FormatPlayerBox x{playerFormatHits} 🔁{spacer}ParseBox.FormatStartingLineups x{playerFormatHits} 🔁\n                ↩️'
     test = 1
-
     return Team, TeamBox, Player, PlayerBox, StartingLineups, programMap
 
 

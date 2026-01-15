@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import time
-
+from ProgramMapHelper import DisplayConfiguration as dc
 
 def GetGamesInProgress(dfScoreboard: pd.DataFrame, sender: str, programMap: str):
     '''
@@ -10,8 +10,11 @@ Returns a list of GameIDs of only those games in progress
     
 :param dfScoreboard: Scoreboard DataFrame
 :type dfScoreboard: pd.DataFrame
+'╼╮'
+'╰╼'
 '''
-    programMap += '\n    Directions.GetGamesInProgress ➡️ '
+    space = '                                   '
+    programMap += f'{dc['1s']}Directions.GetGamesInProgress╼╦'
     gamesInProgDict = []
     completedGamesDict = []
     gamesInProg = []
@@ -42,8 +45,11 @@ Returns a list of GameIDs of only those games in progress
     gamesInProg.sort()
     allStartTimes.sort()
     if gameDictHits > 0:
-        programMap += f'\n          Directions.GameDictionary x{gameDictHits} 🔁\n        ↩️ '
-
+        programMap += f'╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╮ \n'
+        programMap += f'                                  ╠╼╾Directions.GameDictionary╼╯ x{gameDictHits}\n'
+        programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╝ \n'
+        programMap += f'╰╼╾╼'
+        # programMap += f'Directions.GameDictionary╼╯'
     return halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, games, programMap
 
         
@@ -101,7 +107,9 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
     print(printStr, end='\r')
     
     bp = 'here'
-    # print(f'\n\n{programMap}')
+    # print(f'\n\n{programMap}')    
+    return programMap #remove this
+
     remaining = waitTime
     for checkpoint in checkpoints:
         if remaining > checkpoint:

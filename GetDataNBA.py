@@ -13,7 +13,11 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str):
     :param GameID: GameID of game
     :type GameID: int
     '''
-    programMap += '\n        GetDataNBA.GetBox ➡️'
+    
+    programMap += ''
+    print(programMap)
+    nextPath = '                                                          'if 'Existing' in programMap.split('\n')[-2] else '                                                     '
+    programMap += f'GetDataNBA.GetBox╼╮\n{nextPath}╠╼'
     if sender == 'MainFunction':
         print(f'     Retrieving Box data')
     urlBox = f'{urlBoxScore}00{GameID}.json'

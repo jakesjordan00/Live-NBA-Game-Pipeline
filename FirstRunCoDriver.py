@@ -16,7 +16,8 @@ def NewGameData(notInDbGames: list, programMap: str):
     :return: dbGames
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
-    programMap += '\n    FirstRunCoDriver.NewGameData ➡️'
+    programMap += '\n╰╼╾╼FirstRunCoDriver.NewGameData╼╮\n                                 ╰╾'
+    print(programMap)
     dbGames = []
     for game in notInDbGames:
         homeLineup = []
@@ -61,7 +62,17 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     :return: dbGames
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
-    programMap += '\n    FirstRunCoDriver.ExistingGameData ➡️'
+
+    '''
+    ╰╼╾╼
+    ╼╾
+    ╼
+    ╾
+    ╯  ╰ 
+    ╭  ╮
+    
+    '''
+    programMap += '\n╰╼╾╼FirstRunCoDriver.ExistingGameData╼╮\n                                      ╰╾'
     dbGames = []
     for game in existingGames:
         print(f'\n{game['GameID']}                                        MainFunction, in existingGames')

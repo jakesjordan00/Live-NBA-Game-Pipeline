@@ -7,10 +7,10 @@ import urllib3
 import json
 
 
-
 def GetTodaysScoreboard(programMap: str):
-    spacer = '    '
-    programMap += f'\n{spacer}GetScoreboard.GetTodaysScoreboard ➡️ '
+    spacer = '╰╼╾╼'
+    programMap += f'\n{spacer}GetScoreboard.GetTodaysScoreboard╼╮ \n'
+    linelen = len(f'{spacer}GetScoreboard.GetTodaysScoreboard╼╮')
     try:
         # with open('Scoreboards/todaysScoreboard_00_011326.json', 'r', encoding='utf-8-sig') as f: #Testing
         #     data = json.load(f) #testing
@@ -19,7 +19,6 @@ def GetTodaysScoreboard(programMap: str):
         columns = data['scoreboard']['games']
         dfScoreboard = pd.DataFrame(data['scoreboard']['games'])
         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)
-        programMap += f'\n    ↩️ '
     except Exception as e:
         dfScoreboard = pd.DataFrame()
         print(f"Error downloading PlayerGameLogs: {e}")
@@ -35,8 +34,11 @@ ParseScoreboard takes the original dfScoreboard and renames its columns to frien
 
 :param dfScoreboard: Scoreboard DataFrame
 '''
-    spacer = '        '
-    programMap += f'\n{spacer}GetScoreboard.ParseScoreboard\n{spacer}↩️ '
+    #12 spaces
+    spacer = '        ' 
+    '                              '
+    programMap += f'                                      ╰GetScoreboard.ParseScoreboard╮ \n'
+    programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯ \n'
     # for c in dfScoreboard.columns:
     #     PascalCase = c[:1].upper() + c[1:]
     #     print(f"'{c}': '{PascalCase}',")
