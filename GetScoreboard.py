@@ -12,10 +12,10 @@ def GetTodaysScoreboard(programMap: str):
     programMap += f'\n{spacer}GetScoreboard.GetTodaysScoreboard╼╮ \n'
     linelen = len(f'{spacer}GetScoreboard.GetTodaysScoreboard╼╮')
     try:
-        # with open('Scoreboards/todaysScoreboard_00_011326.json', 'r', encoding='utf-8-sig') as f: #Testing
-        #     data = json.load(f) #testing
-        response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
-        data = response.json()
+        with open('Scoreboards/todaysScoreboard_00_011326.json', 'r', encoding='utf-8-sig') as f: #Testing
+            data = json.load(f) #testing
+        # response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
+        # data = response.json()
         columns = data['scoreboard']['games']
         dfScoreboard = pd.DataFrame(data['scoreboard']['games'])
         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)

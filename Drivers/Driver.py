@@ -66,23 +66,25 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
 
     #If we're on our first iteration or every fifth, see what games exist from the Scoreboard in the Db
     if iterations == 0:
-        existingGames, programMap = FirstIteration(gamesInProgDict, programMap)    
-        existingGameIDs = list(g['GameID']for g in existingGames )
-        notInDbGames = [game for game in gamesInProgDict if game['GameID'] not in existingGameIDs]
-        if len(notInDbGames) > 0:
-            newDbGames, programMap = NewGameData(notInDbGames, programMap)
-            dbGames.extend(newDbGames)
-        if len(existingGames) > 0:
-            existingDbGames, programMap = ExistingGameData(existingGames, programMap)
-            dbGames.extend(existingDbGames)
+        if len(gamesInProgDict) > 0:
+            existingGames, programMap = FirstIteration(gamesInProgDict, programMap)    
+            existingGameIDs = list(g['GameID']for g in existingGames )
+            notInDbGames = [game for game in gamesInProgDict if game['GameID'] not in existingGameIDs]
+            if len(notInDbGames) > 0:
+                newDbGames, programMap = NewGameData(notInDbGames, programMap)
+                dbGames.extend(newDbGames)
+            if len(existingGames) > 0:
+                existingDbGames, programMap = ExistingGameData(existingGames, programMap)
+                dbGames.extend(existingDbGames)
     
-        existingCompletedGames, programMap = FirstIteration(completedGamesDict, programMap)
-        existingCompletedGameIDs = list(g['GameID']for g in existingCompletedGames )
-        notInDbCompletedGames = [game for game in completedGamesDict if game['GameID'] not in existingCompletedGameIDs]
-        if len(notInDbCompletedGames) > 0:
-            newDbCompletedGames, programMap = NewGameData(notInDbCompletedGames, programMap)
-        if len(existingCompletedGames) > 0:
-            existingCompletedDbGames, programMap = ExistingGameData(existingCompletedGames, programMap)
+        if len(completedGamesDict) > 0:
+            existingCompletedGames, programMap = FirstIteration(completedGamesDict, programMap)
+            existingCompletedGameIDs = list(g['GameID']for g in existingCompletedGames )
+            notInDbCompletedGames = [game for game in completedGamesDict if game['GameID'] not in existingCompletedGameIDs]
+            if len(notInDbCompletedGames) > 0:
+                newDbCompletedGames, programMap = NewGameData(notInDbCompletedGames, programMap)
+            if len(existingCompletedGames) > 0:
+                existingCompletedDbGames, programMap = ExistingGameData(existingCompletedGames, programMap)
             
 
         test = 1

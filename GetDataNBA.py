@@ -6,7 +6,7 @@ from ParsePlayByPlay import InitiatePlayByPlay
 from SQL_Writes import InsertBoxscores, InsertGame, InsertTeamBox, InsertPlayerBox, InsertPlayByPlay
 from FormatBoxUpdates import *
 
-def GetBox(GameID: int, Data: dict, sender: str, programMap: str):
+def GetBox(GameID: int, Data: dict, sender: str, programMap: str, mapPole: str):
     '''
     Hits Boxscore.json url of GameID passed
     
@@ -14,18 +14,16 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str):
     :type GameID: int
     '''
     
-    programMap += ''
-    #print(programMap)
-    nextPath = '                                                          'if 'Existing' in programMap.split('\n')[-2] else '                                                     '
-    programMap += f'GetDataNBA.GetBox╼╮\n{nextPath}╠╼'
-    if sender == 'MainFunction':
-        print(f'     Retrieving Box data')
+    programMap += f'GetDataNBA.GetBox╼╮\n{mapPole}'
+
+    # if sender == 'MainFunction':
+    #     print(f'     Retrieving Box data')
     urlBox = f'{urlBoxScore}00{GameID}.json'
     try:
         response = requests.get(urlBox)
         data = response.json()
         game = data['game']
-        Box, programMap = InitiateBox(game, Data, sender, programMap)
+        Box, programMap = InitiateBox(game, Data, sender, programMap, mapPole)
     except Exception as e:
         print(f"Error getting Boxscore data: {e}")
 
@@ -49,7 +47,14 @@ def UpdateBox(Box: dict, programMap: str):
 
 
 def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, programMap: str):
-    programMap += '\n        GetDataNBA.GetPlayByPlay ➡️'
+    last2 = programMap.split('\n')[-1]
+    programMap += 'GetDataNBA.GetPlayByPlay╼╮\n'
+    last1 = programMap.split('\n')[-2]
+    polePosition = last1.index('╞')
+    secondPole = last1.index('╼╮')
+    programMap += f'{(polePosition * ' ')}│'
+    programMap += f'{(secondPole - polePosition) * ' '}'
+    print(programMap)
     if 'MainFunction' in sender:
         print(f'     Retrieving PlayByPlay data')
     urlPbp = f'{urlPlayByPlay}00{GameID}.json'

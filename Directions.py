@@ -14,7 +14,7 @@ Returns a list of GameIDs of only those games in progress
 '╰╼'
 '''
     space = '                                   '
-    programMap += f'{dc['1s']}Directions.GetGamesInProgress╼╦'
+    programMap += f'{dc['1s']}Directions.GetGamesInProgress╼┬'
     gamesInProgDict = []
     completedGamesDict = []
     gamesInProg = []
@@ -46,8 +46,8 @@ Returns a list of GameIDs of only those games in progress
     allStartTimes.sort()
     if gameDictHits > 0:
         programMap += f'╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╮ \n'
-        programMap += f'                                  ╠╼╾Directions.GameDictionary╼╯ x{gameDictHits}\n'
-        programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╝ \n'
+        programMap += f'                                  ╞╼╾Directions.GameDictionary╼╯ x{gameDictHits}\n'
+        programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╛ \n'
         programMap += f'╰╼╾╼'
         # programMap += f'Directions.GameDictionary╼╯'
     return halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, games, programMap
@@ -91,7 +91,7 @@ def GameDictionary(game):
 
 
 def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
-    # print(programMap)
+    print(programMap)
     programMap += '\n    Wait\n    ↩️'
     if len(allStartTimes) > 0:
         nextGameTip =(allStartTimes[0] - datetime.now()).seconds

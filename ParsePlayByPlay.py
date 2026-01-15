@@ -3,16 +3,40 @@
 
 def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition: int, sender: str, programMap: str):
     totalActions = len(actions[startPosition:])
+    programMap += '╞ParsePlayByPlay.InitiatePlayByPlay╼╮\n'
+    last1 = programMap.split('\n')[-2]
+    last2 = programMap.split('\n')[-3]
     if totalActions > 0:
-        programMap += '\n            ParsePlayByPlay.InitiatePlayByPlay ➡️'
-        programMap += f'\n                ParsePlayByPlay.CalculatePointInGame x{totalActions}\n            ↩️'
+        #keep in if
+        polePosition = last1.index('│')
+        secondPole = last1.index('╞')
+        starter = f'{polePosition * ' '}│                          │                                   '
+        programMap += f'{starter}╞╾ParsePlayByPlay.CalculatePointInGame╼╮x{totalActions}\n'
+        programMap += f'{starter}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯\n'
+
+        print(programMap)
+        bp = 'here'
         if 'MainFunction' in sender:
             print(f'     Formatting...') 
         singularPlural = 'action' if totalActions == 1 else 'actions'
         print(f'     {len(actions[startPosition:])} {singularPlural} to insert') if sender != 'MainFunctionAlt' else print(f'     {len(actions[startPosition:])} total {singularPlural}')
+    
     else:
-        programMap += '\n            ParsePlayByPlay.InitiatePlayByPlay\n            ↩️'
+        #move to else
+        polePosition = last1.index('│')
+        secondPole = last1.index('╮')
+        starter = f'{polePosition * ' '}│                          '
+        programMap += f'{starter}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯\n' #move to else
+        programMap += f'{polePosition * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
+        print(programMap)
+        bp = 'here'
         print(f'     No new actions')
+
+
+
+    print(programMap)
+    bp = 'here'
+
     PlayByPlay = []
     finalAction = actions[-1]
     periods = finalAction['period'] if finalAction['period'] > 3 else 4

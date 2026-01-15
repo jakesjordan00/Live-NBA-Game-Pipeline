@@ -17,7 +17,7 @@ def NewGameData(notInDbGames: list, programMap: str):
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
     programMap += '\n╰╼╾╼FirstRunCoDriver.NewGameData╼╮\n                                 ╰╾'
-    #print(programMap)
+    print(programMap)
     dbGames = []
     for game in notInDbGames:
         homeLineup = []
@@ -72,14 +72,24 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     ╭  ╮
     
     '''
-    programMap += '\n╰╼╾╼FirstRunCoDriver.ExistingGameData╼╮\n                                      ╰╾'
+    programMap += '\n╰╼╾╼FirstRunCoDriver.ExistingGameData╼╮\n'  
+    last = programMap.split('\n')[-2]
+    lastLen = len(last) - 1
+    programMap += f'{lastLen * ' '}╞╾'
+    print(programMap)
     dbGames = []
     for game in existingGames:
         print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
-        Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap)
+        Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap, f'{lastLen * ' '}│')
+        # last1 = str(programMap.split('\n')[-2]).split('╞')[0]
+        # programMap += f'{lastLen * ' '}╭{(len(last1) - lastLen) * '═'}╾╯\n'
+        # programMap += f'{lastLen * ' '}╞╾'
+        programMap += f'\n{lastLen * ' '}╞╾'
         HomeID = Box['Game']['HomeID']
         AwayID = Box['Game']['AwayID']
         PlayByPlay, programMap = GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt', programMap)
+        print(programMap)
+        bp = 'here'
         dbGames.append({
             'SeasonID': game['SeasonID'],
             'GameID': game['GameID'],
