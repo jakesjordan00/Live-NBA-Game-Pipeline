@@ -17,7 +17,7 @@ def NewGameData(notInDbGames: list, programMap: str):
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
     programMap += '\n╰╼╾╼FirstRunCoDriver.NewGameData╼╮\n                                 ╰╾'
-    print(programMap)
+    #print(programMap)
     dbGames = []
     for game in notInDbGames:
         homeLineup = []

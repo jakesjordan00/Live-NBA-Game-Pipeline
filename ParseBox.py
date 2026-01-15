@@ -36,7 +36,7 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> tuple[d
     # loop = (len(last) - len(secondLast) - 2)
     # loop = f'{(int(loop/2)) * '╼╾'}' if loop % 2 == 0 else f'{(int(loop/2)) * '╼╾'}╼'
     # programMap += f'\n{(len(secondLast) - 1) * ' '}╠╾{loop}╯'
-    print(programMap)
+    #print(programMap)
     # if 'MainFunction' in sender:
     #     print(f'     Formatting...')
     arena = game['arena']
@@ -55,9 +55,10 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str) -> tuple[d
     Official, programMap = FormatOfficial(Game['SeasonID'], officials, programMap)
     
     programMap += f'\n{(len(last2) - 1) * ' '}╠╼'
-    print(programMap)
+    # print(programMap)
     Team, TeamBox, Player, PlayerBox, StartingLineups, programMap = BoxscoreLoop(Game['SeasonID'], Game['GameID'], Game['HomeID'], Game['AwayID'], [home, away], programMap)
 
+    # print(programMap)
     BoxData = {
         'Game': Game,
         'GameExt': GameExt,

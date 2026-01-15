@@ -15,7 +15,7 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str):
     '''
     
     programMap += ''
-    print(programMap)
+    #print(programMap)
     nextPath = '                                                          'if 'Existing' in programMap.split('\n')[-2] else '                                                     '
     programMap += f'GetDataNBA.GetBox╼╮\n{nextPath}╠╼'
     if sender == 'MainFunction':

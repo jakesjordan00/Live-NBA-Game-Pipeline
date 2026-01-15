@@ -91,6 +91,7 @@ def GameDictionary(game):
 
 
 def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
+    # print(programMap)
     programMap += '\n    Wait\n    ↩️'
     if len(allStartTimes) > 0:
         nextGameTip =(allStartTimes[0] - datetime.now()).seconds
@@ -108,7 +109,7 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
     
     bp = 'here'
     # print(f'\n\n{programMap}')    
-    return programMap #remove this
+    # return programMap #remove this
 
     remaining = waitTime
     for checkpoint in checkpoints:

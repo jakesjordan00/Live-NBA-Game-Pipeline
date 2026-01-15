@@ -109,7 +109,8 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
                     'GameID': GameID,
                     'Box': Box,
                     'PlayByPlay': PlayByPlay,
-                    'Actions': len(PlayByPlay)
+                    'Actions': len(PlayByPlay),
+                    'Data': game
                 })
         
         test = 1
