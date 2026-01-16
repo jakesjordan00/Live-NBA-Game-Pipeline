@@ -31,7 +31,9 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str, mapPole: str):
 
 
 def InsertBox(Box: dict, programMap: str):
-    programMap += '\n        GetDataNBA.InsertBox ➡️'
+    lastLine = programMap.split('\n')[-2]
+    polePosition = lastLine.index('╞')
+    programMap += f'{lastLine[:polePosition]}│                      ╞'
     gStatus = InsertGame(Box['Game'], Box['GameExt'])
     boxStatus = InsertBoxscores(Box['TeamBox'], Box['PlayerBox'], Box['StartingLineups'])
 
@@ -40,21 +42,24 @@ def InsertBox(Box: dict, programMap: str):
 
 
 def UpdateBox(Box: dict, programMap: str):
-    programMap += '\n        GetDataNBA.UpdateBox ➡️'
-    updateStatus = FormatUpdates(Box)
+    lastLine = programMap.split('\n')[-1]
+    polePosition = lastLine.index('╞')
+    programMap += f'\n{lastLine[:polePosition]}│                      ╞'
+    updateStatus, programMap = FormatUpdates(Box, programMap)
+    
+    programMap += f'\n{lastLine[:polePosition]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
     return updateStatus, programMap
 
 
 
 def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, programMap: str):
     last2 = programMap.split('\n')[-1]
-    programMap += '╞GetDataNBA.GetPlayByPlay╼╮\n'
+    programMap += 'GetDataNBA.GetPlayByPlay╼╮\n'
     last1 = programMap.split('\n')[-2]
     polePosition = last1.index('╞')
     secondPole = last1.index('╼╮')
     programMap += f'{(polePosition * ' ')}│'
     programMap += f'{(secondPole - polePosition) * ' '}'
-    print(programMap)
     if 'MainFunction' in sender:
         print(f'     Retrieving PlayByPlay data')
     urlPbp = f'{urlPlayByPlay}00{GameID}.json'
@@ -72,6 +77,10 @@ def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, pro
 
 
 def InsertPbp(PlayByPlay, programMap: str):
-    programMap += '\n        GetDataNBA.InsertPbp ➡️'
-    pbpStatus = InsertPlayByPlay(PlayByPlay)
+    lastLine = programMap.split('\n')[-2]
+    polePosition = lastLine.index('╞')
+    programMap += f'{lastLine[:polePosition]}│                      ╞'
+    pbpStatus, programMap = InsertPlayByPlay(PlayByPlay, programMap)
+    programMap += f'\n{lastLine[:polePosition]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
+
     return f'{pbpStatus}', programMap

@@ -21,7 +21,6 @@ def NewGameData(notInDbGames: list, programMap: str):
     lastLen = len(last) - 1
     mapPole = f'{lastLen * ' '}│'
     programMap += f'{lastLen * ' '}╞╾'
-    print(programMap)
     dbGames = []
     for game in notInDbGames:
         homeLineup = []
@@ -80,21 +79,23 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     last = programMap.split('\n')[-2]
     lastLen = len(last) - 1
     mapPole = f'{lastLen * ' '}│'
-    programMap += f'{lastLen * ' '}╞╾'
-    print(programMap)
+    programMap += f'{(lastLen - 8) * ' '}{existingGames[0]['GameID']}╞╾'
     dbGames = []
-    for game in existingGames:
-        print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
+    for i, game in enumerate(existingGames):
+        if i > 0:
+            programMap += f'\n{(lastLen - 8) * ' '}{game['GameID']}╞╾'
+
+
+
+        # print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
         Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap, mapPole)
-        # last1 = str(programMap.split('\n')[-2]).split('╞')[0]
-        # programMap += f'{lastLen * ' '}╭{(len(last1) - lastLen) * '═'}╾╯\n'
-        # programMap += f'{lastLen * ' '}╞╾'
+
+
         programMap += f'\n{lastLen * ' '}╞╾'
         HomeID = Box['Game']['HomeID']
         AwayID = Box['Game']['AwayID']
         PlayByPlay, programMap = GetPlayByPlay(game['SeasonID'], game['GameID'], 0, 'MainFunctionAlt', programMap)
-        print(programMap)
-        bp = 'here'
+
         dbGames.append({
             'SeasonID': game['SeasonID'],
             'GameID': game['GameID'],
@@ -105,16 +106,29 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
         })
         pbp = PlayByPlay[game['Actions']:]
         if len(pbp) > 0:
-            test = programMap.split('\n')[-1]
+            lastLine = programMap.split('\n')[-1]
+            polePosition = lastLine.index('╞')
+            programMap += f'\n{lastLine[:polePosition]}╞╾GetDataNBA.InsertPbp╼╮\n'
             pbpStatus, programMap = InsertPbp(pbp, programMap)
             print(f'     {len(pbp)} new actions inserted')
         else:            
             print(f'     No new actions')
+        
+        lastLine = programMap.split('\n')[-1]
+        polePosition = lastLine.index('╞')
+        programMap += f'\n{lastLine[:polePosition]}╞╾GetDataNBA.UpdateBox╼╮'
         updateStatus, programMap = UpdateBox(Box, programMap) #type: ignore
-        print(f'     {updateStatus}')
+        
+        # print(f'     {updateStatus}')
+
+    programMap += f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
+
 
 
     return dbGames, programMap
+
+
+
 
 
 

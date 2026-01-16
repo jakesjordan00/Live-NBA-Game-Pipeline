@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import time
-from ProgramMapHelper import DisplayConfiguration as dc
+from ProgramMapHelper import DisplayProgramMap, DisplayConfiguration as dc
 
 def GetGamesInProgress(dfScoreboard: pd.DataFrame, sender: str, programMap: str):
     '''
@@ -14,7 +14,7 @@ Returns a list of GameIDs of only those games in progress
 '╰╼'
 '''
     space = '                                   '
-    programMap += f'{dc['1s']}Directions.GetGamesInProgress╼┬'
+    programMap += f'{dc['1s']}Directions.GetGamesInProgress╼╮'
     gamesInProgDict = []
     completedGamesDict = []
     gamesInProg = []
@@ -44,12 +44,9 @@ Returns a list of GameIDs of only those games in progress
             halftimeGames.append(GameID)
     gamesInProg.sort()
     allStartTimes.sort()
-    if gameDictHits > 0:
-        programMap += f'╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╮ \n'
-        programMap += f'                                  ╞╼╾Directions.GameDictionary╼╯ x{gameDictHits}\n'
-        programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╛ \n'
-        programMap += f'╰╼╾╼'
-        # programMap += f'Directions.GameDictionary╼╯'
+    programMap += f'\n                                  ╞╼╾Directions.GameDictionary╼╮ x{gameDictHits}'
+    programMap += f'\n                                  ╞╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
+    programMap += f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯'
     return halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, games, programMap
 
         
@@ -91,8 +88,12 @@ def GameDictionary(game):
 
 
 def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
-    print(programMap)
-    programMap += '\n    Wait\n    ↩️'
+    
+    DisplayProgramMap(programMap, 'Wait')
+    bp = 'here'
+    # programMap += '\nWait'
+    # for line in programMap.split('\n'):
+    #     print(line)
     if len(allStartTimes) > 0:
         nextGameTip =(allStartTimes[0] - datetime.now()).seconds
     else:
@@ -121,3 +122,8 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
     time.sleep(remaining)
     print(f'{printStr}Done waiting!\n-') 
     return programMap
+
+
+
+
+

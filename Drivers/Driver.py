@@ -8,7 +8,7 @@ from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 from FirstRunCoDriver import NewGameData, ExistingGameData
 import time
 from datetime import datetime
-from ProgramMapHelper import level
+from ProgramMapHelper import level, DisplayProgramMap
 print('-')
 programMap = ''
 fullProgramMap = []
@@ -36,7 +36,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     #             print(iteration)
     #         test = 1
     underscore = '_' * 70
-    programMap = f'{underscore}\nDriver.MainFunction ➡️                                               v{iterations+1}'
+    programMap = f'{underscore}\nDriver.MainFunction                                                 v{iterations+1}'
     #Get the Games in Today's Scoreboard
     print('Getting Scoreboard...')
     dfScoreboard, programMap = GetTodaysScoreboard(programMap)
@@ -144,7 +144,10 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
     :param completedGames: Games that are have a GameStatus value of 3 from scoreboard
     :type iterations: list
     '''
-    programMap += '\n        Driver.RecurringFunction ➡️ ' if len(existingGames) > 0 else '\n        Driver.RecurringFunction\n        ↩️'
+    programMap += f'\n╰╼╾╼Driver.RecurringFunction╼╮\n                             ╞╾'
+    lastLine = programMap.split('\n')[-2]
+    print(programMap)
+    bp = 'here'
     for game in existingGames:
         print(f'\n{game['GameID']}                                        RecurringFunction v{iterations}')
         if game['GameID'] in halftimeGames:
@@ -154,6 +157,8 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         AwayID = game['Box']['Game']['AwayID']
         # PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], HomeID, AwayID, game['Actions'], 'RecurringFunction')
         PlayByPlay, programMap = GetPlayByPlay(game['SeasonID'], game['GameID'], game['Actions'], 'RecurringFunction', programMap)
+        print(programMap)
+        bp = 'here'
         PlayByPlayFull = game['PlayByPlay']
         PlayByPlayFull.extend(PlayByPlay)
         game['PlayByPlay'] = PlayByPlayFull
@@ -187,8 +192,11 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
 #When file is executed, it starts here
 iterations = 0
 dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, [], 'Default', programMap)
+
 programMap = Wait(len(dbGames), allStartTimes, programMap)
 
+    # DisplayProgramMap(programMap, 'Wait')
+    # bp = 'here'
 if iterations > 0:
     while True:
        dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, dbGames, 'Recurring', programMap)

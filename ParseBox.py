@@ -40,9 +40,7 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str, mapPole: s
     initBoxSpacer = len(last2) - len(last) - 1
     programMap += f'{poles}{initBoxSpacer * ' '}╞╾'
 
-    # programMap += poles
-    print(programMap)
-    bp = 'here'
+
 
     # if 'MainFunction' in sender:
     #     print(f'     Formatting...')
@@ -102,8 +100,6 @@ def FormatGame(game: dict, Data: dict, programMap: str, poles: str, initBoxSpace
     programMap += f'{poles}{initBoxSpacer * ' '}╞'
     loop = f'{(int(formatGameLen/2)) * '╼╾'}╯' if formatGameLen % 2 == 0 else f'{(int(formatGameLen/2)) * '╼╾'}╼╯'
     programMap += loop
-    print(programMap)
-    bp = 'here'
 
     SeasonID = int(f'20{game['gameId'][3:5]}')
     GameID = int(game['gameId'])

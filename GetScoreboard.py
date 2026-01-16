@@ -9,13 +9,13 @@ import json
 
 def GetTodaysScoreboard(programMap: str):
     spacer = '╰╼╾╼'
-    programMap += f'\n{spacer}GetScoreboard.GetTodaysScoreboard╼╮ \n'
-    linelen = len(f'{spacer}GetScoreboard.GetTodaysScoreboard╼╮')
+    programMap += f'\n{spacer}╼GetScoreboard.GetTodaysScoreboard╼╮\n'
+    linelen = len(f'{spacer}╼GetScoreboard.GetTodaysScoreboard╼╮')
     try:
-        # with open('Scoreboards/todaysScoreboard_00_011326.json', 'r', encoding='utf-8-sig') as f: #Testing
-        #     data = json.load(f) #testing
-        response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
-        data = response.json()
+        with open('Scoreboards/todaysScoreboard_00_01-15-26_8p.json', 'r', encoding='utf-8-sig') as f: #Testing
+            data = json.load(f) #testing
+        # response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
+        # data = response.json()
         columns = data['scoreboard']['games']
         dfScoreboard = pd.DataFrame(data['scoreboard']['games'])
         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)
@@ -33,12 +33,9 @@ def ParseScoreboard(dfScoreboard: pd.DataFrame, programMap: str):
 ParseScoreboard takes the original dfScoreboard and renames its columns to friendlier names and drops anything we dont need
 
 :param dfScoreboard: Scoreboard DataFrame
-'''
-    #12 spaces
-    spacer = '        ' 
-    '                              '
-    programMap += f'                                      ╰GetScoreboard.ParseScoreboard╮ \n'
-    programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯ \n'
+'''    
+    programMap += f'                                       ╰╼GetScoreboard.ParseScoreboard╼╮\n'
+    programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯\n'
     # for c in dfScoreboard.columns:
     #     PascalCase = c[:1].upper() + c[1:]
     #     print(f"'{c}': '{PascalCase}',")

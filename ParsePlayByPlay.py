@@ -3,19 +3,23 @@
 
 def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition: int, sender: str, programMap: str):
     totalActions = len(actions[startPosition:])
-    programMap += '╞ParsePlayByPlay.InitiatePlayByPlay╼╮\n'
+    programMap += '╞╾ParsePlayByPlay.InitiatePlayByPlay╼╮\n'
     last1 = programMap.split('\n')[-2]
     last2 = programMap.split('\n')[-3]
     if totalActions > 0:
         #keep in if
         polePosition = last1.index('│')
         secondPole = last1.index('╞')
-        starter = f'{polePosition * ' '}│                          │                                   '
+        starter = f'{polePosition * ' '}│                          │                                    '
         programMap += f'{starter}╞╾ParsePlayByPlay.CalculatePointInGame╼╮x{totalActions}\n'
         programMap += f'{starter}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯\n'
+        lastLine = programMap.split('\n')[-2]
+        firstPole = lastLine.index('│')
+        lastPole = lastLine.rindex('│')
+        programMap += f'{firstPole * ' '}│{(lastPole - firstPole - 1) * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯\n'
+        programMap += f'{firstPole * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
 
-        print(programMap)
-        bp = 'here'
+
         if 'MainFunction' in sender:
             print(f'     Formatting...') 
         singularPlural = 'action' if totalActions == 1 else 'actions'
@@ -26,19 +30,12 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
         polePosition = last1.index('│')
         secondPole = last1.index('╮')
         starter = f'{polePosition * ' '}│                          '
-        programMap += f'{starter}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯\n' #move to else
+        programMap += f'{starter}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯\n' #move to else
         programMap += f'{polePosition * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
-        print(programMap)
-        bp = 'here'
+
         print(f'     No new actions')
 
 
-    lastLine = programMap.split('\n')[-2]
-    firstPole = lastLine.index('│')
-    lastPole = lastLine.rindex('│')
-    programMap += f'{firstPole * ' '}│{(lastPole - firstPole - 1) * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯\n'
-    programMap += f'{firstPole * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
-    #╞ParsePlayByPlay.InitiatePlayByPlay╼╮'
 
     PlayByPlay = []
     finalAction = actions[-1]
@@ -156,8 +153,10 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
         except Exception as e:
             print(e)
             test = 1
-    if len(PlayByPlay) == 0:
-        test = 1
+    
+
+
+    bp = 'here' #Good to here for Existing Games
     return PlayByPlay, programMap
 
 

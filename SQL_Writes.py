@@ -95,8 +95,9 @@ def InsertBoxscores(TeamBox: list, PlayerBox: list, StartingLineups: list):
 
 
 
-def InsertPlayByPlay(PlayByPlay: list):
+def InsertPlayByPlay(PlayByPlay: list, programMap: str):
 
+    programMap += '╾SQL_Writes.InsertPlayByPlay╼╮'
     playByPlayCommand = f'''
         insert into PlayByPlay ({', '.join(columns_PlayByPlay)})
         values ({', '.join(['?'] * len(columns_PlayByPlay))})
@@ -108,13 +109,24 @@ def InsertPlayByPlay(PlayByPlay: list):
         nbaCursor.executemany(playByPlayCommand, playByPlayParams)
         nbaCursor.commit()
         status = 'PlayByPlay success!'
+        programMap += f' {len(PlayByPlay)} actions inserted\n'
     except Exception as e:
-        print(e)
+        programMap += f' Insert failed!\n'
+        # print(e)
         status = f'PlayByPlay failure!\n\n{e}\n\nPlayByPlay Failure!'
-    return status
+
+    lastLine = programMap.split('\n')[-2]
+    polePosition = lastLine.index('╞')
+    programMap += f'{lastLine[:polePosition]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
+    return status, programMap
 
 
-def UpdateBoxData(updateStr):
+def UpdateBoxData(updateStr: str, programMap: str, sender: str):
+    programMap += f'{sender}╼╮\n'
+    lastLine = programMap.split('\n')[-2]
+    spacer = (len(sender) + 2) * ' ' 
+    startPos = lastLine.index(sender)
+    programMap += f'{lastLine[:startPos -2]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
     # pyperclip.copy(updateStr)
     try:
         # nbaCursor.fast_executemany = True
@@ -124,7 +136,8 @@ def UpdateBoxData(updateStr):
     except Exception as e:
         print(e)
         status = f'Game, GameExt, TeamBox and Playerbox update failed!\n\n{e}\n\nGame, GameExt, TeamBox and Playerbox update failed!'
-    return status
+
+    return status, programMap
 
 
 
