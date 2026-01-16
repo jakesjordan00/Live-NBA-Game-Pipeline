@@ -33,9 +33,12 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
         print(f'     No new actions')
 
 
-
-    print(programMap)
-    bp = 'here'
+    lastLine = programMap.split('\n')[-2]
+    firstPole = lastLine.index('│')
+    lastPole = lastLine.rindex('│')
+    programMap += f'{firstPole * ' '}│{(lastPole - firstPole - 1) * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯\n'
+    programMap += f'{firstPole * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
+    #╞ParsePlayByPlay.InitiatePlayByPlay╼╮'
 
     PlayByPlay = []
     finalAction = actions[-1]

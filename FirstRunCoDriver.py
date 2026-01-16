@@ -16,7 +16,11 @@ def NewGameData(notInDbGames: list, programMap: str):
     :return: dbGames
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
-    programMap += '\n╰╼╾╼FirstRunCoDriver.NewGameData╼╮\n                                 ╰╾'
+    programMap += '\n╰╼╾╼FirstRunCoDriver.NewGameData╼╮\n'
+    last = programMap.split('\n')[-2]
+    lastLen = len(last) - 1
+    mapPole = f'{lastLen * ' '}│'
+    programMap += f'{lastLen * ' '}╞╾'
     print(programMap)
     dbGames = []
     for game in notInDbGames:
@@ -24,7 +28,7 @@ def NewGameData(notInDbGames: list, programMap: str):
         awayLineup = []
         GameID = game['GameID']
         print(f'\n{GameID} not in Database...')
-        Box, programMap = GetBox(GameID, game, 'MainFunction', programMap)
+        Box, programMap = GetBox(GameID, game, 'MainFunction', programMap,mapPole)
         if Box != None:
             SeasonID = Box['Game']['SeasonID']
             HomeID = Box['Game']['HomeID']
@@ -72,15 +76,16 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     ╭  ╮
     
     '''
-    programMap += '\n╰╼╾╼FirstRunCoDriver.ExistingGameData╼╮\n'  
+    programMap += '\n╰╼╾╼FirstRunCoDriver.ExistingGameData╼╮\n'
     last = programMap.split('\n')[-2]
     lastLen = len(last) - 1
+    mapPole = f'{lastLen * ' '}│'
     programMap += f'{lastLen * ' '}╞╾'
     print(programMap)
     dbGames = []
     for game in existingGames:
         print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
-        Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap, f'{lastLen * ' '}│')
+        Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap, mapPole)
         # last1 = str(programMap.split('\n')[-2]).split('╞')[0]
         # programMap += f'{lastLen * ' '}╭{(len(last1) - lastLen) * '═'}╾╯\n'
         # programMap += f'{lastLen * ' '}╞╾'
@@ -100,6 +105,7 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
         })
         pbp = PlayByPlay[game['Actions']:]
         if len(pbp) > 0:
+            test = programMap.split('\n')[-1]
             pbpStatus, programMap = InsertPbp(pbp, programMap)
             print(f'     {len(pbp)} new actions inserted')
         else:            

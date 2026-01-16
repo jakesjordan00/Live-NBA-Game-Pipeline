@@ -97,7 +97,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         for game in notInDbGames:
             GameID = game['GameID']
             print(f'\n{GameID}                                        MainFunction, in notInDbGames')
-            Box, programMap = GetBox(GameID, game, 'MainFunction', programMap)
+            Box, programMap = GetBox(GameID, game, 'MainFunction', programMap, '')
             if Box != None:
                 boxStatus, programMap = InsertBox(Box, programMap)
                 SeasonID = Box['Game']['SeasonID']
@@ -163,7 +163,7 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
             test = 1
         if iterations % 12 == 0:
             print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
-            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap)
+            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, '')
             print('.', end='', flush=True)
             if Box != None:
                 updateStatus, programMap = UpdateBox(Box, programMap)
@@ -172,7 +172,7 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         
         if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
             print(f'{game['GameID']} complete! Performing last upsert', end='', flush=True)
-            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap)
+            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, '')
             if Box != None:
                 updateStatus, programMap = UpdateBox(Box, programMap)
             print(f'{updateStatus}')
