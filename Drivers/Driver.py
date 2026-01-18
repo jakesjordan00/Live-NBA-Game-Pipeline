@@ -39,7 +39,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     programMap = f'{underscore}\nDriver.MainFunction                                                 v{iterations+1}'
     #Get the Games in Today's Scoreboard
     print('Getting Scoreboard...')
-    dfScoreboard, programMap = GetTodaysScoreboard(programMap)
+    dfScoreboard, programMap = GetTodaysScoreboard(programMap, iterations)
 
     #Using Today's Scoreboard, get the Games that are in progress
     halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, games, programMap = GetGamesInProgress(dfScoreboard, sender, programMap)
@@ -73,6 +73,8 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
             if len(notInDbGames) > 0:
                 newDbGames, programMap = NewGameData(notInDbGames, programMap)
                 dbGames.extend(newDbGames)
+                print(programMap)
+                bp = 'here'
             if len(existingGames) > 0:
                 existingDbGames, programMap = ExistingGameData(existingGames, programMap)
                 dbGames.extend(existingDbGames)

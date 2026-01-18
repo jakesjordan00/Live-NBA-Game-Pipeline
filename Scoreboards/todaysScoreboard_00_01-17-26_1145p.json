@@ -1,0 +1,1068 @@
+{
+  "meta": {
+    "version": 1,
+    "request": "https://nba-prod-us-east-1-mediaops-stats.s3.amazonaws.com/NBA/liveData/scoreboard/todaysScoreboard_00.json",
+    "time": "2026-01-17 11:45:37.4537",
+    "code": 200
+  },
+  "scoreboard": {
+    "gameDate": "2026-01-17",
+    "leagueId": "00",
+    "leagueName": "National Basketball Association",
+    "games": [
+      {
+        "gameId": "0022500601",
+        "gameCode": "20260117/LALPOR",
+        "gameStatus": 2,
+        "gameStatusText": "Q3 6:42",
+        "period": 3,
+        "gameClock": "PT06M42.00S",
+        "gameTimeUTC": "2026-01-18T03:00:00Z",
+        "gameEt": "2026-01-17T22:00:00-05:00",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612757,
+          "teamName": "Trail Blazers",
+          "teamCity": "Portland",
+          "teamTricode": "POR",
+          "wins": 20,
+          "losses": 22,
+          "score": 91,
+          "seed": null,
+          "inBonus": "0",
+          "timeoutsRemaining": 4,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 40
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 31
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 20
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 0
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612747,
+          "teamName": "Lakers",
+          "teamCity": "Los Angeles",
+          "teamTricode": "LAL",
+          "wins": 24,
+          "losses": 15,
+          "score": 74,
+          "seed": null,
+          "inBonus": "0",
+          "timeoutsRemaining": 5,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 27
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 34
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 13
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 0
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1631101,
+            "name": "Shaedon Sharpe",
+            "jerseyNum": "17",
+            "position": "G",
+            "teamTricode": "POR",
+            "playerSlug": "shaedon-sharpe",
+            "points": 20,
+            "rebounds": 2,
+            "assists": 0
+          },
+          "awayLeaders": {
+            "personId": 203935,
+            "name": "Marcus Smart",
+            "jerseyNum": "36",
+            "position": "G",
+            "teamTricode": "LAL",
+            "playerSlug": "marcus-smart",
+            "points": 22,
+            "rebounds": 2,
+            "assists": 0
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500598",
+        "gameCode": "20260117/MINSAS",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "PT00M00.00S",
+        "gameTimeUTC": "2026-01-18T01:00:00Z",
+        "gameEt": "2026-01-17T20:00:00-05:00",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612759,
+          "teamName": "Spurs",
+          "teamCity": "San Antonio",
+          "teamTricode": "SAS",
+          "wins": 28,
+          "losses": 13,
+          "score": 126,
+          "seed": null,
+          "inBonus": "1",
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 21
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 48
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 27
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 30
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612750,
+          "teamName": "Timberwolves",
+          "teamCity": "Minnesota",
+          "teamTricode": "MIN",
+          "wins": 27,
+          "losses": 15,
+          "score": 123,
+          "seed": null,
+          "inBonus": "1",
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 22
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 22
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 40
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 39
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1641705,
+            "name": "Victor Wembanyama",
+            "jerseyNum": "1",
+            "position": "FC",
+            "teamTricode": "SAS",
+            "playerSlug": "victor-wembanyama",
+            "points": 39,
+            "rebounds": 9,
+            "assists": 3
+          },
+          "awayLeaders": {
+            "personId": 1630162,
+            "name": "Anthony Edwards",
+            "jerseyNum": "5",
+            "position": "G",
+            "teamTricode": "MIN",
+            "playerSlug": "anthony-edwards",
+            "points": 55,
+            "rebounds": 4,
+            "assists": 3
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500593",
+        "gameCode": "20260117/UTADAL",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "",
+        "gameTimeUTC": "2026-01-17T22:00:00Z",
+        "gameEt": "2026-01-17T17:00:00Z",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612742,
+          "teamName": "Mavericks",
+          "teamCity": "Dallas",
+          "teamTricode": "DAL",
+          "wins": 17,
+          "losses": 26,
+          "score": 138,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 42
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 29
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 35
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 32
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612762,
+          "teamName": "Jazz",
+          "teamCity": "Utah",
+          "teamTricode": "UTA",
+          "wins": 14,
+          "losses": 28,
+          "score": 120,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 29
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 30
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 35
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 26
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1630314,
+            "name": "Brandon Williams",
+            "jerseyNum": "10",
+            "position": "G",
+            "teamTricode": "DAL",
+            "playerSlug": null,
+            "points": 22,
+            "rebounds": 4,
+            "assists": 5
+          },
+          "awayLeaders": {
+            "personId": 1641718,
+            "name": "Keyonte George",
+            "jerseyNum": "3",
+            "position": "G",
+            "teamTricode": "UTA",
+            "playerSlug": null,
+            "points": 29,
+            "rebounds": 1,
+            "assists": 6
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500594",
+        "gameCode": "20260117/BOSATL",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "",
+        "gameTimeUTC": "2026-01-18T00:30:00Z",
+        "gameEt": "2026-01-17T19:30:00Z",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612737,
+          "teamName": "Hawks",
+          "teamCity": "Atlanta",
+          "teamTricode": "ATL",
+          "wins": 20,
+          "losses": 24,
+          "score": 106,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 0,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 23
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 28
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 23
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 32
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612738,
+          "teamName": "Celtics",
+          "teamCity": "Boston",
+          "teamTricode": "BOS",
+          "wins": 26,
+          "losses": 15,
+          "score": 132,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 30
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 52
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 35
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 15
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1630168,
+            "name": "Onyeka Okongwu",
+            "jerseyNum": "17",
+            "position": "F-C",
+            "teamTricode": "ATL",
+            "playerSlug": null,
+            "points": 21,
+            "rebounds": 7,
+            "assists": 3
+          },
+          "awayLeaders": {
+            "personId": 1627759,
+            "name": "Jaylen Brown",
+            "jerseyNum": "7",
+            "position": "G-F",
+            "teamTricode": "BOS",
+            "playerSlug": null,
+            "points": 41,
+            "rebounds": 6,
+            "assists": 2
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500595",
+        "gameCode": "20260117/INDDET",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "",
+        "gameTimeUTC": "2026-01-18T00:30:00Z",
+        "gameEt": "2026-01-17T19:30:00Z",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612765,
+          "teamName": "Pistons",
+          "teamCity": "Detroit",
+          "teamTricode": "DET",
+          "wins": 30,
+          "losses": 10,
+          "score": 121,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 31
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 28
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 33
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 29
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612754,
+          "teamName": "Pacers",
+          "teamCity": "Indiana",
+          "teamTricode": "IND",
+          "wins": 10,
+          "losses": 33,
+          "score": 78,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 11
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 14
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 28
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 25
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1631105,
+            "name": "Jalen Duren",
+            "jerseyNum": "0",
+            "position": "C",
+            "teamTricode": "DET",
+            "playerSlug": null,
+            "points": 15,
+            "rebounds": 8,
+            "assists": 4
+          },
+          "awayLeaders": {
+            "personId": 1641716,
+            "name": "Jarace Walker",
+            "jerseyNum": "5",
+            "position": "F",
+            "teamTricode": "IND",
+            "playerSlug": null,
+            "points": 13,
+            "rebounds": 5,
+            "assists": 2
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500596",
+        "gameCode": "20260117/PHXNYK",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "",
+        "gameTimeUTC": "2026-01-18T00:30:00Z",
+        "gameEt": "2026-01-17T19:30:00Z",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612752,
+          "teamName": "Knicks",
+          "teamCity": "New York",
+          "teamTricode": "NYK",
+          "wins": 25,
+          "losses": 17,
+          "score": 99,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 0,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 27
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 29
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 21
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 22
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612756,
+          "teamName": "Suns",
+          "teamCity": "Phoenix",
+          "teamTricode": "PHX",
+          "wins": 25,
+          "losses": 17,
+          "score": 106,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 19
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 36
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 25
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 26
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1626157,
+            "name": "Karl-Anthony Towns",
+            "jerseyNum": "32",
+            "position": "C-F",
+            "teamTricode": "NYK",
+            "playerSlug": null,
+            "points": 23,
+            "rebounds": 11,
+            "assists": 2
+          },
+          "awayLeaders": {
+            "personId": 1626164,
+            "name": "Devin Booker",
+            "jerseyNum": "1",
+            "position": "G",
+            "teamTricode": "PHX",
+            "playerSlug": null,
+            "points": 27,
+            "rebounds": 4,
+            "assists": 4
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500597",
+        "gameCode": "20260117/OKCMIA",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "",
+        "gameTimeUTC": "2026-01-18T01:00:00Z",
+        "gameEt": "2026-01-17T20:00:00Z",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612748,
+          "teamName": "Heat",
+          "teamCity": "Miami",
+          "teamTricode": "MIA",
+          "wins": 22,
+          "losses": 20,
+          "score": 122,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 0,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 30
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 30
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 35
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 27
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612760,
+          "teamName": "Thunder",
+          "teamCity": "Oklahoma City",
+          "teamTricode": "OKC",
+          "wins": 35,
+          "losses": 8,
+          "score": 120,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 0,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 37
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 28
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 30
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 25
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1628389,
+            "name": "Bam Adebayo",
+            "jerseyNum": "13",
+            "position": "C-F",
+            "teamTricode": "MIA",
+            "playerSlug": null,
+            "points": 30,
+            "rebounds": 12,
+            "assists": 4
+          },
+          "awayLeaders": {
+            "personId": 1628983,
+            "name": "Shai Gilgeous-Alexander",
+            "jerseyNum": "2",
+            "position": "G",
+            "teamTricode": "OKC",
+            "playerSlug": null,
+            "points": 39,
+            "rebounds": 4,
+            "assists": 3
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500599",
+        "gameCode": "20260117/CHAGSW",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "",
+        "gameTimeUTC": "2026-01-18T01:30:00Z",
+        "gameEt": "2026-01-17T20:30:00Z",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612744,
+          "teamName": "Warriors",
+          "teamCity": "Golden State",
+          "teamTricode": "GSW",
+          "wins": 24,
+          "losses": 19,
+          "score": 136,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 39
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 30
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 43
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 24
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612766,
+          "teamName": "Hornets",
+          "teamCity": "Charlotte",
+          "teamTricode": "CHA",
+          "wins": 15,
+          "losses": 27,
+          "score": 116,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 0,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 28
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 29
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 37
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 22
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1629001,
+            "name": "De'Anthony Melton",
+            "jerseyNum": "8",
+            "position": "G",
+            "teamTricode": "GSW",
+            "playerSlug": null,
+            "points": 24,
+            "rebounds": 6,
+            "assists": 3
+          },
+          "awayLeaders": {
+            "personId": 1641706,
+            "name": "Brandon Miller",
+            "jerseyNum": "24",
+            "position": "F",
+            "teamTricode": "CHA",
+            "playerSlug": null,
+            "points": 28,
+            "rebounds": 6,
+            "assists": 5
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      },
+      {
+        "gameId": "0022500600",
+        "gameCode": "20260117/WASDEN",
+        "gameStatus": 3,
+        "gameStatusText": "Final",
+        "period": 4,
+        "gameClock": "",
+        "gameTimeUTC": "2026-01-18T02:00:00Z",
+        "gameEt": "2026-01-17T21:00:00Z",
+        "regulationPeriods": 4,
+        "ifNecessary": false,
+        "seriesGameNumber": "",
+        "gameLabel": "",
+        "gameSubLabel": "",
+        "seriesText": "",
+        "seriesConference": "",
+        "poRoundDesc": "",
+        "gameSubtype": "",
+        "isNeutral": false,
+        "homeTeam": {
+          "teamId": 1610612743,
+          "teamName": "Nuggets",
+          "teamCity": "Denver",
+          "teamTricode": "DEN",
+          "wins": 29,
+          "losses": 13,
+          "score": 121,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 1,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 36
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 26
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 21
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 38
+            }
+          ]
+        },
+        "awayTeam": {
+          "teamId": 1610612764,
+          "teamName": "Wizards",
+          "teamCity": "Washington",
+          "teamTricode": "WAS",
+          "wins": 10,
+          "losses": 31,
+          "score": 115,
+          "seed": null,
+          "inBonus": null,
+          "timeoutsRemaining": 0,
+          "periods": [
+            {
+              "period": 1,
+              "periodType": "REGULAR",
+              "score": 29
+            },
+            {
+              "period": 2,
+              "periodType": "REGULAR",
+              "score": 34
+            },
+            {
+              "period": 3,
+              "periodType": "REGULAR",
+              "score": 23
+            },
+            {
+              "period": 4,
+              "periodType": "REGULAR",
+              "score": 29
+            }
+          ]
+        },
+        "gameLeaders": {
+          "homeLeaders": {
+            "personId": 1627750,
+            "name": "Jamal Murray",
+            "jerseyNum": "27",
+            "position": "G",
+            "teamTricode": "DEN",
+            "playerSlug": null,
+            "points": 42,
+            "rebounds": 3,
+            "assists": 6
+          },
+          "awayLeaders": {
+            "personId": 1642273,
+            "name": "Kyshawn George",
+            "jerseyNum": "18",
+            "position": "F",
+            "teamTricode": "WAS",
+            "playerSlug": null,
+            "points": 29,
+            "rebounds": 5,
+            "assists": 7
+          }
+        },
+        "pbOdds": {
+          "team": null,
+          "odds": 0.0,
+          "suspended": 0
+        }
+      }
+    ]
+  }
+}

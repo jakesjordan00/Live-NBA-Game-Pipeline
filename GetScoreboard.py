@@ -7,12 +7,25 @@ import urllib3
 import json
 
 
-def GetTodaysScoreboard(programMap: str):
+def GetTodaysScoreboard(programMap: str, iterations: int):
     spacer = '╰╼╾╼'
-    programMap += f'\n{spacer}╼GetScoreboard.GetTodaysScoreboard╼╮\n'
-    linelen = len(f'{spacer}╼GetScoreboard.GetTodaysScoreboard╼╮')
+    programMap += f'\n╰╼╾╼╼GetScoreboard.GetTodaysScoreboard╼╮\n'
+    #region testing
+    if iterations <= 3: #first four runs
+        file = scoreboards[4] 
+    elif iterations <= 11:
+        file =  scoreboards [3]
+    elif iterations <= 15:
+        file = scoreboards[2]
+    elif iterations <= 20:
+        file = scoreboards[1]
+    else:
+        file = scoreboards[0]
+
+
+    #endregion testing
     try:
-        with open('Scoreboards/todaysScoreboard_00_01-15-26_8p.json', 'r', encoding='utf-8-sig') as f: #Testing
+        with open(f'Scoreboards/{file}.json', 'r', encoding='utf-8-sig') as f: #Testing
             data = json.load(f) #testing
         # response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
         # data = response.json()
@@ -27,6 +40,24 @@ def GetTodaysScoreboard(programMap: str):
 
 
 
+scoreboards = [
+'todaysScoreboard_00_01-17-26_1a.json',
+'todaysScoreboard_00_01-17-26_1145p',
+'todaysScoreboard_00_01-17-26_9p',
+'todaysScoreboard_00_01-17-26_7p',
+'todaysScoreboard_00_01-17-26_5p',
+'todaysScoreboard_00_01-15-26_8p',
+'todaysScoreboard_00_01-15-26_645p',
+'todaysScoreboard_00_01-14-26_9a',
+'todaysScoreboard_00_01-14-26_11p',
+'todaysScoreboard_00_01-13-26_6p',
+'todaysScoreboard_00_01-12-26_10a',
+'todaysScoreboard_00_01-10-26_4p',
+'todaysScoreboard_00_01-09-26_11a',
+'todaysScoreboard_00_01-08-26_8p',
+'todaysScoreboard_00_01-07-26_9a',
+'todaysScoreboard_00_01-06-26_8p',
+]
 
 def ParseScoreboard(dfScoreboard: pd.DataFrame, programMap: str):
     '''
@@ -88,32 +119,3 @@ ParseScoreboard takes the original dfScoreboard and renames its columns to frien
     return dfScoreboard, programMap
 
 
-
-
-#If it's before 6am, use Yesterday's scoreboard instead. This will catch any games that are ongoing past midnight
-date = (datetime.now() - timedelta(days=1) if datetime.now().hour < 6 else datetime.now()).strftime("%Y-%m-%d")
-
-date = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
-
-# def GetTodaysScoreboard1():
-#     '''
-# Hits the NBA api and retrieves the Scoreboard for today's (or yesterday's) games depending on the time.
-#  '''   
-#     url = 'https://stats.nba.com/stats/scoreboardv2'
-#     parameters = {
-#         'LeagueID':'00',
-#         'DayOffset': 0,
-#         'GameDate': date
-#         }
-    
-#     try:
-#         response = requests.get(url, params=parameters, headers=scoreboard, timeout=30)
-#         data = response.json()
-#         columns = data['resultSets'][0]['headers']
-#         rows = data['resultSets'][0]['rowSet']
-#         dfScoreboard = pd.DataFrame(rows, columns=columns)
-#         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)
-#     except Exception as e:
-#         df = pd.DataFrame()
-#         print(f"Error downloading PlayerGameLogs: {e}")
-#     return dfScoreboard

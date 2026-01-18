@@ -20,11 +20,13 @@ def NewGameData(notInDbGames: list, programMap: str):
     last = programMap.split('\n')[-2]
     lastLen = len(last) - 1
     mapPole = f'{lastLen * ' '}│'
-    programMap += f'{lastLen * ' '}╞╾'
+    programMap += f'{(lastLen - 8) * ' '}{notInDbGames[0]['GameID']}╞╾'
     dbGames = []
     for game in notInDbGames:
         homeLineup = []
         awayLineup = []
+        print(programMap)
+        bp = 'here'
         GameID = game['GameID']
         print(f'\n{GameID} not in Database...')
         Box, programMap = GetBox(GameID, game, 'MainFunction', programMap,mapPole)
@@ -66,15 +68,6 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     :rtype: list[dict{SeasonID, GameID, Box, PlayByPlay, Actions}]
     '''
 
-    '''
-    ╰╼╾╼
-    ╼╾
-    ╼
-    ╾
-    ╯  ╰ 
-    ╭  ╮
-    
-    '''
     programMap += '\n╰╼╾╼FirstRunCoDriver.ExistingGameData╼╮\n'
     last = programMap.split('\n')[-2]
     lastLen = len(last) - 1
@@ -84,9 +77,6 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     for i, game in enumerate(existingGames):
         if i > 0:
             programMap += f'\n{(lastLen - 8) * ' '}{game['GameID']}╞╾'
-
-
-
         # print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
         Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap, mapPole)
 
