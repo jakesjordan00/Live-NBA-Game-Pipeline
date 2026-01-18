@@ -36,15 +36,11 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str, mapPole: s
     
     if sender == 'MainFunction':
         programMap += f'{getBoxSpacer * ' '}╞╾ParseBox.InitiateBox╼╮\n'
-        print(programMap)
-        bp = 'here'
     elif sender == 'RecurringFunction':
         lastLine = programMap.split('\n')[-2]
         polePosition = lastLine.find('╞')
         # programMap += f'{lastLine[:polePosition]}│                   ╞╾ParseBox.InitiateBox╼╮\n'
-        programMap += f'{lastLine[:polePosition]}│                   ╞╾ParseBox.InitiateBox╼╮\n'
-        print(programMap)
-        bp = 'here'
+        programMap += f'                   ╞╾ParseBox.InitiateBox╼╮\n'
 
     
 

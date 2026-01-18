@@ -22,11 +22,11 @@ def NewGameData(notInDbGames: list, programMap: str):
     mapPole = f'{lastLen * ' '}│'
     programMap += f'{(lastLen - 8) * ' '}{notInDbGames[0]['GameID']}╞╾'
     dbGames = []
-    for game in notInDbGames:
+    for i, game in enumerate(notInDbGames):
+        if i > 0:
+            programMap += f'\n{(lastLen - 8) * ' '}{game['GameID']}╞╾'
         homeLineup = []
         awayLineup = []
-        print(programMap)
-        bp = 'here'
         GameID = game['GameID']
         print(f'\n{GameID} not in Database...')
         Box, programMap = GetBox(GameID, game, 'MainFunction', programMap,mapPole)
@@ -41,8 +41,8 @@ def NewGameData(notInDbGames: list, programMap: str):
                     homeLineup.append(player['PlayerID'])
                 elif AwayID == player['TeamID'] and player['Unit'] == 'Starters':
                     awayLineup.append(player['PlayerID'])
+            programMap += f'\n{lastLen * ' '}╞╾'
             PlayByPlay, programMap = GetPlayByPlay(SeasonID, GameID, 0, 'MainFunction', programMap)
-            # PlayByPlay = GetPlayByPlay(SeasonID, GameID, HomeID, AwayID, 0, 'MainFunction', homeLineup, awayLineup)
             dbGames.append({
                 'SeasonID': SeasonID,
                 'GameID': GameID,
@@ -53,6 +53,7 @@ def NewGameData(notInDbGames: list, programMap: str):
             })
             boxStatus, programMap = InsertBox(Box, programMap)
             pbpStatus, programMap = InsertPbp(PlayByPlay, programMap, 'MainFunction')
+    programMap += '\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
     return dbGames, programMap
 
 
@@ -74,10 +75,11 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
     mapPole = f'{lastLen * ' '}│'
     programMap += f'{(lastLen - 8) * ' '}{existingGames[0]['GameID']}╞╾'
     dbGames = []
+    
     for i, game in enumerate(existingGames):
         if i > 0:
             programMap += f'\n{(lastLen - 8) * ' '}{game['GameID']}╞╾'
-        # print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
+        print(f'\n{game['GameID']}                                        MainFunction, in existingGames')
         Box, programMap = GetBox(game['GameID'], game['Data'], 'MainFunction', programMap, mapPole)
 
 
@@ -109,10 +111,10 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
         programMap += f'\n{lastLine[:polePosition]}╞╾GetDataNBA.UpdateBox╼╮'
         updateStatus, programMap = UpdateBox(Box, programMap) #type: ignore
         
-        # print(f'     {updateStatus}')
+        print(f'     {updateStatus}')
 
     programMap += f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
-
+    
 
 
     return dbGames, programMap

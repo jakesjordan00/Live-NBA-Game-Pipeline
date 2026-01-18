@@ -16,11 +16,8 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str, mapPole: str):
     
     test = programMap.split('\n')[-1]
     programMap += f'GetDataNBA.GetBox╼╮\n{mapPole}'
-    if sender != 'MainFunction':
-        print(programMap)
-        bp = 'here'
-    # if sender == 'MainFunction':
-    #     print(f'     Retrieving Box data')
+    if sender == 'MainFunction':
+        print(f'     Retrieving Box data')
     urlBox = f'{urlBoxScore}00{GameID}.json'
     try:
         response = requests.get(urlBox)
@@ -34,12 +31,17 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str, mapPole: str):
 
 
 def InsertBox(Box: dict, programMap: str):
-    lastLine = programMap.split('\n')[-2]
-    polePosition = lastLine.index('╞')
-    programMap += f'{lastLine[:polePosition]}│                      ╞'
+    split = programMap.split('\n')
+    lastLine = split[-2] if split[-1] == '' else split[-1]
+    polePosition = lastLine.find('╞')
+    programMap += f'\n{lastLine[:polePosition + 1]}╾GetDataNBA.InsertBox╼╮\n'
+    programMap += f'{lastLine[:polePosition]}│                      ╞╾SQL_Writes.InsertGame╼╮\n'
+    programMap += f'{lastLine[:polePosition]}│                      ╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯\n'
     gStatus = InsertGame(Box['Game'], Box['GameExt'])
     boxStatus = InsertBoxscores(Box['TeamBox'], Box['PlayerBox'], Box['StartingLineups'])
-
+    programMap += f'{lastLine[:polePosition]}│                      ╞╾SQL_Writes.InsertBoxscores╼╮\n'
+    programMap += f'{lastLine[:polePosition]}│                      ╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯\n'
+    programMap += f'{lastLine[:polePosition + 1]}╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╯\n'
     return f'{gStatus}\n{boxStatus}', programMap
 
 
@@ -84,12 +86,12 @@ def InsertPbp(PlayByPlay, programMap: str, sender: str):
     # polePosition = lastLine.index('╞')
     # programMap += f'{lastLine[:polePosition]}│                      ╞'
     
-    lastLine = programMap.split('\n')[-1]
+    split = programMap.split('\n')
+    lastLine = split[-2] if split[-1] == '' else split[-1]
     polePosition = lastLine.index('╞')
-    programMap += f'\n{lastLine[:polePosition]}╞╾GetDataNBA.InsertPbp╼╮'
+    nl = '\n' if lastLine == split[-1] else ''
+    programMap += f'{nl}{lastLine[:polePosition]}╞╾GetDataNBA.InsertPbp╼╮'
     programMap += f'\n{lastLine[:polePosition]}│                      ╞'
-    print(programMap)
-    bp = 'here'
 
     pbpStatus, programMap = InsertPlayByPlay(PlayByPlay, programMap)
     programMap += f'\n{lastLine[:polePosition]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'

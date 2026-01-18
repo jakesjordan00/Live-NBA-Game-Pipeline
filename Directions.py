@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import time
-from ProgramMapHelper import DisplayProgramMap, DisplayConfiguration as dc
+from ProgramMapHelper import DisplayProgramMap, FormatProgramMap, DisplayFullProgramMap, DisplayConfiguration as dc
 
 def GetGamesInProgress(dfScoreboard: pd.DataFrame, sender: str, programMap: str):
     '''
@@ -87,12 +87,16 @@ def GameDictionary(game):
     }
 
 
-def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str):
-    DisplayProgramMap(programMap, sender)
-    bp = 'here'
-    # programMap += '\nWait'
-    # for line in programMap.split('\n'):
-    #     print(line)
+def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str, fullProgramMap: list):
+
+    if programMap != '':
+        programMap = FormatProgramMap(programMap)
+        fullProgramMap.append(programMap)
+    print('\n\n')
+    DisplayFullProgramMap(fullProgramMap)
+    
+
+
     if len(allStartTimes) > 0:
         nextGameTip =(allStartTimes[0] - datetime.now()).seconds
     else:
@@ -103,13 +107,10 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str):
     else:
         checkpoints = [3, 2, 1]
     
-    printStr = f'Waiting {waitTime} seconds...'
-    print('-')
+    printStr = f'◈ Waiting {waitTime} seconds...'
     print(printStr, end='\r')
     
     bp = 'here'
-    # print(f'\n\n{programMap}')    
-    # return programMap #remove this
 
     remaining = waitTime
     for checkpoint in checkpoints:

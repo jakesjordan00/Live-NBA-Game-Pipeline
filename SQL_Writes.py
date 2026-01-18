@@ -5,7 +5,6 @@ import pyperclip
 
 
 def InsertGame(Game: dict, GameExt: dict):
-    
     gameCommand = f'''
         insert into Game ({', '.join(columns_Game)})
         values ({', '.join(['?'] * len(columns_Game))})
@@ -112,7 +111,7 @@ def InsertPlayByPlay(PlayByPlay: list, programMap: str):
         programMap += f' {len(PlayByPlay)} actions inserted\n'
     except Exception as e:
         programMap += f' Insert failed!\n'
-        # print(e)
+        print(e)
         status = f'PlayByPlay failure!\n\n{e}\n\nPlayByPlay Failure!'
 
     lastLine = programMap.split('\n')[-2]

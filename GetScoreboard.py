@@ -11,16 +11,17 @@ def GetTodaysScoreboard(programMap: str, iterations: int):
     spacer = '╰╼╾╼'
     programMap += f'\n╰╼╾╼╼GetScoreboard.GetTodaysScoreboard╼╮\n'
     #region testing
-    if iterations <= 3: #first four runs
-        file = scoreboards[4] 
-    elif iterations <= 11:
-        file =  scoreboards [3]
-    elif iterations <= 15:
-        file = scoreboards[2]
-    elif iterations <= 20:
-        file = scoreboards[1]
-    else:
-        file = scoreboards[0]
+    # if iterations <= 3: #first four runs
+    #     file = scoreboards[4] 
+    # elif iterations <= 11:
+    #     file =  scoreboards [3]
+    # elif iterations <= 15:
+    #     file = scoreboards[2]
+    # elif iterations <= 20:
+    #     file = scoreboards[1]
+    # else:
+    #     file = scoreboards[0]
+    file = scoreboards[0]
 
 
     #endregion testing
@@ -41,7 +42,7 @@ def GetTodaysScoreboard(programMap: str, iterations: int):
 
 
 scoreboards = [
-'todaysScoreboard_00_01-17-26_1a.json',
+'todaysScoreboard_00_01-17-26_1a',
 'todaysScoreboard_00_01-17-26_1145p',
 'todaysScoreboard_00_01-17-26_9p',
 'todaysScoreboard_00_01-17-26_7p',

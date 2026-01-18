@@ -8,7 +8,7 @@ from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 from FirstRunCoDriver import NewGameData, ExistingGameData
 import time
 from datetime import datetime
-from ProgramMapHelper import level, DisplayProgramMap
+from ProgramMapHelper import level, DisplayProgramMap, DisplayFullProgramMap
 print('-')
 programMap = ''
 fullProgramMap = []
@@ -25,18 +25,8 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     :param dbGames: List of Game dictionaries. Contains SeasonID, GameID and a count of the PlayByPlay actions
     :type dbGames: list[dict]
     '''
-    '''
-    ╰╼╾╼
-    '''
-    # if programMap != '':
-    #     fullProgramMap.append(programMap)
-    #     if iterations == 1:
-    #         print('\n\n\n')
-    #         for iteration in fullProgramMap:
-    #             print(iteration)
-    #         test = 1
     underscore = '_' * 70
-    programMap = f'{underscore}\nDriver.MainFunction                                                 v{iterations+1}'
+    programMap = f'{underscore}\nDriver.MainFunction                                                                                                    v{iterations+1}'
     #Get the Games in Today's Scoreboard
     print('Getting Scoreboard...')
     dfScoreboard, programMap = GetTodaysScoreboard(programMap, iterations)
@@ -73,14 +63,13 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
             if len(notInDbGames) > 0:
                 newDbGames, programMap = NewGameData(notInDbGames, programMap)
                 dbGames.extend(newDbGames)
-                print(programMap)
-                bp = 'here'
             if len(existingGames) > 0:
                 existingDbGames, programMap = ExistingGameData(existingGames, programMap)
                 dbGames.extend(existingDbGames)
     
         if len(completedGamesDict) > 0:
             existingCompletedGames, programMap = FirstIteration(completedGamesDict, programMap)
+            
             existingCompletedGameIDs = list(g['GameID']for g in existingCompletedGames )
             notInDbCompletedGames = [game for game in completedGamesDict if game['GameID'] not in existingCompletedGameIDs]
             if len(notInDbCompletedGames) > 0:
@@ -116,6 +105,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
                     'Actions': len(PlayByPlay),
                     'Data': game
                 })
+        programMap += f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯'
         
         test = 1
     else:
@@ -123,16 +113,11 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         existingGames, programMap = RecurringFunction(iterations, existingGames, completedGamesDict, dbGames, halftimeGames, programMap)
         lastLine = programMap.split('\n')[-1]
         polePosition = lastLine.index('╞')
-        '╼╾╼Driver.RecurringFunction╼'
-        '╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯'
         programMap += f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯'
-        print(programMap)
-        bp = 'here'
         for game in existingGames:
             if game['GameID'] in completedUpdatedGames:
                 dbGames.remove(game)
     iterations += 1
-    # print(programMap)
     return dbGames, iterations, allStartTimes, programMap
 
 def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames, halftimeGames: list, programMap: str):
@@ -165,7 +150,7 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         if i > 0:
             programMap += f'\n{(lastLen - 8) * ' '}{game['GameID']}╞╾'
        
-        #print(f'\n{game['GameID']}                                        RecurringFunction v{iterations}')
+        print(f'\n{game['GameID']}                                        RecurringFunction v{iterations}')
 
 
 
@@ -174,7 +159,6 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
             continue
         HomeID = game['Box']['Game']['HomeID']
         AwayID = game['Box']['Game']['AwayID']
-        # PlayByPlay = GetPlayByPlay(game['SeasonID'], game['GameID'], HomeID, AwayID, game['Actions'], 'RecurringFunction')
         PlayByPlay, programMap = GetPlayByPlay(game['SeasonID'], game['GameID'], game['Actions'], 'RecurringFunction', programMap)
 
         PlayByPlayFull = game['PlayByPlay']
@@ -182,35 +166,25 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         game['PlayByPlay'] = PlayByPlayFull
         game['Actions'] = len(PlayByPlayFull)
         if len(PlayByPlay) > 0:
-            print(programMap)
-            bp = 'here'
             pbpStatus, programMap = InsertPbp(PlayByPlay, programMap, 'RecurringFunction')
             test = 1
         else:            
-            print(programMap)
             bp = 'here'
 
         if iterations % 12 == 0:
-            # print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
+            print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
             
             lastLine = programMap.split('\n')[-1]
             polePosition = lastLine.index('╞')
             programMap += f'\n{lastLine[:polePosition]}╞╾'
-            # programMap += f'\n{lastLine[:polePosition]}│                   ╞'
-            print(programMap)
-            bp = 'here'
-            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, '                             │')
+            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, mapPole)
             print('.', end='', flush=True)
             if Box != None:
                 updateStatus, programMap = UpdateBox(Box, programMap)
             print(f'.{updateStatus}', end='', flush=True)
-            test = 1
-            print(programMap)
-            bp = 'here'
-        
         if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
             print(f'{game['GameID']} complete! Performing last upsert', end='', flush=True)
-            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, '                             │')
+            Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, mapPole)
             if Box != None:
                 updateStatus, programMap = UpdateBox(Box, programMap)
             print(f'{updateStatus}')
@@ -226,12 +200,13 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
 iterations = 0
 dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, [], 'Default', programMap)
 
-programMap = Wait(len(dbGames), allStartTimes, programMap, 'MainFunction')
+programMap = Wait(len(dbGames), allStartTimes, programMap, 'MainFunction', fullProgramMap)
+
 
     # DisplayProgramMap(programMap, 'Wait')
     # bp = 'here'
 if iterations > 0:
     while True:
        dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, dbGames, 'Recurring', programMap)
-       programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction')
+       programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction', fullProgramMap)
 
