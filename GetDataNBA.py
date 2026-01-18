@@ -14,8 +14,11 @@ def GetBox(GameID: int, Data: dict, sender: str, programMap: str, mapPole: str):
     :type GameID: int
     '''
     
+    test = programMap.split('\n')[-1]
     programMap += f'GetDataNBA.GetBox╼╮\n{mapPole}'
-
+    if sender != 'MainFunction':
+        print(programMap)
+        bp = 'here'
     # if sender == 'MainFunction':
     #     print(f'     Retrieving Box data')
     urlBox = f'{urlBoxScore}00{GameID}.json'
@@ -76,10 +79,18 @@ def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, pro
 
 
 
-def InsertPbp(PlayByPlay, programMap: str):
-    lastLine = programMap.split('\n')[-2]
+def InsertPbp(PlayByPlay, programMap: str, sender: str):
+    # lastLine = programMap.split('\n')[-2]
+    # polePosition = lastLine.index('╞')
+    # programMap += f'{lastLine[:polePosition]}│                      ╞'
+    
+    lastLine = programMap.split('\n')[-1]
     polePosition = lastLine.index('╞')
-    programMap += f'{lastLine[:polePosition]}│                      ╞'
+    programMap += f'\n{lastLine[:polePosition]}╞╾GetDataNBA.InsertPbp╼╮'
+    programMap += f'\n{lastLine[:polePosition]}│                      ╞'
+    print(programMap)
+    bp = 'here'
+
     pbpStatus, programMap = InsertPlayByPlay(PlayByPlay, programMap)
     programMap += f'\n{lastLine[:polePosition]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
 

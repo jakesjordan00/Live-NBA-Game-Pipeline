@@ -1,4 +1,7 @@
 
+from pdb import pm
+
+
 level = 0
 
 DisplayConfiguration = {
@@ -19,26 +22,21 @@ def DisplayProgramMap(programMap: str, sender: str):
     print(f'{pmListFull[0]}\n{pmListFull[1]}')
     for line in pmList:
         if line == pmList[0]:
-            line = '╰═╦═GetScoreboard.GetTodaysScoreboard╼╮ '
-            t = line[0]
-            t1 = line[1]
-            t2 = line[2]
-            t3 = line[3]
-            a = 1
+            line = '╰═╦═GetScoreboard.GetTodaysScoreboard╼╮'
+        elif line in [pmList[1], pmList[2]]:
+            if line[0] in ['╭', '╰'] :
+                line = f'  ╠{line[4:]}'
+            else:
+                line = f'  ║{line[4:]}'
+
 
 
         elif line != pmList[0]:
             if line[0] in ['╭', '╰'] :
                 line = f'  ╠{line[3:]}'
-                t = line[0]
-                t1 = line[1]
-                t2 = line[2]
-                t3 = line[3]
-                a = 1
             else:
                 line = f'  ║{line[3:]}'
 
         print(line)
     
-    if sender == 'Wait':
-        print('  ║\nWait')
+    print('  ║\nWait')

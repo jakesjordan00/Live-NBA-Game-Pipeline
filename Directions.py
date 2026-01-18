@@ -87,9 +87,8 @@ def GameDictionary(game):
     }
 
 
-def Wait(dbGamesLen: int, allStartTimes: list, programMap: str):
-    
-    DisplayProgramMap(programMap, 'Wait')
+def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str):
+    DisplayProgramMap(programMap, sender)
     bp = 'here'
     # programMap += '\nWait'
     # for line in programMap.split('\n'):

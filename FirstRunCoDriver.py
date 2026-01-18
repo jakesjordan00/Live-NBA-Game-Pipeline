@@ -50,7 +50,7 @@ def NewGameData(notInDbGames: list, programMap: str):
                 'Data': game
             })
             boxStatus, programMap = InsertBox(Box, programMap)
-            pbpStatus, programMap = InsertPbp(PlayByPlay, programMap)
+            pbpStatus, programMap = InsertPbp(PlayByPlay, programMap, 'MainFunction')
     return dbGames, programMap
 
 
@@ -109,7 +109,7 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
             lastLine = programMap.split('\n')[-1]
             polePosition = lastLine.index('╞')
             programMap += f'\n{lastLine[:polePosition]}╞╾GetDataNBA.InsertPbp╼╮\n'
-            pbpStatus, programMap = InsertPbp(pbp, programMap)
+            pbpStatus, programMap = InsertPbp(pbp, programMap, 'MainFunction')
             print(f'     {len(pbp)} new actions inserted')
         else:            
             print(f'     No new actions')
