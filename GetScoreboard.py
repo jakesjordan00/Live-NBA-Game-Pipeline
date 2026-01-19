@@ -21,15 +21,15 @@ def GetTodaysScoreboard(programMap: str, iterations: int):
     #     file = scoreboards[1]
     # else:
     #     file = scoreboards[0]
-    file = scoreboards[0]
+    file = scoreboards[2]
 
 
     #endregion testing
     try:
-        with open(f'Scoreboards/{file}.json', 'r', encoding='utf-8-sig') as f: #Testing
-            data = json.load(f) #testing
-        # response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
-        # data = response.json()
+        # with open(f'Scoreboards/{file}.json', 'r', encoding='utf-8-sig') as f: #Testing
+        #     data = json.load(f) #testing
+        response = requests.get("https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json")
+        data = response.json()
         columns = data['scoreboard']['games']
         dfScoreboard = pd.DataFrame(data['scoreboard']['games'])
         dfScoreboard, programMap = ParseScoreboard(dfScoreboard, programMap)

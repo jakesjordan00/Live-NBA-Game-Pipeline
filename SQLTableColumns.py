@@ -44,3 +44,9 @@ columns_PlayByPlay = ['SeasonID', 'GameID', 'ActionID', 'ActionNumber', 'Qtr', '
                    'PlayerIDFoulDrawn', 'PlayerIDJumpW', 'PlayerIDJumpL', 'OfficialID', 'QtrType']
 
 columns_StartingLineups = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID', 'Unit', 'Position']
+
+
+
+
+
+columns_Arena = ['SeasonID', 'ArenaID', 'TeamID', 'City', 'Country', 'Name', 'PostalCode', 'State', 'StreetAddress', 'Timezone']

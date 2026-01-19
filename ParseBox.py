@@ -25,13 +25,13 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str, mapPole: s
     
     ╼╮
     '''
+    if sender != 'ScheduleDriver':
+        last = programMap.split('\n')[-2]
+        lastLen = f'{(len(last) - 1) * ' '}│'
 
-    last = programMap.split('\n')[-2]
-    lastLen = f'{(len(last) - 1) * ' '}│'
-
-    last1 = programMap.split('\n')[-1]
-    getBoxSpacer = len(last) - len(last1) - 1    
-    boxTextSpacer = f'{(len(last) - len(last1) - 1) * ' '}│'
+        last1 = programMap.split('\n')[-1]
+        getBoxSpacer = len(last) - len(last1) - 1    
+        boxTextSpacer = f'{(len(last) - len(last1) - 1) * ' '}│'
 
     
     if sender == 'MainFunction':
@@ -44,12 +44,14 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str, mapPole: s
 
     
 
-    poles = f'{mapPole}{boxTextSpacer}'
-    last2 = programMap.split('\n')[-2]
-    initBoxSpacer = len(last2) - len(last) - 1
-    programMap += f'{poles}{initBoxSpacer * ' '}╞╾'
-
-
+    if sender != 'ScheduleDriver':
+        poles = f'{mapPole}{boxTextSpacer}'
+        last2 = programMap.split('\n')[-2]
+        initBoxSpacer = len(last2) - len(last) - 1
+        programMap += f'{poles}{initBoxSpacer * ' '}╞╾'
+    else:
+        poles = ''
+        initBoxSpacer = 3
 
     # if 'MainFunction' in sender:
     #     print(f'     Formatting...')
@@ -64,13 +66,16 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str, mapPole: s
     away['Losses'] = Data['AwayTeam']['losses']
     away['Seed'] = Data['AwayTeam']['seed']
 
-    Game, GameExt, programMap = FormatGame(game, Data, programMap, poles, initBoxSpacer)
+    Game, GameExt, programMap = FormatGame(game, Data, programMap, poles, initBoxSpacer, sender)
     Arena, programMap = FormatArena(Game['SeasonID'], Game['HomeID'], arena, programMap)
     Official, programMap = FormatOfficial(Game['SeasonID'], officials, programMap)
     
-    programMap += f'\n{poles}{initBoxSpacer * ' '}╞╾'
+    if sender != 'ScheduleDriver':
+        programMap += f'\n{poles}{initBoxSpacer * ' '}╞╾'
     Team, TeamBox, Player, PlayerBox, StartingLineups, programMap = BoxscoreLoop(Game['SeasonID'], Game['GameID'], Game['HomeID'], Game['AwayID'], [home, away], programMap, poles, initBoxSpacer)
-    last = programMap.split('\n')[-1]
+    
+    if sender != 'ScheduleDriver':
+        last = programMap.split('\n')[-1]
             #              ╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯
 
     BoxData = {
@@ -85,16 +90,17 @@ def InitiateBox(game: dict, Data: dict, sender: str, programMap: str, mapPole: s
         'Official': Official
     }
 
-    programMap += f'{poles[:-1]}╞╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯\n'
-    poleList = poles.split('│')
-    pole = f'{poleList[0]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
-    test = len(poleList[1])
-    programMap += pole
+    if sender != 'ScheduleDriver':
+        programMap += f'{poles[:-1]}╞╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯\n'
+        poleList = poles.split('│')
+        pole = f'{poleList[0]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
+        test = len(poleList[1])
+        programMap += pole
     #Return status message of some sort
     return BoxData, programMap
 
 #region Game, Arena and Official
-def FormatGame(game: dict, Data: dict, programMap: str, poles: str, initBoxSpacer: int):
+def FormatGame(game: dict, Data: dict, programMap: str, poles: str, initBoxSpacer: int, sender: str):
     '''
     Formats game dictionary into Game and GameExt    
 

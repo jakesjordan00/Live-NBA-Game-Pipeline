@@ -6,7 +6,8 @@ from Directions import GetGamesInProgress, Wait, GameDictionary
 from SQL_Reads import FirstIteration
 from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 from FirstRunCoDriver import NewGameData, ExistingGameData
-from DBConfig import nbaCursor
+from DBConfig import nbaCursor, nbaEngine
+import pandas as pd
 import time
 print('-')
 
@@ -25,10 +26,6 @@ def MainFunction():
     print('Getting Scoreboard...')
     dfGames = GetSchedule()
     dbGames = []
-    #Using Today's Scoreboard, get the Games that are in progress
-    #^^^^ still need to implement as of 1:09am 1/9/26!
-    #^ Should be implements....1/11/25. Just need to make sure its working as expected.
-
     gamesInProgDict =[]
     print(f'{len(dfGames)} Games in progress')
     for i, game in dfGames.iterrows():
@@ -39,38 +36,69 @@ def MainFunction():
     PlayByPlay = None
     gameIDs = dfGames['GameID'].to_list()
     #If we're on our first iteration or every fifth, see what games exist from the Scoreboard in the Db
-    existingGames = FirstIteration(gamesInProgDict)
+    existingGames, programMap = FirstIteration(gamesInProgDict, '')
     existingGameIDs = list(g['GameID']for g in existingGames )
     notInDbGames = [game for game in gamesInProgDict if game['GameID'] not in existingGameIDs]
     if len(notInDbGames) > 0:
-        dbGames.extend(NewGameData(notInDbGames))
+        newDbGames, programMap = NewGameData(notInDbGames, programMap, 'ScheduleDriver')
+        dbGames.extend(newDbGames)
     if len(existingGames) > 0:
-        dbGames.extend(ExistingGameData(existingGames))
+        existingDbGames, programMap = ExistingGameData(existingGames, programMap)
         
     test = 1
 
 
 
-def InsertPlayByPlay():
-    gameList = []
-    games = input('Enter GameID (if multiple, separate with space): ')
-    if ' ' in games or ' ' in games:
-        games = games.replace(',', '').replace(' ', ' ').strip().split(' ')
-    else:
-        games = [int(games)]
-    test = 1
-    for game in games:
-        GameID = game
-        SeasonID = int(f'20{str(GameID)[1:3]}')
-        gameList.append({
-        'SeasonID': SeasonID,
-        'GameID': GameID,
-        'Actions': 0
-        })
+# def InsertPlayByPlay():
+#     gameList = []
+#     games = input('Enter GameID (if multiple, separate with space): ')
+#     if ' ' in games or ' ' in games:
+#         games = games.replace(',', '').replace(' ', ' ').strip().split(' ')
+#     else:
+#         games = [int(games)]
+#     test = 1
+#     for game in games:
+#         GameID = game
+#         SeasonID = int(f'20{str(GameID)[1:3]}')
+#         gameList.append({
+#         'SeasonID': SeasonID,
+#         'GameID': GameID,
+#         'Actions': 0
+#         })
 
-    deleteCmd = ', '.join(str(game['GameID']) for game in gameList)
-    DeleteGames(deleteCmd)
-    ExistingGameData(gameList)
+#     deleteCmd = ', '.join(str(game['GameID']) for game in gameList)
+#     DeleteGames(deleteCmd)
+#     ExistingGameData(gameList)
+
+
+
+def NewGames():
+    gameList = []
+    games = GamesNotInDb()
+    # games = input('Enter GameID (if multiple, separate with space): ')
+    dfGames = GetSchedule()
+    # if ' ' in games or ' ' in games:
+    #     games = games.replace(',', '').replace(' ', ' ').strip().split(' ')
+    # else:
+    #     games = [int(games)]
+    test = 1
+    for i, game in dfGames.iterrows():
+        if str(game['GameID']) in games  or game['GameID'] in games:
+            gameList.append(GameDictionary(game))
+            test = 1
+    # for game in games:
+    #     GameID = game
+    #     SeasonID = int(f'20{str(GameID)[1:3]}')
+    #     gameList.append({
+    #     'SeasonID': SeasonID,
+    #     'GameID': GameID,
+    #     'Actions': 0
+    #     })
+
+    # deleteCmd = ', '.join(str(game['GameID']) for game in gameList)
+    # DeleteGames(deleteCmd)
+    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver')
+
 
 
 def DeleteGames(deleteCmd: str):
@@ -88,7 +116,22 @@ where SeasonID = 2025 and GameID in({deleteCmd})
     nbaCursor.commit()
 
 
+def GamesNotInDb():
+    query = '''
+select s.GameID
+from Schedule s
+left join Game g on s.SeasonID = g.SeasonID and s.GameID = g.GameID
+where g.GameID is null
+and s.SeasonID = 2025 and s.GameTimeEST <= getdate()
+'''
+    GameIDs = []
+    dfGames = pd.read_sql(query, nbaEngine)
+    for i, game in dfGames.iterrows():
+        GameIDs.append(int(game['GameID']))
+    return GameIDs
+    
 
-MainFunction()
 
+# MainFunction()
+NewGames()
 # InsertPlayByPlay()

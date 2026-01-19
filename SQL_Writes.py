@@ -26,6 +26,23 @@ def InsertGame(Game: dict, GameExt: dict):
     return status
 
 
+def InsertArena(Arena: dict):
+    gameCommand = f'''
+        insert into Arena ({', '.join(columns_Arena)})
+        values ({', '.join(['?'] * len(columns_Arena))})
+    '''
+
+    try:
+        nbaCursor.execute(gameCommand, DictToParams(Arena, columns_Arena))
+        nbaCursor.commit()
+        status = 'Arena success!'
+    except Exception as e:
+        print(e)
+        status = f'Arena failure!\n\n{e}\n\nGame/GameExt Failure!'
+
+    return status
+
+
 def InsertTeamBox(TeamBox: list):
 
     teamBoxCommand = f'''

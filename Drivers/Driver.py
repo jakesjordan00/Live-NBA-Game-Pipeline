@@ -61,7 +61,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
             existingGameIDs = list(g['GameID']for g in existingGames )
             notInDbGames = [game for game in gamesInProgDict if game['GameID'] not in existingGameIDs]
             if len(notInDbGames) > 0:
-                newDbGames, programMap = NewGameData(notInDbGames, programMap)
+                newDbGames, programMap = NewGameData(notInDbGames, programMap, 'MainFunction')
                 dbGames.extend(newDbGames)
             if len(existingGames) > 0:
                 existingDbGames, programMap = ExistingGameData(existingGames, programMap)
@@ -73,7 +73,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
             existingCompletedGameIDs = list(g['GameID']for g in existingCompletedGames )
             notInDbCompletedGames = [game for game in completedGamesDict if game['GameID'] not in existingCompletedGameIDs]
             if len(notInDbCompletedGames) > 0:
-                newDbCompletedGames, programMap = NewGameData(notInDbCompletedGames, programMap)
+                newDbCompletedGames, programMap = NewGameData(notInDbCompletedGames, programMap, 'MainFunction')
             if len(existingCompletedGames) > 0:
                 existingCompletedDbGames, programMap = ExistingGameData(existingCompletedGames, programMap)
             
@@ -105,15 +105,15 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
                     'Actions': len(PlayByPlay),
                     'Data': game
                 })
-        programMap += f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯'
+        lastLine = programMap.split('\n')[-1]
+        programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯' if lastLine == '' else f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
         
         test = 1
     else:
         existingGames = dbGames.copy()
         existingGames, programMap = RecurringFunction(iterations, existingGames, completedGamesDict, dbGames, halftimeGames, programMap)
         lastLine = programMap.split('\n')[-1]
-        polePosition = lastLine.index('╞')
-        programMap += f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼─╯'
+        programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯' if lastLine == '' else f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
         for game in existingGames:
             if game['GameID'] in completedUpdatedGames:
                 dbGames.remove(game)
@@ -155,6 +155,8 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
 
 
         if game['GameID'] in halftimeGames:
+            programMap += f'╮ Halftime - skipped for the time being'
+            programMap += f'\n{(lastLen) * ' '}╞╾╯'            
             print(f'     Halftime - skipping game for now.')
             continue
         HomeID = game['Box']['Game']['HomeID']

@@ -3,7 +3,7 @@ import requests
 import pandas as pd
 from ParseBox import InitiateBox
 from ParsePlayByPlay import InitiatePlayByPlay
-from SQL_Writes import InsertBoxscores, InsertGame, InsertTeamBox, InsertPlayerBox, InsertPlayByPlay
+from SQL_Writes import InsertBoxscores, InsertGame, InsertTeamBox, InsertPlayerBox, InsertPlayByPlay, InsertArena
 from FormatBoxUpdates import *
 
 def GetBox(GameID: int, Data: dict, sender: str, programMap: str, mapPole: str):
@@ -38,6 +38,10 @@ def InsertBox(Box: dict, programMap: str):
     programMap += f'{lastLine[:polePosition]}│                      ╞╾SQL_Writes.InsertGame╼╮\n'
     programMap += f'{lastLine[:polePosition]}│                      ╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯\n'
     gStatus = InsertGame(Box['Game'], Box['GameExt'])
+    # if Box['Arena']['ArenaID'] == 315:
+    #     aStatus = InsertArena(Box['Arena'])
+
+
     boxStatus = InsertBoxscores(Box['TeamBox'], Box['PlayerBox'], Box['StartingLineups'])
     programMap += f'{lastLine[:polePosition]}│                      ╞╾SQL_Writes.InsertBoxscores╼╮\n'
     programMap += f'{lastLine[:polePosition]}│                      ╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯\n'

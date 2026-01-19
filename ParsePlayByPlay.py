@@ -30,7 +30,7 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
         polePosition = last1.index('│')
         secondPole = last1.index('╮')
         starter = f'{polePosition * ' '}│                          '
-        programMap += f'{starter}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯\n' #move to else
+        programMap += f'{starter}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯ No new actions\n'
         programMap += f'{polePosition * ' '}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
 
         print(f'     No new actions')

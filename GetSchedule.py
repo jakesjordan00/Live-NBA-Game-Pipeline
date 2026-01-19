@@ -37,8 +37,8 @@ def ParseDates(schedule):
             games.append(game)
         if gDate > today:
             break
-
     dfGames = pd.DataFrame(games)
+    test = len(dfGames)
     dfGames = ParseSchedule(dfGames)
     return dfGames
 

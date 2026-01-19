@@ -5,7 +5,7 @@ from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 
 
 
-def NewGameData(notInDbGames: list, programMap: str):
+def NewGameData(notInDbGames: list, programMap: str, sender: str):
     '''
     This function will only be hit on the first iteration of the program.\n
     Additionally, this function will only be hit if the length of notInDbGames > 0. (We need to insert games we dont have)
@@ -29,7 +29,7 @@ def NewGameData(notInDbGames: list, programMap: str):
         awayLineup = []
         GameID = game['GameID']
         print(f'\n{GameID} not in Database...')
-        Box, programMap = GetBox(GameID, game, 'MainFunction', programMap,mapPole)
+        Box, programMap = GetBox(GameID, game, sender, programMap,mapPole)
         if Box != None:
             SeasonID = Box['Game']['SeasonID']
             HomeID = Box['Game']['HomeID']
