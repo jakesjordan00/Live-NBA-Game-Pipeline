@@ -74,7 +74,8 @@ def MainFunction():
 
 def NewGames():
     gameList = []
-    games = GamesNotInDb()
+    # games = GamesNotInDb()    
+    games = PlayByPlaysNotInDb()
     # games = input('Enter GameID (if multiple, separate with space): ')
     dfGames = GetSchedule()
     # if ' ' in games or ' ' in games:
@@ -97,7 +98,8 @@ def NewGames():
 
     # deleteCmd = ', '.join(str(game['GameID']) for game in gameList)
     # DeleteGames(deleteCmd)
-    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver')
+    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver.NewGameData')
+    test = 1
 
 
 
@@ -130,7 +132,20 @@ and s.SeasonID = 2025 and s.GameTimeEST <= getdate()
         GameIDs.append(int(game['GameID']))
     return GameIDs
     
-
+def PlayByPlaysNotInDb():
+    query = '''
+select distinct g.SeasonID, g.GameID, p.GameID pbpGameID
+from Game g
+left join PlayByPlay p on g.SeasonID = p.SeasonID and g.GameID = p.GameID
+where g.GameType != 'PRE' and g.SeasonID = 2025
+and p.GameID is null
+'''
+    GameIDs = []
+    dfGames = pd.read_sql(query, nbaEngine)
+    for i, game in dfGames.iterrows():
+        GameIDs.append(int(game['GameID']))
+    return GameIDs
+    
 
 # MainFunction()
 NewGames()

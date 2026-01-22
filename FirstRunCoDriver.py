@@ -51,7 +51,8 @@ def NewGameData(notInDbGames: list, programMap: str, sender: str):
                 'Actions': len(PlayByPlay),
                 'Data': game
             })
-            boxStatus, programMap = InsertBox(Box, programMap)
+            if sender != 'ScheduleDriver.ExistingGameData':
+                boxStatus, programMap = InsertBox(Box, programMap)
             pbpStatus, programMap = InsertPbp(PlayByPlay, programMap, 'MainFunction')
     programMap += '\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
     return dbGames, programMap
@@ -98,9 +99,6 @@ def ExistingGameData(existingGames: list, programMap: str) -> tuple[list[dict], 
         })
         pbp = PlayByPlay[game['Actions']:]
         if len(pbp) > 0:
-            lastLine = programMap.split('\n')[-1]
-            polePosition = lastLine.index('╞')
-            programMap += f'\n{lastLine[:polePosition]}╞╾GetDataNBA.InsertPbp╼╮\n'
             pbpStatus, programMap = InsertPbp(pbp, programMap, 'MainFunction')
             print(f'     {len(pbp)} new actions inserted')
         else:            

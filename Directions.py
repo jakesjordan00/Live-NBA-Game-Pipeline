@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 import time
-from ProgramMapHelper import DisplayProgramMap, FormatProgramMap, DisplayFullProgramMap, DisplayConfiguration as dc
+from ProgramMapHelper import DisplayProgramMap, FormatProgramMap, DisplayOneProgramMap, DisplayFullProgramMap, DisplayConfiguration as dc
 
 def GetGamesInProgress(dfScoreboard: pd.DataFrame, sender: str, programMap: str):
     '''
@@ -91,9 +91,10 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str, ful
 
     if programMap != '':
         programMap = FormatProgramMap(programMap)
-        fullProgramMap.append(programMap)
-    print('\n\n')
-    DisplayFullProgramMap(fullProgramMap)
+        # fullProgramMap.append(programMap)
+        DisplayOneProgramMap(programMap)
+    # print('\n\n')
+    # DisplayFullProgramMap(fullProgramMap=fullProgramMap)
     
 
 

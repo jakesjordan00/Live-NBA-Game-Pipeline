@@ -51,6 +51,11 @@ def DisplayFullProgramMap(fullProgramMap: list):
     test = 1
 
 
+def DisplayOneProgramMap(programMap: str):
+    for line in programMap.split('\n'):
+        print(line)
+    test = 1
+
 
 
 def FormatProgramMap(programMap: str):
