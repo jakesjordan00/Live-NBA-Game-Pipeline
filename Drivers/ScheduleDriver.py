@@ -74,8 +74,8 @@ def MainFunction():
 
 def NewGames():
     gameList = []
-    # games = GamesNotInDb()    
-    games = PlayByPlaysNotInDb()
+    games = GamesNotInDb()    
+    # games = PlayByPlaysNotInDb()
     # games = input('Enter GameID (if multiple, separate with space): ')
     dfGames = GetSchedule()
     # if ' ' in games or ' ' in games:

@@ -183,6 +183,9 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
             print('.', end='', flush=True)
             if Box != None:
                 updateStatus, programMap = UpdateBox(Box, programMap)
+                if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
+                    completedUpdatedGames.append(game['GameID'])
+                    existingGames.remove(game)
             print(f'.{updateStatus}', end='', flush=True)
         if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
             print(f'{game['GameID']} complete! Performing last upsert', end='', flush=True)

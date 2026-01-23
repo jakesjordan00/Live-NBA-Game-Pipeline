@@ -62,10 +62,10 @@ def UpdateBox(Box: dict, programMap: str):
 
 
 def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, programMap: str):
-    last2 = programMap.split('\n')[-1]
+    last2 = programMap.split('\n')[-1] if programMap.split('\n')[-1] != '' else programMap.split('\n')[-2]
     programMap += 'GetDataNBA.GetPlayByPlay╼╮\n'
     last1 = programMap.split('\n')[-2]
-    polePosition = last1.index('╞')
+    polePosition = last1.find('╞') if last1.find('╞') != -1 else last2.find('╞')
     secondPole = last1.index('╼╮')
     programMap += f'{(polePosition * ' ')}│'
     programMap += f'{(secondPole - polePosition) * ' '}'
@@ -78,9 +78,9 @@ def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, pro
         actions = data['game']['actions']
         PlayByPlay, programMap = InitiatePlayByPlay(SeasonID, GameID, actions, ActionCount, sender, programMap)
     except Exception as e:
-        Box = None
+        BPlayByPlayox = None
         print(f"Error getting PlayByPlay data: {e}")
-        
+    
     return PlayByPlay, programMap
 
 

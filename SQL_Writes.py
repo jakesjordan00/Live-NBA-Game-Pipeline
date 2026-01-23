@@ -122,9 +122,10 @@ def InsertPlayByPlay(PlayByPlay: list, programMap: str):
 
     try:
         # nbaCursor.fast_executemany = True
-        nbaCursor.executemany(playByPlayCommand, playByPlayParams)
-        nbaCursor.commit()
-        status = 'PlayByPlay success!'
+        if len(PlayByPlay) > 0:
+            nbaCursor.executemany(playByPlayCommand, playByPlayParams)
+            nbaCursor.commit()
+            status = 'PlayByPlay success!'
         programMap += f' {len(PlayByPlay)} actions inserted\n'
     except Exception as e:
         programMap += f' Insert failed!\n'
