@@ -216,8 +216,14 @@ programMap = Wait(len(dbGames), allStartTimes, programMap, 'MainFunction', fullP
 while iterations > 0:
     dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, dbGames, 'Recurring', programMap)   
     if len(dbGames) == 0:
-        #update games and insert pbp one more time then quit
-        iterations = 0
+        for startTime in allStartTimes:
+            boolTF = startTime >= datetime.now()
+            if startTime >= datetime.now():                
+                programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction', fullProgramMap)
+                break
+            else:
+                iterations = 0
+        bp = 'here'
     else:
         programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction', fullProgramMap)
         
