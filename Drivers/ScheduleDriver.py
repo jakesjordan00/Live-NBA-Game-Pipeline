@@ -30,7 +30,7 @@ def MainFunction():
     print(f'{len(dfGames)} Games in progress')
     for i, game in dfGames.iterrows():
         gamesInProgDict.append(GameDictionary(game))
-        test = 1
+        bp = 'here'
     #Declare Box and PlayByPlay as none
     Box = None
     PlayByPlay = None
@@ -45,7 +45,7 @@ def MainFunction():
     if len(existingGames) > 0:
         existingDbGames, programMap = ExistingGameData(existingGames, programMap)
         
-    test = 1
+    bp = 'here'
 
 
 
@@ -56,7 +56,7 @@ def MainFunction():
 #         games = games.replace(',', '').replace(' ', ' ').strip().split(' ')
 #     else:
 #         games = [int(games)]
-#     test = 1
+#     bp = 'here'
 #     for game in games:
 #         GameID = game
 #         SeasonID = int(f'20{str(GameID)[1:3]}')
@@ -71,35 +71,6 @@ def MainFunction():
 #     ExistingGameData(gameList)
 
 
-
-def NewGames():
-    gameList = []
-    games = GamesNotInDb()    
-    # games = PlayByPlaysNotInDb()
-    # games = input('Enter GameID (if multiple, separate with space): ')
-    dfGames = GetSchedule()
-    # if ' ' in games or ' ' in games:
-    #     games = games.replace(',', '').replace(' ', ' ').strip().split(' ')
-    # else:
-    #     games = [int(games)]
-    test = 1
-    for i, game in dfGames.iterrows():
-        if str(game['GameID']) in games  or game['GameID'] in games:
-            gameList.append(GameDictionary(game))
-            test = 1
-    # for game in games:
-    #     GameID = game
-    #     SeasonID = int(f'20{str(GameID)[1:3]}')
-    #     gameList.append({
-    #     'SeasonID': SeasonID,
-    #     'GameID': GameID,
-    #     'Actions': 0
-    #     })
-
-    # deleteCmd = ', '.join(str(game['GameID']) for game in gameList)
-    # DeleteGames(deleteCmd)
-    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver.NewGameData')
-    test = 1
 
 
 
@@ -147,6 +118,54 @@ and p.GameID is null
     return GameIDs
     
 
+
+
+def GamesFromInput():
+    gameList = [] 
+    games = input('Enter GameID (if multiple, separate with space): ')
+    dfGames = GetSchedule()
+    if ' ' in games or ' ' in games:
+        games = games.replace(',', '').replace(' ', ' ').strip().split(' ')
+    else:
+        games = [int(games)]
+    deleteCmd = ', '.join(str(game['GameID']) for game in gameList)
+    for i, game in dfGames.iterrows():
+        if str(game['GameID']) in games  or game['GameID'] in games:
+            gameList.append(GameDictionary(game))
+            bp = 'here'
+    DeleteGames(deleteCmd)
+    programMap = ExistingGameData(gameList, 'ScheduleDriver.ExistingGameData')
+    
+
+def GamesReInsertPbp():
+    gameList = [] 
+    games = PlayByPlaysNotInDb()
+    dfGames = GetSchedule()
+    for i, game in dfGames.iterrows():
+        if str(game['GameID']) in games  or game['GameID'] in games:
+            gameList.append(GameDictionary(game))
+    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver.ExistingGameData')
+    bp = 'here'
+
+
+
+
+def GamesFromSchedule():
+    gameList = []
+    games = PlayByPlaysNotInDb()
+    dfGames = GetSchedule()
+    bp = 'here'
+    for i, game in dfGames.iterrows():
+        if str(game['GameID']) in games  or game['GameID'] in games:
+            gameList.append(GameDictionary(game))
+            bp = 'here'
+    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver.NewGameData')
+    bp = 'here'
+
+
 # MainFunction()
-NewGames()
+# GamesFromSchedule()
 # InsertPlayByPlay()
+
+
+GamesReInsertPbp()
