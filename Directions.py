@@ -99,7 +99,10 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str, ful
 
 
     if len(allStartTimes) > 0:
+        test = datetime.now()
+        t2 = allStartTimes[0] 
         nextGameTip =(allStartTimes[0] - datetime.now()).seconds
+        bp = 'here'
     else:
         nextGameTip = 60
     waitTime = nextGameTip if dbGamesLen == 0 else 3

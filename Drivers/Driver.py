@@ -33,6 +33,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
 
     #Using Today's Scoreboard, get the Games that are in progress
     halftimeGames, allStartTimes, gamesInProgDict, completedGamesDict, games, programMap = GetGamesInProgress(dfScoreboard, sender, programMap)
+    completedGameIDs = {g['GameID'] for g in completedGamesDict}
     yetToStart = [time for time in allStartTimes if time >= datetime.now()]
     yetToStartCount = len(yetToStart)
     yetToStart = 'No more games tonight.' if yetToStartCount == 0 else f'{yetToStartCount} games yet to start.'
@@ -183,11 +184,13 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
             print('.', end='', flush=True)
             if Box != None:
                 updateStatus, programMap = UpdateBox(Box, programMap)
-                if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
+                completedGameIDs = {g['GameID'] for g in completedGames}
+                if game['GameID'] in completedGameIDs and game['GameID'] not in completedUpdatedGames:
                     completedUpdatedGames.append(game['GameID'])
                     existingGames.remove(game)
             print(f'.{updateStatus}', end='', flush=True)
-        if game['GameID'] in completedGames and game['GameID'] not in completedUpdatedGames:
+        completedGameIDs = {g['GameID'] for g in completedGames}
+        if game['GameID'] in completedGameIDs and game['GameID'] not in completedUpdatedGames:
             print(f'{game['GameID']} complete! Performing last upsert', end='', flush=True)
             Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, mapPole)
             if Box != None:
@@ -210,8 +213,12 @@ programMap = Wait(len(dbGames), allStartTimes, programMap, 'MainFunction', fullP
 
     # DisplayProgramMap(programMap, 'Wait')
     # bp = 'here'
-if iterations > 0:
-    while True:
-       dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, dbGames, 'Recurring', programMap)
-       programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction', fullProgramMap)
+while iterations > 0:
+    dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, dbGames, 'Recurring', programMap)   
+    if len(dbGames) == 0:
+        #update games and insert pbp one more time then quit
+        iterations = 0
+    else:
+        programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction', fullProgramMap)
+        
 
