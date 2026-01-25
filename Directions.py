@@ -1,5 +1,5 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import time
 from ProgramMapHelper import DisplayProgramMap, FormatProgramMap, DisplayOneProgramMap, DisplayFullProgramMap, DisplayConfiguration as dc
 
@@ -36,6 +36,9 @@ Returns a list of GameIDs of only those games in progress
             gamesInProg.append(GameID)
             gamesInProgDict.append(GameDictionary(game))
             gameDictHits += 1
+            gameTime = datetime.fromisoformat(game['GameEt']).astimezone()
+            if datetime.now().astimezone() <= (gameTime + timedelta(minutes=15)):                
+                allStartTimes.append(datetime.fromisoformat(game['GameEt']).replace(tzinfo=None) + timedelta(minutes=10))
         else:
             completedGames.append(GameID)  
             completedGamesDict.append(GameDictionary(game))
@@ -101,7 +104,7 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str, ful
     if len(allStartTimes) > 0:
         test = datetime.now()
         t2 = allStartTimes[0] 
-        nextGameTip =(allStartTimes[0] - datetime.now()).seconds
+        nextGameTip = 60 if allStartTimes[0] <= datetime.now() else (allStartTimes[0] - datetime.now()).seconds
         bp = 'here'
     else:
         nextGameTip = 60
@@ -111,17 +114,21 @@ def Wait(dbGamesLen: int, allStartTimes: list, programMap: str, sender: str, ful
     else:
         checkpoints = [3, 2, 1]
     
-    printStr = f'◈ Waiting {waitTime} seconds...'
+    printStr = f'◈ Waiting {int(waitTime/60)} minutes and...' if waitTime > 60 else f'◈ Waiting {waitTime} seconds...'
     print(printStr, end='\r')
     
     bp = 'here'
 
     remaining = waitTime
-    for checkpoint in checkpoints:
+    for i, checkpoint in enumerate(checkpoints):
         if remaining > checkpoint:
             time.sleep(remaining - checkpoint)
             remaining = checkpoint
-            printStr = f'{printStr}{checkpoint}...' if checkpoint != 56 else f'{printStr}{checkpoint}......'
+            chInt = checkpoint % 60
+            chkptStr = f'{chInt}s' if checkpoint < 60 or checkpoint >= waitTime - 4 else f'{int(checkpoint/60)}m & {chInt}s'
+
+            # chkptStr = f'{checkpoint}s' if checkpoint < 60 else f'{int(checkpoint/60)}m & {(checkpoint % 60)}s'
+            printStr = f'{printStr}{chkptStr}...' if checkpoint != 56 else f'{printStr}{chkptStr}......'
             print(printStr, end='\r')
     time.sleep(remaining)
     print(f'{printStr}Done waiting!\n-') 

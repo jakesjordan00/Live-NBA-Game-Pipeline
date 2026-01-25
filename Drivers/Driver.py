@@ -223,6 +223,8 @@ while iterations > 0:
                 break
             else:
                 iterations = 0
+        if len(allStartTimes) == 0:
+            iterations = 0
         bp = 'here'
     else:
         programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction', fullProgramMap)
