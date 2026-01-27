@@ -5,18 +5,27 @@ import pyperclip
 
 
 def InsertGame(Game: dict, GameExt: dict):
+    gKeys = ['SeasonID', 'GameID']
     gameCommand = f'''
+    if not exists
+    (select 1 from Game where SeasonID = ? and GameID = ?)
+    begin
         insert into Game ({', '.join(columns_Game)})
         values ({', '.join(['?'] * len(columns_Game))})
+    end
     '''
     gameExtCommand = f'''
+    if not exists
+    (select 1 from GameExt where SeasonID = ? and GameID = ?)
+    begin
         insert into GameExt ({', '.join(columns_GameExt)})
         values ({', '.join(['?'] * len(columns_GameExt))})
+    end
     '''
 
     try:
-        nbaCursor.execute(gameCommand, DictToParams(Game, columns_Game))
-        nbaCursor.execute(gameExtCommand, DictToParams(GameExt, columns_GameExt))
+        nbaCursor.execute(gameCommand, DictToParams(Game, gKeys + columns_Game))
+        nbaCursor.execute(gameExtCommand, DictToParams(GameExt, gKeys + columns_GameExt))
         nbaCursor.commit()
         status = 'Game/GameExt success!'
     except Exception as e:
@@ -28,12 +37,16 @@ def InsertGame(Game: dict, GameExt: dict):
 
 def InsertArena(Arena: dict):
     gameCommand = f'''
+    if not exists
+    (select 1 from Arena where SeasonID = ? and ArenaID = ?)
+    begin
         insert into Arena ({', '.join(columns_Arena)})
         values ({', '.join(['?'] * len(columns_Arena))})
+    end
     '''
 
     try:
-        nbaCursor.execute(gameCommand, DictToParams(Arena, columns_Arena))
+        nbaCursor.execute(gameCommand, DictToParams(Arena, ['SeasonID', 'ArenaID'] + columns_Arena))
         nbaCursor.commit()
         status = 'Arena success!'
     except Exception as e:
@@ -42,61 +55,66 @@ def InsertArena(Arena: dict):
 
     return status
 
-
-def InsertTeamBox(TeamBox: list):
-
-    teamBoxCommand = f'''
-        insert into TeamBox ({', '.join(columns_TeamBox)})
-        values ({', '.join(['?'] * len(columns_TeamBox))})
+def InsertPlayer(Player: dict):
+    gameCommand = f'''
+    if not exists
+    (select 1 from Player where SeasonID = ? and PlayerID = ?)
+    begin
+        insert into Player ({', '.join(columns_Player)})
+        values ({', '.join(['?'] * len(columns_Player))})
+    end
     '''
-    teamBoxParams = DictToParams(TeamBox[0], columns_TeamBox) 
-    try:
-        nbaCursor.execute(teamBoxCommand, teamBoxParams)
-        nbaCursor.commit()
-        status = 'TeamBox success!'
-    except Exception as e:
-        print(e)
-        status = f'TeamBox failure!\n\n{e}\n\nTeamBox Failure!'
-
-
-
-def InsertPlayerBox(PlayerBox: list):
-    playerBoxCommand = f'''
-        insert into PlayerBox ({', '.join(columns_PlayerBox)})
-        values ({', '.join(['?'] * len(columns_PlayerBox))})
-    '''
-    playerBoxParams = [DictToParams(tb, columns_PlayerBox) for tb in PlayerBox]
 
     try:
-        nbaCursor.execute(playerBoxCommand, playerBoxParams)
+        nbaCursor.execute(gameCommand, DictToParams(Player, ['SeasonID', 'PlayerID'] + columns_Player))
         nbaCursor.commit()
-        status = 'PlayerBox success!'
+        status = 'Player success!'
     except Exception as e:
         print(e)
-        status = f'PlayerBox failure!\n\n{e}\n\nPlayerBox Failure!'
+        status = f'Player failure!\n\n{e}\n\nGame/GameExt Failure!'
+
     return status
 
 
+
+
+
 def InsertBoxscores(TeamBox: list, PlayerBox: list, StartingLineups: list):
+    tKeys = ['SeasonID', 'GameID', 'TeamID', 'MatchupID']
     teamBoxCommand = f'''
+    if not exists
+    (select 1 from TeamBox where SeasonID = ? and GameID = ? and TeamID = ? and MatchupID = ?)
+    begin
         insert into TeamBox ({', '.join(columns_TeamBox)})
         values ({', '.join(['?'] * len(columns_TeamBox))})
+    end
     '''
+
+    pKeys = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID']
     playerBoxCommand = f'''
+    if not exists
+    (select 1 from PlayerBox where SeasonID = ? and GameID = ? and TeamID = ? and MatchupID = ? and PlayerID = ?)
+    begin
         insert into PlayerBox ({', '.join(columns_PlayerBox)})
         values ({', '.join(['?'] * len(columns_PlayerBox))})
+    end
     '''
     startingLineupsCommand = f'''
+        if not exists
+    (select 1 from StartingLineups where SeasonID = ? and GameID = ? and TeamID = ? and MatchupID = ? and PlayerID = ?)
+    begin
         insert into StartingLineups ({', '.join(columns_StartingLineups)})
         values ({', '.join(['?'] * len(columns_StartingLineups))})
+    end
     '''
 
     teamBoxCommand = teamBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
     playerBoxCommand = playerBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
     
-    teamBoxParams = [DictToParams(tb, columns_TeamBox) for tb in TeamBox]
-    playerBoxParams = [DictToParams(pb, columns_PlayerBox) for pb in PlayerBox]
-    startingLineupsParams = [DictToParams(sl, columns_StartingLineups) for sl in StartingLineups]
+
+    teamBoxParams = [DictToParams(tb, tKeys + columns_TeamBox) for tb in TeamBox]
+    playerBoxParams = [DictToParams(pb,  pKeys + columns_PlayerBox) for pb in PlayerBox]
+    startingLineupsParams = [DictToParams(sl, pKeys + columns_StartingLineups) for sl in StartingLineups]
 
     try:
         nbaCursor.executemany(teamBoxCommand, teamBoxParams)
@@ -112,7 +130,6 @@ def InsertBoxscores(TeamBox: list, PlayerBox: list, StartingLineups: list):
 
 
 def InsertPlayByPlay(PlayByPlay: list, programMap: str):
-
     programMap += '╾SQL_Writes.InsertPlayByPlay╼╮'
     playByPlayCommand = f'''
         insert into PlayByPlay ({', '.join(columns_PlayByPlay)})

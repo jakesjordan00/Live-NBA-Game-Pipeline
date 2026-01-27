@@ -144,7 +144,7 @@ def GamesReInsertPbp():
     for i, game in dfGames.iterrows():
         if str(game['GameID']) in games  or game['GameID'] in games:
             gameList.append(GameDictionary(game))
-    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver.ExistingGameData')
+    programMap = NewGameData(gameList, 'ScheduleDriver.NewGames', 'ScheduleDriver.NewGameData')
     bp = 'here'
 
 

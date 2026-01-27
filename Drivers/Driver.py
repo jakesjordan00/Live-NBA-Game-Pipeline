@@ -1,5 +1,8 @@
+from encodings.punycode import T
 import sys
 import os
+
+from sqlalchemy import false
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from GetScoreboard import GetTodaysScoreboard
 from Directions import GetGamesInProgress, Wait
@@ -215,15 +218,17 @@ programMap = Wait(len(dbGames), allStartTimes, programMap, 'MainFunction', fullP
     # bp = 'here'
 while iterations > 0:
     dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, dbGames, 'Recurring', programMap)   
+    startTimeBeforeNow = False
     if len(dbGames) == 0:
-        for startTime in allStartTimes:
+        for i, startTime in enumerate(allStartTimes):
             boolTF = startTime >= datetime.now()
             if startTime >= datetime.now():                
-                programMap = Wait(len(dbGames), allStartTimes, programMap, 'RecurringFunction', fullProgramMap)
+                programMap = Wait(len(dbGames), allStartTimes[i:], programMap, 'RecurringFunction', fullProgramMap)
                 break
             else:
-                iterations = 0
-        if len(allStartTimes) == 0:
+                startTimeBeforeNow = True
+                continue
+        if len(allStartTimes) == 0 and not startTimeBeforeNow:
             iterations = 0
         bp = 'here'
     else:

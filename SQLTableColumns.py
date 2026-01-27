@@ -29,7 +29,6 @@ updateColumns_TeamBox = ['Points', 'PointsAgainst', 'FG2M', 'FG2A', '[FG2%]', 'F
 'Losses', 'Win', 'Seed']
 #endregion TeamBox
 
-
 columns_PlayerBox = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID', 'Status', 'Starter', 'Position', 'Minutes', 'MinutesCalculated', 
             'Points', 'Assists', 'ReboundsTotal', 'FG2M', 'FG2A', 'FG2%', 'FG3M', 'FG3A', 'FG3%', 'FGM', 'FGA', 'FG%', 'FTM', 'FTA', 'FT%', 'ReboundsDefensive', 'ReboundsOffensive', 'Blocks', 'BlocksReceived', 'Steals', 'Turnovers', 'AssistsTurnoverRatio', 'Plus', 'Minus', 'PlusMinusPoints', 'PointsFastBreak', 'PointsInThePaint', 'PointsSecondChance', 'FoulsOffensive', 'FoulsDrawn', 'FoulsPersonal', 
             'FoulsTechnical', 'StatusReason', 'StatusDescription']
@@ -48,5 +47,7 @@ columns_StartingLineups = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerI
 
 
 
+
+columns_Player = ['SeasonID', 'PlayerID', 'Name', 'Number', 'Position', 'NameInitial', 'NameLast', 'NameFirst']
 
 columns_Arena = ['SeasonID', 'ArenaID', 'TeamID', 'City', 'Country', 'Name', 'PostalCode', 'State', 'StreetAddress', 'Timezone']
