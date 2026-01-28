@@ -83,7 +83,7 @@ def GetPlayByPlay(SeasonID: int, GameID: int, ActionCount: int, sender: str, pro
         actions = data['game']['actions']
         PlayByPlay, programMap = InitiatePlayByPlay(SeasonID, GameID, actions, ActionCount, sender, programMap)
     except Exception as e:
-        BPlayByPlayox = None
+        PlayByPlay = pd.DataFrame()
         print(f"Error getting PlayByPlay data: {e}")
     
     return PlayByPlay, programMap
