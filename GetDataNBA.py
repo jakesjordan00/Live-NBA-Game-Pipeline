@@ -1,10 +1,12 @@
-from URLs import urlBoxScore, urlPlayByPlay
 import requests
 import pandas as pd
 from ParseBox import InitiateBox
 from ParsePlayByPlay import InitiatePlayByPlay
 from SQL_Writes import InsertBoxscores, InsertGame, InsertPlayByPlay, InsertArena, InsertPlayer
 from FormatBoxUpdates import *
+urlBoxScore = 'https://cdn.nba.com/static/json/liveData/boxscore/boxscore_'
+urlPlayByPlay = 'https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_'
+
 
 def GetBox(GameID: int, Data: dict, sender: str, programMap: str, mapPole: str):
     '''
