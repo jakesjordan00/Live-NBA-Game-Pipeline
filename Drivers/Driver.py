@@ -1,4 +1,4 @@
-from encodings.punycode import T
+
 import sys
 import os
 
@@ -12,6 +12,7 @@ from FirstRunCoDriver import NewGameData, ExistingGameData
 import time
 from datetime import datetime
 from ProgramMapHelper import level, DisplayProgramMap, DisplayFullProgramMap
+
 print('-')
 programMap = ''
 fullProgramMap = []
