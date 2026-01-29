@@ -10,7 +10,7 @@ from SQL_Reads import FirstIteration
 from GetDataNBA import GetBox, GetPlayByPlay, InsertBox, InsertPbp, UpdateBox
 from FirstRunCoDriver import NewGameData, ExistingGameData
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from ProgramMapHelper import level, DisplayProgramMap, DisplayFullProgramMap
 
 print('-')
@@ -209,10 +209,8 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
 
 
 #When file is executed, it starts here
-iterations = 0
-dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, [], 'Default', programMap)
-
-programMap = Wait(len(dbGames), allStartTimes, programMap, 'MainFunction', fullProgramMap)
+iterations = 1
+dbGames = []
 
 
     # DisplayProgramMap(programMap, 'Wait')
@@ -222,8 +220,11 @@ while iterations > 0:
     startTimeBeforeNow = False
     if len(dbGames) == 0:
         for i, startTime in enumerate(allStartTimes):
-            boolTF = startTime >= datetime.now()
-            if startTime >= datetime.now():                
+            now = datetime.now()
+            tryAgainBounds = now + timedelta(minutes=2)
+            startsInFuture = startTime >= now
+            tryAgain = startTime <= tryAgainBounds
+            if startsInFuture or (not startsInFuture and tryAgain):                
                 programMap = Wait(len(dbGames), allStartTimes[i:], programMap, 'RecurringFunction', fullProgramMap)
                 break
             else:
