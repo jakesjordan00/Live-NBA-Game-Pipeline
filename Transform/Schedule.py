@@ -3,11 +3,11 @@ import pandas as pd
 
 
 
-def TransformSchedule(schedule: list):
-    scheduleGames = ParseDates(schedule)
+def Transform(scheduleList: list):
+    scheduleGames = ParseDates(scheduleList)
     dfSchedule = pd.DataFrame(data=scheduleGames)
-    dfSchedule = ParseSchedule(dfSchedule)
-    return dfSchedule
+    schedule = ParseSchedule(dfSchedule)
+    return schedule
 
 
 
