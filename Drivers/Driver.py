@@ -60,7 +60,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     PlayByPlay = None
 
     #If we're on our first iteration or every fifth, see what games exist from the Scoreboard in the Db
-    if iterations == 0:
+    if iterations == 1:
         if len(gamesInProgDict) > 0:
             existingGames, programMap = FirstIteration(gamesInProgDict, programMap)    
             existingGameIDs = list(g['GameID']for g in existingGames )
@@ -70,8 +70,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
                 dbGames.extend(newDbGames)
             if len(existingGames) > 0:
                 existingDbGames, programMap = ExistingGameData(existingGames, programMap)
-                dbGames.extend(existingDbGames)            
-            iterations += 1
+                dbGames.extend(existingDbGames)
     
         if len(completedGamesDict) > 0:
             existingCompletedGames, programMap = FirstIteration(completedGamesDict, programMap)
@@ -113,9 +112,6 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
                 })
         lastLine = programMap.split('\n')[-1]
         programMap += f'╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯' if lastLine == '' else f'\n╭╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╯'
-        
-        test = 1
-        iterations += 1
     else:
         existingGames = dbGames.copy()
         existingGames, programMap = RecurringFunction(iterations, existingGames, completedGamesDict, dbGames, halftimeGames, programMap)
@@ -124,7 +120,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         for game in existingGames:
             if game['GameID'] in completedUpdatedGames:
                 dbGames.remove(game)
-        iterations += 1
+    iterations += 1
     return dbGames, iterations, allStartTimes, programMap
 
 def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames, halftimeGames: list, programMap: str):
