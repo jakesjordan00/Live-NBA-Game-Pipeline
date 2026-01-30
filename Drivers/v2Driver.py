@@ -17,14 +17,15 @@ import Transform.Schedule as ts
 
 
 
+schedule = e.FetchData('https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json', 'Schedule')
+schedule = ts.TransformSchedule(schedule)
 
 
 def MainFunction(iterations: int, dbGames: list, sender: str):
 
 
-    schedule = e.FetchData('https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json', 'Schedule')
-    schedule = ts.TransformSchedule(schedule)
 
+    
     return 1, 1, 1, 1
 
 
