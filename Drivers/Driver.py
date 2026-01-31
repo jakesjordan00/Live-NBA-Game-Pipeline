@@ -59,6 +59,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
     Box = None
     PlayByPlay = None
 
+    iterationsIterated = False
     #If we're on our first iteration or every fifth, see what games exist from the Scoreboard in the Db
     if iterations == 1:
         if len(gamesInProgDict) > 0:
@@ -71,7 +72,11 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
             if len(existingGames) > 0:
                 existingDbGames, programMap = ExistingGameData(existingGames, programMap)
                 dbGames.extend(existingDbGames)
-    
+        elif not iterationsIterated:
+            iterationsIterated = True
+        if not iterationsIterated:
+            iterationsIterated = True
+            iterations += 1
         if len(completedGamesDict) > 0:
             existingCompletedGames, programMap = FirstIteration(completedGamesDict, programMap)
             
@@ -81,7 +86,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
                 newDbCompletedGames, programMap = NewGameData(notInDbCompletedGames, programMap, 'MainFunction')
             if len(existingCompletedGames) > 0:
                 existingCompletedDbGames, programMap = ExistingGameData(existingCompletedGames, programMap)
-            
+        
 
         test = 1
     elif iterations % 10 == 0:
@@ -120,7 +125,9 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         for game in existingGames:
             if game['GameID'] in completedUpdatedGames:
                 dbGames.remove(game)
-    iterations += 1
+    if not iterationsIterated:
+            iterationsIterated = True
+            iterations += 1
     return dbGames, iterations, allStartTimes, programMap
 
 def RecurringFunction(iterations: int, existingGames: list, completedGames: list, dbGames, halftimeGames: list, programMap: str):
@@ -216,7 +223,7 @@ dbGames = []
 while iterations > 0:
     dbGames, iterations, allStartTimes, programMap = MainFunction(iterations, dbGames, 'Recurring', programMap)   
     startTimeBeforeNow = False
-    if len(dbGames) == 0:
+    if len(dbGames) == 0 :
         for i, startTime in enumerate(allStartTimes):
             now = datetime.now()
             tryAgainBounds = now + timedelta(minutes=2)
