@@ -97,7 +97,7 @@ def InsertPbp(PlayByPlay, programMap: str, sender: str):
     
     split = programMap.split('\n')
     lastLine = split[-2] if split[-1] == '' else split[-1]
-    polePosition = lastLine.index('╞')
+    polePosition = lastLine.find('╞')
     nl = '\n' if lastLine == split[-1] else ''
     programMap += f'{nl}{lastLine[:polePosition]}╞╾GetDataNBA.InsertPbp╼╮'
     programMap += f'\n{lastLine[:polePosition]}│                      ╞'
