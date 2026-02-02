@@ -105,4 +105,4 @@ def InsertPbp(PlayByPlay, programMap: str, sender: str):
     pbpStatus, programMap = InsertPlayByPlay(PlayByPlay, programMap)
     programMap += f'\n{lastLine[:polePosition]}╞╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾╼╾─╯'
 
-    return f'{pbpStatus}', programMap
+    return f'{pbpStatus}', programMap 
