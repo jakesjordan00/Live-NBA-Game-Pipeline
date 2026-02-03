@@ -50,4 +50,8 @@ columns_StartingLineups = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerI
 
 columns_Player = ['SeasonID', 'PlayerID', 'Name', 'Number', 'Position', 'NameInitial', 'NameLast', 'NameFirst']
 
+columns_Team = ['SeasonID', 'TeamID', 'City', 'Name', 'Tricode', 'Wins', 'Losses', 'FullName', 'Conference', 'Division']
+
+columns_Official = ['SeasonID', 'OfficialID', 'Name', 'Number']
+
 columns_Arena = ['SeasonID', 'ArenaID', 'TeamID', 'City', 'Country', 'Name', 'PostalCode', 'State', 'StreetAddress', 'Timezone']

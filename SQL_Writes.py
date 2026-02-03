@@ -34,6 +34,26 @@ def InsertGame(Game: dict, GameExt: dict):
 
     return status
 
+def InsertTeam(Team: dict):
+    gameCommand = f'''
+    if not exists
+    (select 1 from Team where SeasonID = ? and TeamID = ?)
+    begin
+        insert into Team ({', '.join(columns_Team)})
+        values ({', '.join(['?'] * len(columns_Team))})
+    end
+    '''
+
+    try:
+        nbaCursor.execute(gameCommand, DictToParams(Team, ['SeasonID', 'TeamID'] + columns_Team))
+        nbaCursor.commit()
+        status = 'Team success!'
+    except Exception as e:
+        print(e)
+        status = f'Team failure!\n\n{e}\n\nGame/GameExt Failure!'
+
+    return status
+
 
 def InsertArena(Arena: dict):
     gameCommand = f'''
@@ -75,6 +95,25 @@ def InsertPlayer(Player: dict):
 
     return status
 
+def InsertOfficial(Official: dict):
+    gameCommand = f'''
+    if not exists
+    (select 1 from Official where SeasonID = ? and OfficialID = ?)
+    begin
+        insert into Official ({', '.join(columns_Official)})
+        values ({', '.join(['?'] * len(columns_Official))})
+    end
+    '''
+
+    try:
+        nbaCursor.execute(gameCommand, DictToParams(Official, ['SeasonID', 'OfficialID'] + columns_Official))
+        nbaCursor.commit()
+        status = 'Official success!'
+    except Exception as e:
+        print(e)
+        status = f'Official failure!\n\n{e}\n\nGame/GameExt Failure!'
+
+    return status
 
 
 

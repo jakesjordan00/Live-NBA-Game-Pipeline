@@ -152,7 +152,7 @@ def GamesReInsertPbp():
 
 def GamesFromSchedule():
     gameList = []
-    games = PlayByPlaysNotInDb()
+    games = GamesNotInDb()
     dfGames = GetSchedule()
     bp = 'here'
     for i, game in dfGames.iterrows():
@@ -164,8 +164,8 @@ def GamesFromSchedule():
 
 
 # MainFunction()
-# GamesFromSchedule()
+GamesFromSchedule()
 # InsertPlayByPlay()
 
 
-GamesReInsertPbp()
+# GamesReInsertPbp()
