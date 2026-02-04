@@ -164,8 +164,10 @@ def GamesFromSchedule():
 
 
 # MainFunction()
-GamesFromSchedule()
+# GamesFromSchedule()
+# GamesReInsertPbp()
 # InsertPlayByPlay()
 
 
-# GamesReInsertPbp()
+GamesReInsertPbp()
+# GamesFromSchedule()
