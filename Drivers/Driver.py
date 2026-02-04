@@ -89,7 +89,7 @@ def MainFunction(iterations: int, dbGames: list, sender: str, programMap: str):
         
 
         test = 1
-    elif iterations % 10 == 0:
+    elif iterations % 10 == 0: 
         print('\n\n----------------------------Checking for any new Games...')
         existingGames = dbGames.copy()
         existingGames, programMap = RecurringFunction(iterations, existingGames, completedGamesDict, dbGames, halftimeGames, programMap)
