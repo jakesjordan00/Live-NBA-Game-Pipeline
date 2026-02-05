@@ -163,7 +163,6 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
         print(f'\n{game['GameID']}                                        RecurringFunction v{iterations}')
 
 
-
         if game['GameID'] in halftimeGames:
             programMap += f'╮ Halftime - skipped for the time being'
             programMap += f'\n{(lastLen) * ' '}╞╾╯'            
