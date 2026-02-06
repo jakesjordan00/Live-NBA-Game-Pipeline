@@ -2,6 +2,7 @@ import polars as pl
 import pandas as pd
 from pipelines.base import Pipeline
 from connectors.static_data import StaticDataConnector
+from transforms.transform_data import Transform
 
 
 class ScoreboardPipeline(Pipeline):
@@ -11,20 +12,21 @@ class ScoreboardPipeline(Pipeline):
 
         self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
         self.source = StaticDataConnector(self)
+        self.transformer = Transform(self)
 
 
     def extract(self):
-        data = self.source.fetch()
+        data_extract = self.source.fetch_file()
         bp = 'here'
-        return data
+        return data_extract
 
 
-    def transform(self, data):
+    def transform(self, data_extract):
+        data_transformed = self.transformer.scoreboard(data_extract)
+        return data_transformed
 
-        return data
 
 
-
-    def load(self, data):
-
-        pass
+    def load(self, data_transformed):
+        
+        return data_transformed

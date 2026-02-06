@@ -15,15 +15,15 @@ class Pipeline(ABC):
         self.run_timestamp = None
 
     @abstractmethod
-    def extract(self):
+    def extract(self) -> pl.DataFrame:
         pass
     
     @abstractmethod
-    def transform(self, data: pl.DataFrame):
+    def transform(self, data: pl.DataFrame) -> pl.DataFrame:
         pass
 
     @abstractmethod
-    def load(self, data: pl.DataFrame):
+    def load(self, data: pl.DataFrame) -> pl.DataFrame:
         pass
 
 
