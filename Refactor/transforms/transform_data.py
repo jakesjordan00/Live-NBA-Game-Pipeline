@@ -10,9 +10,9 @@ class Transform:
 
 
     def scoreboard(self, data):
-        data = data['scoreboard']['games']
-        dfScoreboard = pd.DataFrame(data)
-        dfScoreboard = dfScoreboard[[
+        data = data['scoreboard']['games']        
+        dfplScoreboard = pl.DataFrame(data)
+        dfplScoreboard = dfplScoreboard.select([
             'gameId',
             'gameCode',
             'gameStatus',
@@ -32,8 +32,8 @@ class Transform:
             'gameSubtype',
             'isNeutral',
             'homeTeam',
-            'awayTeam',        
-        ]].rename(columns={
+            'awayTeam', 
+        ]).rename({            
             'gameId': 'GameID',
             'gameCode': 'GameCode',
             'gameStatus': 'GameStatus',
@@ -55,9 +55,8 @@ class Transform:
             'homeTeam': 'HomeTeam',
             'awayTeam': 'AwayTeam',
         })
-        dfScoreboard['GameIDStr'] = dfScoreboard['GameID'].astype(str)
-        dfScoreboard['GameID'] = dfScoreboard['GameID'].astype(int)
-        dfplScoreboard = pl.from_pandas(dfScoreboard)
-
-        return dfScoreboard
+        dfplScoreboard = dfplScoreboard.with_columns(
+            pl.col('GameID').alias('GameIDStr')
+        ).cast({'GameID': pl.Int64})
+        return dfplScoreboard
 

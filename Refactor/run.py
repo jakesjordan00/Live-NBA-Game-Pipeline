@@ -7,7 +7,7 @@ pipeline = ScoreboardPipeline()
 result = pipeline.run()
 bp = 'here'
 print(result)
-
-pipeline2 = BoxscorePipeline(result['loaded']).run()
+test = result['loaded']
+pipeline2 = BoxscorePipeline(result['loaded'][0]).run()
 
 bp = 'here'

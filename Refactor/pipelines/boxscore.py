@@ -8,10 +8,11 @@ from transforms.transform_boxscore import Transform
 
 class BoxscorePipeline(Pipeline):
 
-    def __init__(self, game_data):
+    def __init__(self, game_data: pl.DataFrame):
         super().__init__('Boxscore')
-        self.GameID = game_data['GameID']
-        self.GameIDStr = game_data['GameIDStr'].iloc[0]
+        self.GameID = game_data['GameID'][0]
+        self.GameIDStr = game_data['GameIDStr'][0]
+        self.Data = game_data[0].row(0, named=True)
         self.url = f'https://cdn.nba.com/static/json/liveData/boxscore/boxscore_{self.GameIDStr}.json'
         self.source = StaticDataConnector(self)
         self.transformer = Transform(self)
