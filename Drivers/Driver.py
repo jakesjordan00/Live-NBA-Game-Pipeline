@@ -226,7 +226,7 @@ while iterations > 0:
         for i, startTime in enumerate(allStartTimes):
             now = datetime.now()
             tryAgainBounds = now + timedelta(minutes=2)
-            startsInFuture = startTime >= now
+            startsInFuture = startTime >= now 
             tryAgain = startTime <= tryAgainBounds
             if startsInFuture or (not startsInFuture and tryAgain):                
                 programMap = Wait(len(dbGames), allStartTimes[i:], programMap, 'RecurringFunction', fullProgramMap)
