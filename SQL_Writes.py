@@ -182,6 +182,8 @@ def InsertPlayByPlay(PlayByPlay: list, programMap: str):
             nbaCursor.executemany(playByPlayCommand, playByPlayParams)
             nbaCursor.commit()
             status = 'PlayByPlay success!'
+        else:
+            status = 'No PlayByPlay'
         programMap += f' {len(PlayByPlay)} actions inserted\n'
     except Exception as e:
         programMap += f' Insert failed!\n'
