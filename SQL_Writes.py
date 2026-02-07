@@ -147,8 +147,10 @@ def InsertBoxscores(TeamBox: list, PlayerBox: list, StartingLineups: list):
     end
     '''
 
-    teamBoxCommand = teamBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
+    teamBoxCommand = teamBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]'
+                    ).replace('FastBreakFG%', '[FastBreakFG%]').replace('PaintFG%', '[PaintFG%]').replace('SecondChanceFG%', '[SecondChanceFG%]')
     playerBoxCommand = playerBoxCommand.replace('FG2%', '[FG2%]').replace('FG3%', '[FG3%]').replace('FG%', '[FG%]').replace('FT%', '[FT%]')
+                    # ).replace('FastBreakFG%', '[FastBreakFG%]').replace('PaintFG%', '[PaintFG%]').replace('SecondChanceFG%', '[SecondChanceFG%]')
     
 
     teamBoxParams = [DictToParams(tb, tKeys + columns_TeamBox) for tb in TeamBox]

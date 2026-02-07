@@ -14,26 +14,28 @@ updateColumns_GameExt = ['Attendance', 'Sellout', 'Label', 'LabelDetail', 'Statu
 
 #region TeamBox
 columns_TeamBox = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'Points', 'PointsAgainst', 'FG2M', 'FG2A', 'FG2%', 'FG3M', 'FG3A', 'FG3%', 
-            'FGM', 'FGA', 'FG%', 'FieldGoalsEffectiveAdjusted', 'FTM', 'FTA', 'FT%', 'SecondChancePointsMade', 'SecondChancePointsAttempted', 
-            'SecondChancePointsPercentage', 'TrueShootingAttempts', 'TrueShootingPercentage', 'PointsFromTurnovers', 'PointsSecondChance', 
-            'PointsInThePaint', 'PointsInThePaintMade', 'PointsInThePaintAttempted', 'PointsInThePaintPercentage', 'PointsFastBreak', 
-            'FastBreakPointsMade', 'FastBreakPointsAttempted', 'FastBreakPointsPercentage', 'BenchPoints', 'ReboundsDefensive', 
+            'FGM', 'FGA', 'FG%', 'FieldGoalsEffectiveAdjusted', 'FTM', 'FTA', 'FT%', 'SecondChanceFGM', 'SecondChanceFGA', 
+            'SecondChanceFG%', 'TrueShootingAttempts', 'TrueShootingPercentage', 'PtsFromTurnovers', 'PtsSecondChance', 
+            'PtsInThePaint', 'PaintFGM', 'PaintFGA', 'PaintFG%', 'PtsFastBreak', 
+            'FastBreakFGM', 'FastBreakFGA', 'FastBreakFG%', 'BenchPoints', 'ReboundsDefensive', 
             'ReboundsOffensive', 'ReboundsPersonal', 'ReboundsTeam', 'ReboundsTeamDefensive', 'ReboundsTeamOffensive', 'ReboundsTotal', 
             'Assists', 'AssistsTurnoverRatio', 'BiggestLead', 'BiggestLeadScore', 'BiggestScoringRun', 'BiggestScoringRunScore', 
             'TimeLeading', 'TimesTied', 'LeadChanges', 'Steals', 'Turnovers', 'TurnoversTeam', 'TurnoversTotal', 'Blocks', 'BlocksReceived', 
             'FoulsDrawn', 'FoulsOffensive', 'FoulsPersonal', 'FoulsTeam', 'FoulsTeamTechnical', 'FoulsTechnical', 'Wins', 
             'Losses', 'Win', 'Seed']
 
-updateColumns_TeamBox = ['Points', 'PointsAgainst', 'FG2M', 'FG2A', '[FG2%]', 'FG3M', 'FG3A', '[FG3%]', 'FGM', 'FGA', '[FG%]', 'FieldGoalsEffectiveAdjusted', 'FTM', 'FTA', '[FT%]', 'SecondChancePointsMade', 'SecondChancePointsAttempted', 
-'SecondChancePointsPercentage', 'TrueShootingAttempts', 'TrueShootingPercentage', 'PointsFromTurnovers', 'PointsSecondChance', 'PointsInThePaint', 'PointsInThePaintMade', 'PointsInThePaintAttempted', 'PointsInThePaintPercentage', 'PointsFastBreak', 'FastBreakPointsMade', 'FastBreakPointsAttempted', 'FastBreakPointsPercentage', 'BenchPoints', 'ReboundsDefensive', 'ReboundsOffensive', 'ReboundsPersonal', 'ReboundsTeam', 'ReboundsTeamDefensive', 'ReboundsTeamOffensive', 'ReboundsTotal', 'Assists', 'AssistsTurnoverRatio', 'BiggestLead', 'BiggestLeadScore', 'BiggestScoringRun', 'BiggestScoringRunScore', 'TimeLeading', 'TimesTied', 'LeadChanges', 'Steals', 'Turnovers', 'TurnoversTeam', 'TurnoversTotal', 'Blocks', 'BlocksReceived', 'FoulsDrawn', 'FoulsOffensive', 'FoulsPersonal', 'FoulsTeam', 'FoulsTeamTechnical', 'FoulsTechnical', 'Wins', 
+updateColumns_TeamBox = ['Points', 'PointsAgainst', 'FG2M', 'FG2A', '[FG2%]', 'FG3M', 'FG3A', '[FG3%]', 'FGM', 'FGA', '[FG%]', 'FieldGoalsEffectiveAdjusted', 'FTM', 'FTA', '[FT%]', 'SecondChanceFGM', 'SecondChanceFGA', 
+'[SecondChanceFG%]', 'TrueShootingAttempts', 'TrueShootingPercentage', 'PtsFromTurnovers', 'PtsSecondChance', 'PtsInThePaint', 'PaintFGM', 'PaintFGA', '[PaintFG%]', 'PtsFastBreak', 'FastBreakFGM', 'FastBreakFGA', '[FastBreakFG%]', 'BenchPoints', 'ReboundsDefensive', 'ReboundsOffensive', 'ReboundsPersonal', 'ReboundsTeam',
+'ReboundsTeamDefensive', 'ReboundsTeamOffensive', 'ReboundsTotal', 'Assists', 'AssistsTurnoverRatio', 'BiggestLead', 'BiggestLeadScore', 'BiggestScoringRun'
+, 'BiggestScoringRunScore', 'TimeLeading', 'TimesTied', 'LeadChanges', 'Steals', 'Turnovers', 'TurnoversTeam', 'TurnoversTotal', 'Blocks', 'BlocksReceived', 'FoulsDrawn', 'FoulsOffensive', 'FoulsPersonal', 'FoulsTeam', 'FoulsTeamTechnical', 'FoulsTechnical', 'Wins', 
 'Losses', 'Win', 'Seed']
 #endregion TeamBox
 
 columns_PlayerBox = ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID', 'Status', 'Starter', 'Position', 'Minutes', 'MinutesCalculated', 
-            'Points', 'Assists', 'ReboundsTotal', 'FG2M', 'FG2A', 'FG2%', 'FG3M', 'FG3A', 'FG3%', 'FGM', 'FGA', 'FG%', 'FTM', 'FTA', 'FT%', 'ReboundsDefensive', 'ReboundsOffensive', 'Blocks', 'BlocksReceived', 'Steals', 'Turnovers', 'AssistsTurnoverRatio', 'Plus', 'Minus', 'PlusMinusPoints', 'PointsFastBreak', 'PointsInThePaint', 'PointsSecondChance', 'FoulsOffensive', 'FoulsDrawn', 'FoulsPersonal', 
+            'Points', 'Assists', 'ReboundsTotal', 'FG2M', 'FG2A', 'FG2%', 'FG3M', 'FG3A', 'FG3%', 'FGM', 'FGA', 'FG%', 'FTM', 'FTA', 'FT%', 'ReboundsDefensive', 'ReboundsOffensive', 'Blocks', 'BlocksReceived', 'Steals', 'Turnovers', 'AssistsTurnoverRatio', 'Plus', 'Minus', 'PlusMinusPoints', 'PtsFastBreak', 'PtsInThePaint', 'PtsSecondChance', 'FoulsOffensive', 'FoulsDrawn', 'FoulsPersonal', 
             'FoulsTechnical', 'StatusReason', 'StatusDescription']
 updateColumns_PlayerBox = ['Status', 'Starter', 'Position', 'Minutes', 'MinutesCalculated', 'Points', 'Assists', 'ReboundsTotal', 'FG2M', 'FG2A', 
-'[FG2%]', 'FG3M', 'FG3A', '[FG3%]', 'FGM', 'FGA', '[FG%]', 'FTM', 'FTA', '[FT%]', 'ReboundsDefensive', 'ReboundsOffensive', 'Blocks', 'BlocksReceived', 'Steals', 'Turnovers', 'AssistsTurnoverRatio', 'Plus', 'Minus', 'PlusMinusPoints', 'PointsFastBreak', 'PointsInThePaint', 'PointsSecondChance', 'FoulsOffensive', 'FoulsDrawn', 'FoulsPersonal', 'FoulsTechnical', 'StatusReason', 'StatusDescription']
+'[FG2%]', 'FG3M', 'FG3A', '[FG3%]', 'FGM', 'FGA', '[FG%]', 'FTM', 'FTA', '[FT%]', 'ReboundsDefensive', 'ReboundsOffensive', 'Blocks', 'BlocksReceived', 'Steals', 'Turnovers', 'AssistsTurnoverRatio', 'Plus', 'Minus', 'PlusMinusPoints', 'PtsFastBreak', 'PtsInThePaint', 'PtsSecondChance', 'FoulsOffensive', 'FoulsDrawn', 'FoulsPersonal', 'FoulsTechnical', 'StatusReason', 'StatusDescription']
 
 
 
