@@ -112,7 +112,7 @@ def FormatPlayerBox(player: dict, box_data: dict, team_data: dict):
     MatchupID = box_data['awayTeam']['teamId'] if team_data['teamId'] == box_data['homeTeam']['teamId'] else box_data['homeTeam']['teamId']
     
     Minutes = player['statistics']['minutes'].replace('PT', '').replace('M', ':').replace('S', '')
-
+ 
     min_split = Minutes.split(':')
     m_calc = int(min_split[0])
     s_calc = float(min_split[1])
