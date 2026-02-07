@@ -1,9 +1,6 @@
-
-
-import select
-import config
 import config.mappings
-import json
+from typing import Any
+from datetime import datetime
 
 class Transform:
 
@@ -16,16 +13,13 @@ class Transform:
         box_data = data_extract['game']
         scoreboard_data = self.pipeline.Data
 
-        prepared_data = PrepareBox(box_data, scoreboard_data)
+        transformed_data = TransformBox(box_data, scoreboard_data)
 
 
-        home_scoreboard = scoreboard_data['HomeTeam']
-        away_scoreboard = scoreboard_data['AwayTeam']
-
-
-        return prepared_data
+        return transformed_data
     
-def PrepareBox(box_data, scoreboard_data):
+
+def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
     SeasonID = 2000 + int(box_data['gameId'][3:5])
     box_data['SeasonID'] = SeasonID
     box_data['GameID'] = scoreboard_data['GameID']
@@ -34,8 +28,8 @@ def PrepareBox(box_data, scoreboard_data):
     HomeID = box_data['homeTeam']['teamId']
     AwayID = box_data['awayTeam']['teamId']
     teams = [
-        (box_data['homeTeam'], scoreboard_data['HomeTeam'], HomeID, AwayID, 'formatted_homeTeam', box_data), 
-        (box_data['awayTeam'], scoreboard_data['AwayTeam'], AwayID, HomeID, 'formatted_awayTeam', box_data)
+        (box_data['homeTeam'], scoreboard_data['HomeTeam'], HomeID, AwayID, 'homeTeam', box_data), 
+        (box_data['awayTeam'], scoreboard_data['AwayTeam'], AwayID, HomeID, 'awayTeam', box_data)
     ]
     formatted_team_list = []
     formatted_teambox_list = []
@@ -49,10 +43,6 @@ def PrepareBox(box_data, scoreboard_data):
         for player in prepared_team['Players']:
             formatted_player_list.append(player['Player'])
             formatted_playerbox_list.append(player['PlayerBox'])
-        bp = 'here'
-
-
-        box_data[selector] = prepared_team
 
     formatted_officials = FormatOfficial(box_data['officials'])
     formatted_arena = FormatArena(box_data['arena'], SeasonID, HomeID if not scoreboard_data['IsNeutral'] else None)
@@ -63,8 +53,10 @@ def PrepareBox(box_data, scoreboard_data):
         'GameID': scoreboard_data['GameID'],
         'Game': formatted_game,
         'GameExt': formatted_gameExt,
-        'Home': box_data['formatted_homeTeam'],
-        'Away': box_data['formatted_awayTeam'],
+        'Team': formatted_team_list,
+        'TeamBox': formatted_teambox_list,
+        'Player': formatted_player_list,
+        'PlayerBox': formatted_playerbox_list,
         'Officials': formatted_officials,
         'Arena': formatted_arena,
     }
@@ -73,9 +65,13 @@ def PrepareBox(box_data, scoreboard_data):
 
 
 #region Game
-def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: int):
-
+def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: int) -> tuple[dict[str, Any], dict[str, Any]]:
     Date = box_data['gameEt'][:10]
+    DatetimeStr = box_data['gameEt'][:-6]
+    Datetime = datetime.strptime(DatetimeStr, '%Y-%m-%dT%H:%M:%S')
+
+
+
     if box_data['gameId'][2] == '2': #Regular Season
         GameType = 'RS'
         SeriesID = None
@@ -118,7 +114,7 @@ def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: 
         'LoserID': LoserID,
         'LScore':  LScore,
         'SeriesID': SeriesID,
-        # 'Datetime': box_data['datetime'],
+        'Datetime': Datetime,
 
     }
 
@@ -160,7 +156,8 @@ def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int
         WinnerID = MatchupID
         LoserID = TeamID
         Win = 0
-    Home = 1 if 'homeTeam' in selector else 0
+
+    Home = 1 if selector == 'homeTeam' else 0
     game_data_payload = {
         'SeasonID': SeasonID,
         'GameID': GameID,
@@ -169,6 +166,7 @@ def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int
         'Home': Home,
         'Win': Win
     }
+
     conf_div = config.mappings.team_map[teamBox['teamId']]
     prepared_team = {
         'TeamID': teamBox['teamId'],
@@ -185,15 +183,12 @@ def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int
             'Division': conf_div['Division'],
         },
         'TeamBox': FormatTeamBox(teamBox, teamScoreboard, game_data_payload),
-        'Players': PreparePlayer(teamBox['players'], game_data_payload, team_data=teamBox),
-        'Periods': teamBox['periods']
+        'Players': PreparePlayer(teamBox['players'], game_data_payload, team_data=teamBox)
     }
-
-    test = list(teamBox['periods'])
-    bp = 'here'
 
 
     return prepared_team
+
 
 
 def FormatTeamBox(team_data: dict, team_scoreboard_data: dict, game_data_payload: dict) -> dict:
@@ -273,7 +268,7 @@ def FormatTeamBox(team_data: dict, team_scoreboard_data: dict, game_data_payload
 
 
 #region Player data
-def PreparePlayer(players: list, game_data_payload: dict, team_data: dict):
+def PreparePlayer(players: list, game_data_payload: dict, team_data: dict) -> list:
     prepared_players = []
     for player in players:
         Player = FormatPlayer(player, game_data_payload['SeasonID'])
@@ -286,7 +281,7 @@ def PreparePlayer(players: list, game_data_payload: dict, team_data: dict):
     return prepared_players
 
 
-def FormatPlayer(player: dict, SeasonID: int):
+def FormatPlayer(player: dict, SeasonID: int) -> dict:
     prepared_player = {
         'SeasonID': SeasonID,
         'PlayerID': player['personId'],
@@ -296,17 +291,13 @@ def FormatPlayer(player: dict, SeasonID: int):
         'NameLast': player['familyName'],
         'Number': player['jerseyNum'],
         'Position': player.get('position'),
-        
-
-    }
-    bp = 'here'
+        }
 
     return prepared_player
 
 
-def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict):
+def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict) -> dict:
     atr = player['statistics']['assists'] / player['statistics']['turnovers'] if player['statistics']['turnovers'] != 0 else player['statistics']['assists']
-
 
     Minutes = player['statistics']['minutes'].replace('PT', '').replace('M', ':').replace('S', '')
     min_split = Minutes.split(':')
@@ -362,7 +353,6 @@ def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict):
         'StatusReason': player.get('notPlayingReason'),
         'StatusDescription': player.get('notPlayingDescription')
     }
-    bp = 'here'
 
     return prepared_playerbox
 #endregion Player data
