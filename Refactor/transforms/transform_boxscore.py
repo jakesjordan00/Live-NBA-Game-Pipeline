@@ -1,8 +1,9 @@
 
 
-from re import Match
 import select
-
+import config
+import config.mappings
+import json
 
 class Transform:
 
@@ -22,45 +23,157 @@ class Transform:
         away_scoreboard = scoreboard_data['AwayTeam']
 
 
-        return 1
+        return prepared_data
     
-
 def PrepareBox(box_data, scoreboard_data):
     SeasonID = 2000 + int(box_data['gameId'][3:5])
     box_data['SeasonID'] = SeasonID
     box_data['GameID'] = scoreboard_data['GameID']
+
+    #Teams
     HomeID = box_data['homeTeam']['teamId']
     AwayID = box_data['awayTeam']['teamId']
-
     teams = [
-        (box_data['homeTeam'], scoreboard_data['HomeTeam'], HomeID, AwayID, 'homeTeam'), 
-        (box_data['awayTeam'], scoreboard_data['AwayTeam'], AwayID, HomeID, 'awayTeam')
+        (box_data['homeTeam'], scoreboard_data['HomeTeam'], HomeID, AwayID, 'formatted_homeTeam', box_data), 
+        (box_data['awayTeam'], scoreboard_data['AwayTeam'], AwayID, HomeID, 'formatted_awayTeam', box_data)
     ]
+    formatted_team_list = []
+    formatted_teambox_list = []
+    formatted_player_list = []
+    formatted_playerbox_list = []
+    for teamBox, teamScoreboard, TeamID, MatchupID, selector, box_data in teams:
+        prepared_team = PrepareTeam(teamBox, teamScoreboard, TeamID, MatchupID, selector, box_data)
 
-    for teamBox, teamScoreboard, TeamID, MatchupID, selector in teams:
-        name = teamBox['teamName']
-        city = teamBox['teamCity']
-        tri = teamBox['teamTricode']
+        formatted_team_list.append(prepared_team['Team'])
+        formatted_teambox_list.append(prepared_team['TeamBox'])
+        for player in prepared_team['Players']:
+            formatted_player_list.append(player['Player'])
+            formatted_playerbox_list.append(player['PlayerBox'])
+        bp = 'here'
 
-        if teamBox['statistics']['points'] > teamBox['statistics']['pointsAgainst'] and box_data['gameStatus'] == 3:
-            WinnerID = TeamID
-            LoserID = MatchupID
-            Win = 1
-        elif teamBox['statistics']['points'] < teamBox['statistics']['pointsAgainst'] and box_data['gameStatus'] == 3:
-            WinnerID = MatchupID
-            LoserID = TeamID
-            Win = 0
 
-        Home = 1 if selector == 'homeTeam' else 0
-        game_data_payload = {
+        box_data[selector] = prepared_team
+
+    formatted_officials = FormatOfficial(box_data['officials'])
+    formatted_arena = FormatArena(box_data['arena'], SeasonID, HomeID if not scoreboard_data['IsNeutral'] else None)
+    formatted_game, formatted_gameExt = FormatGame(box_data, scoreboard_data, formatted_officials, formatted_arena['ArenaID'])
+
+    prepared_box_data = {
+        'SeasonID': 2000 + int(box_data['gameId'][3:5]),
+        'GameID': scoreboard_data['GameID'],
+        'Game': formatted_game,
+        'GameExt': formatted_gameExt,
+        'Home': box_data['formatted_homeTeam'],
+        'Away': box_data['formatted_awayTeam'],
+        'Officials': formatted_officials,
+        'Arena': formatted_arena,
+    }
+
+    return prepared_box_data
+
+
+#region Game
+def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: int):
+
+    Date = box_data['gameEt'][:10]
+    if box_data['gameId'][2] == '2': #Regular Season
+        GameType = 'RS'
+        SeriesID = None
+    elif box_data['gameId'][2] == '1': #Preseason
+        GameType = 'PRE'
+        SeriesID = None
+    elif box_data['gameId'][2] == '4':
+        GameType = 'PS'
+        SeriesID = int(box_data['gameId'][2:-1])
+    elif box_data['gameId'][2] == '5':
+        GameType = 'PI'
+        SeriesID = None
+    elif box_data['gameId'][2] == '6':
+        GameType = 'CUP'
+        SeriesID = None
+
+    if box_data['homeTeam']['score'] > box_data['awayTeam']['score'] and box_data['gameStatus'] == 3:
+        WinnerID = box_data['homeTeam']['teamId']
+        WScore = box_data['homeTeam']['score']
+        LoserID = box_data['awayTeam']['teamId']
+        LScore = box_data['awayTeam']['score']
+    elif box_data['homeTeam']['score'] < box_data['awayTeam']['score'] and box_data['gameStatus'] == 3:
+        WinnerID = box_data['awayTeam']['teamId']
+        WScore = box_data['awayTeam']['score']
+        LoserID = box_data['homeTeam']['teamId']
+        LScore = box_data['homeTeam']['score']
+
+    bp = 'here'
+    formatted_Game = {
+        'SeasonID': box_data['SeasonID'],
+        'GameID': box_data['GameID'],
+        'Date': Date,
+        'GameType': GameType,
+        'HomeID': box_data['homeTeam']['teamId'],
+        'HScore': box_data['homeTeam']['score'],
+        'AwayID': box_data['awayTeam']['teamId'],
+        'AScore': box_data['awayTeam']['score'],
+        'WinnerID': WinnerID,
+        'WScore':  WScore,
+        'LoserID': LoserID,
+        'LScore':  LScore,
+        'SeriesID': SeriesID,
+        # 'Datetime': box_data['datetime'],
+
+    }
+
+    bp = 'here'
+    formatted_GameExt = {
+        'SeasonID': box_data['SeasonID'],
+        'GameID': box_data['GameID'],
+        'ArenaID': ArenaID,
+        'Attendance': box_data['attendance'],
+        'Sellout': int(box_data['sellout']),
+        'Label': scoreboard_data['GameLabel'],
+        'LabelDetail': scoreboard_data['GameSubLabel'],
+        'OfficialID': next((o['OfficialID'] for o in officials if o['Assignment'] == 'OFFICIAL1'), None),
+        'Official2ID': next((o['OfficialID'] for o in officials if o['Assignment'] == 'OFFICIAL2'), None),
+        'Official3ID': next((o['OfficialID'] for o in officials if o['Assignment'] == 'OFFICIAL3'), None),
+        'OfficialAlternateID': next((o['OfficialID'] for o in officials if o['Assignment'] == 'ALTERNATE'), None),
+        'Status': box_data['gameStatusText'],
+        'Periods': 4 if box_data['period'] <= 4 else box_data['period'],
+    }
+    bp = 'here'
+
+    return formatted_Game, formatted_GameExt
+#endregion Game
+
+
+#region Team data
+def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int, selector: str, box_data: dict) -> dict:
+    SeasonID = box_data['SeasonID']
+    GameID = box_data['GameID']
+    name = teamBox['teamName']
+    city = teamBox['teamCity']
+    tri = teamBox['teamTricode']
+
+    if teamBox['statistics']['points'] > teamBox['statistics']['pointsAgainst'] and box_data['gameStatus'] == 3:
+        WinnerID = TeamID
+        LoserID = MatchupID
+        Win = 1
+    elif teamBox['statistics']['points'] < teamBox['statistics']['pointsAgainst'] and box_data['gameStatus'] == 3:
+        WinnerID = MatchupID
+        LoserID = TeamID
+        Win = 0
+    Home = 1 if 'homeTeam' in selector else 0
+    game_data_payload = {
+        'SeasonID': SeasonID,
+        'GameID': GameID,
+        'TeamID': TeamID,
+        'MatchupID': MatchupID,
+        'Home': Home,
+        'Win': Win
+    }
+    conf_div = config.mappings.team_map[teamBox['teamId']]
+    prepared_team = {
+        'TeamID': teamBox['teamId'],
+        'Team': {
             'SeasonID': SeasonID,
-            'GameID': scoreboard_data['GameID'],
-            'TeamID': TeamID,
-            'MatchupID': MatchupID,
-            'Home': Home
-        }
-
-        prepared_team = {
             'TeamID': teamBox['teamId'],
             'City': city,
             'Name': name,
@@ -68,37 +181,24 @@ def PrepareBox(box_data, scoreboard_data):
             'Wins': teamScoreboard['wins'],
             'Losses': teamScoreboard['losses'],
             'FullName': f'({tri}) {city} {name}',
-            'Seed': teamScoreboard['seed'],
-            'Win': Win,
-            'Score': teamBox['score'],
-            'InBonus': teamBox['inBonus'],
-            'Timeouts': teamBox['timeoutsRemaining'],
-            'Players': PreparePlayer(teamBox['players'], game_data_payload, team_data=teamBox),
-            'Statistics': FormatTeamBox(teamBox, game_data_payload),
-            'Periods': teamBox['periods']
-        }
-        box_data[selector] = prepared_team
-
-    
-    prepared_box_data = {
-        'SeasonID': 2000 + int(box_data['gameId'][3:5]),
-        'GameID': scoreboard_data['GameID'],
-        'Home': box_data['homeTeam'],
-        'Away': box_data['awayTeam'],
-        'Officials': FormatOfficial(box_data['officials']),
-        'Arena': box_data['arena'],
-        'Label': scoreboard_data['GameLabel'],
-        'LabelDetail': scoreboard_data['GameSubLabel'],
-        'SeriesText': scoreboard_data['SeriesText'],
+            'Conference': conf_div['Conference'],
+            'Division': conf_div['Division'],
+        },
+        'TeamBox': FormatTeamBox(teamBox, teamScoreboard, game_data_payload),
+        'Players': PreparePlayer(teamBox['players'], game_data_payload, team_data=teamBox),
+        'Periods': teamBox['periods']
     }
 
-    return box_data
+    test = list(teamBox['periods'])
+    bp = 'here'
 
 
+    return prepared_team
 
-def FormatTeamBox(team_data: dict, game_data_payload: dict):
 
-    prepared_teambox = {
+def FormatTeamBox(team_data: dict, team_scoreboard_data: dict, game_data_payload: dict) -> dict:
+
+    formatted_teambox = {
         'SeasonID': game_data_payload['SeasonID'],
         'GameID': game_data_payload['GameID'],
         'TeamID': team_data['teamId'],
@@ -115,9 +215,9 @@ def FormatTeamBox(team_data: dict, game_data_payload: dict):
         'FGA':  team_data['statistics']['fieldGoalsAttempted'],
         'FG%':  team_data['statistics']['fieldGoalsPercentage'],
         'FieldGoalsEffectiveAdjusted': team_data['statistics']['fieldGoalsEffectiveAdjusted'],
-        'FTM': team_data['statistics']['ftm'],
-        'FTA': team_data['statistics']['fta'],
-        'FT%': team_data['statistics']['ft%'],
+        'FTM': team_data['statistics']['freeThrowsMade'],
+        'FTA': team_data['statistics']['freeThrowsAttempted'],
+        'FT%': team_data['statistics']['freeThrowsPercentage'],
         'PtsFastBreak': team_data['statistics']['pointsFastBreak'],
         'PtsInThePaint': team_data['statistics']['pointsInThePaint'],
         'PtsSecondChance': team_data['statistics']['pointsSecondChance'],
@@ -131,14 +231,48 @@ def FormatTeamBox(team_data: dict, game_data_payload: dict):
         'SecondChanceFGM': team_data['statistics']['secondChancePointsMade'],
         'SecondChanceFGA': team_data['statistics']['secondChancePointsAttempted'],
         'SecondChanceFG%': team_data['statistics']['secondChancePointsPercentage'],
+        'TrueShootingAttempts': team_data['statistics']['trueShootingAttempts'],
+        'TrueShootingPercentage': team_data['statistics']['trueShootingPercentage'],
+        'BenchPoints':              team_data['statistics']['benchPoints'],
+        'ReboundsDefensive':        team_data['statistics']['reboundsDefensive'],
+        'ReboundsOffensive':        team_data['statistics']['reboundsOffensive'],
+        'ReboundsPersonal':         team_data['statistics']['reboundsPersonal'],
+        'ReboundsTeam':             team_data['statistics']['reboundsTeam'],
+        'ReboundsTeamDefensive':    team_data['statistics']['reboundsTeamDefensive'],
+        'ReboundsTeamOffensive':    team_data['statistics']['reboundsTeamOffensive'],
+        'ReboundsTotal':            team_data['statistics']['reboundsTotal'],
+        'Assists':                  team_data['statistics']['assists'],
+        'AssistsTurnoverRatio':     team_data['statistics']['assistsTurnoverRatio'],
+        'BiggestLead':              team_data['statistics'].get('biggestLead'),
+        'BiggestLeadScore':         team_data['statistics'].get('biggestLeadScore'),
+        'BiggestScoringRun':        team_data['statistics'].get('biggestScoringRun'),
+        'BiggestScoringRunScore':   team_data['statistics'].get('biggestScoringRunScore'),
+        'TimeLeading':              team_data['statistics'].get('timeLeading'),
+        'TimesTied':                team_data['statistics'].get('timesTied'),
+        'LeadChanges':              team_data['statistics'].get('leadChanges'),
+        'Steals':                   team_data['statistics']['steals'],
+        'Turnovers':                team_data['statistics']['turnovers'],
+        'TurnoversTeam':            team_data['statistics']['turnoversTeam'],
+        'TurnoversTotal':           team_data['statistics']['turnoversTotal'],
+        'Blocks':                   team_data['statistics']['blocks'],
+        'BlocksReceived':           team_data['statistics']['blocksReceived'],
+        'FoulsDrawn':               team_data['statistics']['foulsDrawn'],
+        'FoulsOffensive':           team_data['statistics']['foulsOffensive'],
+        'FoulsPersonal':            team_data['statistics']['foulsPersonal'],
+        'FoulsTeam':                team_data['statistics']['foulsTeam'],
+        'FoulsTeamTechnical':       team_data['statistics']['foulsTeamTechnical'],
+        'FoulsTechnical':           team_data['statistics']['foulsTechnical'],
+        'Wins': team_scoreboard_data['wins'],
+        'Losses': team_scoreboard_data['losses'],
+        'Win': game_data_payload['Win'],
+        'Seed': team_scoreboard_data['seed']
     }
 
-    return prepared_teambox
+    return formatted_teambox
+#endregion Team data
 
 
-
-
-#region Player
+#region Player data
 def PreparePlayer(players: list, game_data_payload: dict, team_data: dict):
     prepared_players = []
     for player in players:
@@ -189,7 +323,7 @@ def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict):
         'MatchupID': game_data_payload['MatchupID'],
         'PlayerID': player['personId'],
         'Status':player['status'],
-        'Starter': player['starter'],
+        'Starter': int(player['starter']) if player.get('starter') != None else None,
         'Position': player.get('position'),
         'Minutes': Minutes,
         'MinutesCalculated': MinutesCalculated,
@@ -231,15 +365,30 @@ def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict):
     bp = 'here'
 
     return prepared_playerbox
-#endregion Player
+#endregion Player data
 
 
+#region Arena data
+def FormatArena(arena: dict, SeasonID: int, HomeTeamID: int | None) -> dict:
+    formatted_arena = {
+        'SeasonID': SeasonID,
+        'ArenaID': arena['arenaId'],
+        'TeamID': HomeTeamID,
+        'City': arena['arenaCity'],
+        'Country': arena['arenaCountry'],
+        'Name': arena['arenaName'],
+        'PostalCode': arena.get('arenaPostalCode'),
+        'State': arena['arenaState'],
+        'StreetAddress': arena.get('arenaStreetAddress'),
+        'Timezone': arena['arenaTimezone'],
+    }
 
+    return formatted_arena
 
-
+#endregion Arena data
 
 #region Official
-def FormatOfficial(officials: list):
+def FormatOfficial(officials: list) -> list:
     prepared_officials = []
     for official in officials:
         prepared_officials.append({
