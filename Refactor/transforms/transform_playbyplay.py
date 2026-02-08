@@ -22,7 +22,14 @@ def TransformPlayByPlay(playbyplay_data: list, scoreboard_data: dict, boxscore_d
     final_action = playbyplay_data[-1]
     gameTime = 48 if boxscore_data['GameExt']['Periods'] <= 4 else (5 * (boxscore_data['GameExt']['Periods'] - 4))
 
-    
+    if start_action == 0:
+        HomeID = boxscore_data['Game']['HomeID']
+        AwayID = boxscore_data['Game']['AwayID']
+        lineups = boxscore_data['StartingLineups']
+        home = set(player['PlayerID'] for player in lineups if player['TeamID'] == HomeID and player['Unit'] == 'Starters')
+        away = set(player['PlayerID'] for player in lineups if player['TeamID'] == AwayID and player['Unit'] == 'Starters')
+        bp = 'here'
+
     for i, action in enumerate(playbyplay_data[start_action:]):
         SeasonID = boxscore_data['SeasonID']
         GameID = boxscore_data['GameID']
@@ -76,6 +83,14 @@ def TransformPlayByPlay(playbyplay_data: list, scoreboard_data: dict, boxscore_d
         PlayerIDJumpL = action.get('jumpBallLostPersonId')
         OfficialID = action.get('officialId')
         QtrType = action['periodType']
+
+
+        if ActionType == 'substitution':
+            bp = 'here'
+        if TeamID == HomeID and PlayerID in home and ActionType == 'substitution' and SubType == 'out':
+            bp = 'here'
+        if TeamID == HomeID and PlayerID not in home and PlayerID != None:
+            bp = 'here'
 
         transformed_action = {
                 'SeasonID': SeasonID,
