@@ -10,3 +10,4 @@ scoreboard = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboa
 scoreboardAlternate = 'https://nba-prod-us-east-1-mediaops-stats.s3.amazonaws.com/NBA/liveData/scoreboard/todaysScoreboard_00.json'
 
 
+standings api: https://stats.wnba.com/stats/leaguestandingsv3?LeagueID=10&Season=2025&SeasonType=Regular+Season
