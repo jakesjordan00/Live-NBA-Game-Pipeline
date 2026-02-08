@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
 import logging
+from typing import TypeVar, Generic
 import polars as pl
 import pandas as pd
 
 
+T = TypeVar('T', pl.DataFrame, dict)
 
-class Pipeline(ABC):
-
+class Pipeline(ABC, Generic[T]):
 
     def __init__(self, pipeline_name):
         self.pipeline_name = pipeline_name
@@ -15,15 +16,15 @@ class Pipeline(ABC):
         self.run_timestamp = None
 
     @abstractmethod
-    def extract(self) -> pl.DataFrame:
+    def extract(self) -> T:
         pass
     
     @abstractmethod
-    def transform(self, data: pl.DataFrame) -> pl.DataFrame:
+    def transform(self, data: T) -> T:
         pass
 
     @abstractmethod
-    def load(self, data: pl.DataFrame) -> pl.DataFrame:
+    def load(self, data: T) -> T:
         pass
 
 

@@ -66,8 +66,9 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
 
 #region Game
 def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: int) -> tuple[dict[str, Any], dict[str, Any]]:
-    Date = box_data['gameEt'][:10]
+    DateStr = box_data['gameEt'][:10]
     DatetimeStr = box_data['gameEt'][:-6]
+    Date = datetime.strptime(DateStr, '%Y-%m-%d')
     Datetime = datetime.strptime(DatetimeStr, '%Y-%m-%dT%H:%M:%S')
 
 
@@ -125,8 +126,8 @@ def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: 
         'ArenaID': ArenaID,
         'Attendance': box_data['attendance'],
         'Sellout': int(box_data['sellout']),
-        'Label': scoreboard_data['GameLabel'],
-        'LabelDetail': scoreboard_data['GameSubLabel'],
+        'Label': scoreboard_data['GameLabel'] if scoreboard_data['GameLabel'] not in ['', None] else None,
+        'LabelDetail': scoreboard_data['GameSubLabel'] if scoreboard_data['GameSubLabel'] not in ['', None] else None,
         'OfficialID': next((o['OfficialID'] for o in officials if o['Assignment'] == 'OFFICIAL1'), None),
         'Official2ID': next((o['OfficialID'] for o in officials if o['Assignment'] == 'OFFICIAL2'), None),
         'Official3ID': next((o['OfficialID'] for o in officials if o['Assignment'] == 'OFFICIAL3'), None),
@@ -192,7 +193,6 @@ def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int
 
 
 def FormatTeamBox(team_data: dict, team_scoreboard_data: dict, game_data_payload: dict) -> dict:
-
     formatted_teambox = {
         'SeasonID': game_data_payload['SeasonID'],
         'GameID': game_data_payload['GameID'],
@@ -305,8 +305,6 @@ def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict) -> d
     s_calc = float(min_split[1])
     MinutesCalculated = round(m_calc + (s_calc/60), 2)
     
-
-    bp = 'here'
     prepared_playerbox = {
         'SeasonID': game_data_payload['SeasonID'],
         'GameID': game_data_payload['GameID'],
@@ -353,8 +351,8 @@ def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict) -> d
         'StatusReason': player.get('notPlayingReason'),
         'StatusDescription': player.get('notPlayingDescription')
     }
-
     return prepared_playerbox
+
 #endregion Player data
 
 
@@ -372,12 +370,12 @@ def FormatArena(arena: dict, SeasonID: int, HomeTeamID: int | None) -> dict:
         'StreetAddress': arena.get('arenaStreetAddress'),
         'Timezone': arena['arenaTimezone'],
     }
-
     return formatted_arena
 
 #endregion Arena data
 
-#region Official
+
+#region Official data
 def FormatOfficial(officials: list) -> list:
     prepared_officials = []
     for official in officials:
@@ -390,7 +388,6 @@ def FormatOfficial(officials: list) -> list:
             'Number': official['jerseyNum'],
             'Assignment': official['assignment'],
         })
-
-
     return prepared_officials
+
 #endregion Official
