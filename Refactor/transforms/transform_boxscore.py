@@ -17,6 +17,7 @@ class Transform:
 
 
         return transformed_data
+
     
 
 def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
@@ -35,6 +36,7 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
     formatted_teambox_list = []
     formatted_player_list = []
     formatted_playerbox_list = []
+    formatted_startinglineups_list = []
     for teamBox, teamScoreboard, TeamID, MatchupID, selector, box_data in teams:
         prepared_team = PrepareTeam(teamBox, teamScoreboard, TeamID, MatchupID, selector, box_data)
 
@@ -273,9 +275,11 @@ def PreparePlayer(players: list, game_data_payload: dict, team_data: dict) -> li
     for player in players:
         Player = FormatPlayer(player, game_data_payload['SeasonID'])
         PlayerBox = FormatPlayerBox(player, game_data_payload, team_data)
+        StartingLineups = FormatStartingLineups(player, game_data_payload, team_data)
         prepared_players.append({
             'Player': Player,
-            'PlayerBox': PlayerBox
+            'PlayerBox': PlayerBox,
+            'StartingLineups': StartingLineups
         })
 
     return prepared_players
@@ -352,6 +356,22 @@ def FormatPlayerBox(player: dict, game_data_payload: dict, team_data: dict) -> d
         'StatusDescription': player.get('notPlayingDescription')
     }
     return prepared_playerbox
+
+
+def FormatStartingLineups(player: dict, game_data_payload: dict, team_data: dict):
+    bp = 'here'
+    Unit = 'Starters' if player['starter'] == '1' else 'Bench'
+    formatted_lineup = {
+        'SeasonID': game_data_payload['SeasonID'],
+        'GameID': game_data_payload['GameID'],
+        'TeamID': game_data_payload['TeamID'],
+        'MatchupID': game_data_payload['MatchupID'],
+        'PlayerID': player['personId'],
+        'Unit': Unit,
+        'Position': player.get('position')
+
+    }
+    return formatted_lineup
 
 #endregion Player data
 
