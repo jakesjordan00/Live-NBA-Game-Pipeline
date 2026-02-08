@@ -79,7 +79,6 @@ def InitiatePlayByPlay(SeasonID: int, GameID: int, actions: list, startPosition:
             
             Y = action.get('y')
             YLegacy = action.get('yLegacy')
-            action.get('')
             TeamID = action.get('teamId')
             Tricode = action.get('teamTricode')
             ShotDistance = action.get('shotDistance')

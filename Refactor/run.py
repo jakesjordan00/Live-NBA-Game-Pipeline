@@ -13,8 +13,10 @@ bp = 'here'
 for scoreboard in scoreboard_data.iter_rows(named=True):    
     boxscore_pipeline = BoxscorePipeline(scoreboard).run()
     boxscore_data = boxscore_pipeline['loaded']
-    bp = 'here'
-    playbyplay_pipeline = PlayByPlayPipeline(scoreboard, boxscore_data).run()
+    
+    pbp_start_action = 0
+    playbyplay_pipeline = PlayByPlayPipeline(scoreboard, boxscore_data, pbp_start_action).run()
+    playbyplay_data = playbyplay_pipeline['loaded']
     bp = 'here'
 
 
