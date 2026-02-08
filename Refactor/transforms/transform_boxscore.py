@@ -1,4 +1,4 @@
-import config.mappings
+import config.data_map
 from typing import Any
 from datetime import datetime
 
@@ -172,7 +172,7 @@ def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int
         'Win': Win
     }
 
-    conf_div = config.mappings.team_map[teamBox['teamId']]
+    conf_div = config.data_map.team_map[teamBox['teamId']]
     prepared_team = {
         'TeamID': teamBox['teamId'],
         'Team': {

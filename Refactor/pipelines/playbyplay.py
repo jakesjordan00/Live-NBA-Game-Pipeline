@@ -2,7 +2,9 @@ import pandas as pd
 import polars as pl
 
 from pipelines.base import Pipeline
+import config.api_map
 from connectors.static_data import StaticDataConnector
+from connectors.api_data import APIDataConnector
 from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
@@ -12,6 +14,10 @@ class PlayByPlayPipeline(Pipeline[dict]):
         self.GameIDStr = scoreboard_data['GameIDStr']
         self.url = f'https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_{self.GameIDStr}.json'
         self.source = StaticDataConnector(self)
+        self.api_source = APIDataConnector(self)
+        self.api_map = config.api_map
+
+
         self.transformer = Transform(self)
         self.start_action = start_action
         self.Data = {

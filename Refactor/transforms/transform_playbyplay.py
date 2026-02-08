@@ -1,4 +1,4 @@
-import config.mappings
+import config.data_map
 
 
 
