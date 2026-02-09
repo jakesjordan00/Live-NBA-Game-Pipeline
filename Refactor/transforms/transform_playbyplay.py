@@ -8,8 +8,9 @@ class Transform:
         self.pipeline = pipeline
         pass
 
-    def playbyplay(self, data_extract):
+    def playbyplay(self, data_extract, api_data_extract):
         playbyplay_data = data_extract['game']['actions']
+        api_playbyplay_data = api_data_extract['game']['actions']
         scoreboard_data = self.pipeline.Data['scoreboard_data']
         boxscore_data = self.pipeline.Data['boxscore_data']
         start_action = self.pipeline.start_action
