@@ -15,7 +15,7 @@ class StaticDataConnector:
     def fetch_file(self):
         dir_files = os.listdir('Refactor/connectors/fixtures')
         dir_files.sort(reverse=True)
-        with open(f'Refactor/connectors/fixtures/{dir_files[0]}', 'r') as f:
+        with open(f'Refactor/connectors/fixtures/{dir_files[1]}', 'r') as f:
             data = json.load(f)
         return data
         

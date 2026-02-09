@@ -39,11 +39,11 @@ nba_stats_endpoints ={
 #region Play-By-Play
 #####################
     'playbyplayv2': {
-        'url': 'https://stats.nba.com/stats/playbyplayv3',
+        'url': 'https://stats.nba.com/stats/playbyplayv2',
         'headers': stats_headers,
         'params': {
             'StartPeriod': 1,
-            'EndPeriod': 10,
+            'EndPeriod': 1,
             'GameID': None,
         }
     },
