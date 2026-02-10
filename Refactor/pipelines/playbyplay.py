@@ -27,12 +27,13 @@ class PlayByPlayPipeline(Pipeline[dict]):
 
     def extract(self):
         static_data_extract = self.source.fetch()
-        api_data_extract = self.api_source.fetch()
+        # api_data_extract = self.api_source.fetch()  #Removing this on 2/10. Don't think we realistically need it.
+        api_data_extract = None
         extract = {
             'static_data_extract': static_data_extract,
             'api_data_extract': api_data_extract
         }
-        
+
         return extract
 
 
