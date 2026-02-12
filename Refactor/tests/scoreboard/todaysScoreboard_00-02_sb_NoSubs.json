@@ -2,7 +2,7 @@
   "meta": {
     "version": 1,
     "request": "https://nba-prod-us-east-1-mediaops-stats.s3.amazonaws.com/NBA/liveData/scoreboard/todaysScoreboard_00.json",
-    "time": "2026-02-11 04:20:55.2055",
+    "time": "2026-02-11 07:33:43.3343",
     "code": 200
   },
   "scoreboard": {
@@ -13,12 +13,12 @@
       {
         "gameId": "0022500775",
         "gameCode": "20260211/ATLCHA",
-        "gameStatus": 1,
-        "gameStatusText": "7:00 pm ET",
-        "period": 0,
-        "gameClock": "",
+        "gameStatus": 2,
+        "gameStatusText": "Q1 2:16",
+        "period": 1,
+        "gameClock": "PT02M16.00S",
         "gameTimeUTC": "2026-02-12T00:00:00Z",
-        "gameEt": "2026-02-11T19:00:00Z",
+        "gameEt": "2026-02-11T19:00:00-05:00",
         "regulationPeriods": 4,
         "ifNecessary": false,
         "seriesGameNumber": "",
@@ -36,15 +36,15 @@
           "teamTricode": "CHA",
           "wins": 25,
           "losses": 29,
-          "score": 0,
+          "score": 29,
           "seed": null,
-          "inBonus": null,
-          "timeoutsRemaining": 0,
+          "inBonus": "0",
+          "timeoutsRemaining": 6,
           "periods": [
             {
               "period": 1,
               "periodType": "REGULAR",
-              "score": 0
+              "score": 29
             },
             {
               "period": 2,
@@ -70,15 +70,15 @@
           "teamTricode": "ATL",
           "wins": 26,
           "losses": 29,
-          "score": 0,
+          "score": 23,
           "seed": null,
-          "inBonus": null,
-          "timeoutsRemaining": 0,
+          "inBonus": "1",
+          "timeoutsRemaining": 6,
           "periods": [
             {
               "period": 1,
               "periodType": "REGULAR",
-              "score": 0
+              "score": 23
             },
             {
               "period": 2,
@@ -99,26 +99,26 @@
         },
         "gameLeaders": {
           "homeLeaders": {
-            "personId": 0,
-            "name": "",
-            "jerseyNum": "",
-            "position": "",
+            "personId": 1642851,
+            "name": "Kon Knueppel",
+            "jerseyNum": "7",
+            "position": "GF",
             "teamTricode": "CHA",
-            "playerSlug": null,
-            "points": 0,
-            "rebounds": 0,
-            "assists": 0
+            "playerSlug": "kon-knueppel",
+            "points": 12,
+            "rebounds": 2,
+            "assists": 1
           },
           "awayLeaders": {
-            "personId": 0,
-            "name": "",
-            "jerseyNum": "",
-            "position": "",
+            "personId": 1630700,
+            "name": "Dyson Daniels",
+            "jerseyNum": "5",
+            "position": "G",
             "teamTricode": "ATL",
-            "playerSlug": null,
-            "points": 0,
+            "playerSlug": "dyson-daniels",
+            "points": 9,
             "rebounds": 0,
-            "assists": 0
+            "assists": 1
           }
         },
         "pbOdds": {
@@ -130,12 +130,12 @@
       {
         "gameId": "0022500776",
         "gameCode": "20260211/WASCLE",
-        "gameStatus": 1,
-        "gameStatusText": "7:00 pm ET",
-        "period": 0,
-        "gameClock": "",
+        "gameStatus": 2,
+        "gameStatusText": "Q1 4:53",
+        "period": 1,
+        "gameClock": "PT04M53.00S",
         "gameTimeUTC": "2026-02-12T00:00:00Z",
-        "gameEt": "2026-02-11T19:00:00Z",
+        "gameEt": "2026-02-11T19:00:00-05:00",
         "regulationPeriods": 4,
         "ifNecessary": false,
         "seriesGameNumber": "",
@@ -153,15 +153,15 @@
           "teamTricode": "CLE",
           "wins": 33,
           "losses": 21,
-          "score": 0,
+          "score": 30,
           "seed": null,
-          "inBonus": null,
-          "timeoutsRemaining": 0,
+          "inBonus": "0",
+          "timeoutsRemaining": 6,
           "periods": [
             {
               "period": 1,
               "periodType": "REGULAR",
-              "score": 0
+              "score": 30
             },
             {
               "period": 2,
@@ -187,15 +187,15 @@
           "teamTricode": "WAS",
           "wins": 14,
           "losses": 38,
-          "score": 0,
+          "score": 11,
           "seed": null,
-          "inBonus": null,
-          "timeoutsRemaining": 0,
+          "inBonus": "0",
+          "timeoutsRemaining": 6,
           "periods": [
             {
               "period": 1,
               "periodType": "REGULAR",
-              "score": 0
+              "score": 11
             },
             {
               "period": 2,
@@ -216,24 +216,24 @@
         },
         "gameLeaders": {
           "homeLeaders": {
-            "personId": 0,
-            "name": "",
-            "jerseyNum": "",
-            "position": "",
+            "personId": 201935,
+            "name": "James Harden",
+            "jerseyNum": "1",
+            "position": "G",
             "teamTricode": "CLE",
-            "playerSlug": null,
-            "points": 0,
-            "rebounds": 0,
-            "assists": 0
+            "playerSlug": "james-harden",
+            "points": 7,
+            "rebounds": 2,
+            "assists": 2
           },
           "awayLeaders": {
-            "personId": 0,
-            "name": "",
-            "jerseyNum": "",
-            "position": "",
+            "personId": 1642273,
+            "name": "Kyshawn George",
+            "jerseyNum": "18",
+            "position": "F",
             "teamTricode": "WAS",
-            "playerSlug": null,
-            "points": 0,
+            "playerSlug": "kyshawn-george",
+            "points": 6,
             "rebounds": 0,
             "assists": 0
           }
@@ -247,12 +247,12 @@
       {
         "gameId": "0022500777",
         "gameCode": "20260211/MILORL",
-        "gameStatus": 1,
-        "gameStatusText": "7:00 pm ET",
-        "period": 0,
-        "gameClock": "",
+        "gameStatus": 2,
+        "gameStatusText": "Q1 1:41",
+        "period": 1,
+        "gameClock": "PT01M41.00S",
         "gameTimeUTC": "2026-02-12T00:00:00Z",
-        "gameEt": "2026-02-11T19:00:00Z",
+        "gameEt": "2026-02-11T19:00:00-05:00",
         "regulationPeriods": 4,
         "ifNecessary": false,
         "seriesGameNumber": "",
@@ -270,15 +270,15 @@
           "teamTricode": "ORL",
           "wins": 28,
           "losses": 24,
-          "score": 0,
+          "score": 18,
           "seed": null,
-          "inBonus": null,
-          "timeoutsRemaining": 0,
+          "inBonus": "0",
+          "timeoutsRemaining": 6,
           "periods": [
             {
               "period": 1,
               "periodType": "REGULAR",
-              "score": 0
+              "score": 18
             },
             {
               "period": 2,
@@ -304,15 +304,15 @@
           "teamTricode": "MIL",
           "wins": 21,
           "losses": 30,
-          "score": 0,
+          "score": 14,
           "seed": null,
-          "inBonus": null,
-          "timeoutsRemaining": 0,
+          "inBonus": "1",
+          "timeoutsRemaining": 6,
           "periods": [
             {
               "period": 1,
               "periodType": "REGULAR",
-              "score": 0
+              "score": 14
             },
             {
               "period": 2,
@@ -333,25 +333,25 @@
         },
         "gameLeaders": {
           "homeLeaders": {
-            "personId": 0,
-            "name": "",
-            "jerseyNum": "",
-            "position": "",
+            "personId": 1630217,
+            "name": "Desmond Bane",
+            "jerseyNum": "3",
+            "position": "G",
             "teamTricode": "ORL",
-            "playerSlug": null,
-            "points": 0,
+            "playerSlug": "desmond-bane",
+            "points": 9,
             "rebounds": 0,
             "assists": 0
           },
           "awayLeaders": {
-            "personId": 0,
-            "name": "",
-            "jerseyNum": "",
-            "position": "",
+            "personId": 1628398,
+            "name": "Kyle Kuzma",
+            "jerseyNum": "18",
+            "position": "F",
             "teamTricode": "MIL",
-            "playerSlug": null,
-            "points": 0,
-            "rebounds": 0,
+            "playerSlug": "kyle-kuzma",
+            "points": 11,
+            "rebounds": 2,
             "assists": 0
           }
         },
@@ -360,7 +360,7 @@
           "odds": 0.0,
           "suspended": 0
         }
-      }      
+      }
     ]
   }
 }
