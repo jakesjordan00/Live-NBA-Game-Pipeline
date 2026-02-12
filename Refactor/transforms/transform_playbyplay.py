@@ -10,10 +10,10 @@ class Transform:
         self.pipeline = pipeline
         pass
 
-    def playbyplay(self, data_extract_full):
+    def playbyplay(self, playbyplay_data):
         scoreboard_data = self.pipeline.Data['scoreboard_data']
         boxscore_data = self.pipeline.Data['boxscore_data']
-        playbyplay_data, sub_groups = transform_stints.DetermineSubstitutions(data_extract_full, boxscore_data)
+        playbyplay_data, sub_groups = transform_stints.DetermineSubstitutions(playbyplay_data, boxscore_data)
         start_action = self.pipeline.start_action
         transformed_playbyplay = TransformPlayByPlay(playbyplay_data, boxscore_data, start_action)
         stints = transform_stints.Stints(playbyplay_data, transformed_playbyplay, sub_groups, start_action,  boxscore_data)
@@ -24,7 +24,7 @@ class Transform:
 
     
 
-def TransformPlayByPlay(playbyplay_data: list, boxscore_data: dict, start_action: int):
+def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, start_action: int):
     transformed_playbyplay = []
     gameTime = 48 if boxscore_data['GameExt']['Periods'] <= 4 else (5 * (boxscore_data['GameExt']['Periods'] - 4))
 

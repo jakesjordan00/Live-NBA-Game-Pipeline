@@ -1,3 +1,4 @@
+import logging
 import requests
 import os
 import json
@@ -8,8 +9,12 @@ class StaticDataConnector:
         pass
     
     def fetch(self):
-        response = requests.get(self.pipeline.url)
-        data = response.json()
+        try:
+            response = requests.get(self.pipeline.url)
+            data = response.json()
+        except Exception as e:
+            data = None
+            logging.error(f'No data available. Error msg: {e}')
         return data
     
     def fetch_file(self):

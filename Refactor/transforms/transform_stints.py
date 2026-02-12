@@ -1,10 +1,10 @@
+from tracemalloc import start
 import pandas as pd
-
+import polars as pl
 #region Substitution Groups
-def DetermineSubstitutions(data_extract_full: dict, boxscore_data: dict):
-    static_data_extract = data_extract_full['static_data_extract']
+def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
     # api_data_extract = data_extract_full['api_data_extract']
-    playbyplay_static_data = static_data_extract['game']['actions']
+    playbyplay_data = data_extract['game']['actions']
     # playbyplay_api_data = api_data_extract['game']['actions']
 
     sub_in_actions = 0
@@ -16,7 +16,7 @@ def DetermineSubstitutions(data_extract_full: dict, boxscore_data: dict):
     sub_groups = []
     
     Periods = 4 if boxscore_data['GameExt']['Periods'] <= 4 else boxscore_data['GameExt']['Periods']
-    for i, action in enumerate(playbyplay_static_data):
+    for i, action in enumerate(playbyplay_data):
         Qtr = action['period']
         Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
         PointInGame, MinElapsed = CalculatePointInGame(Clock, Qtr, Periods)
@@ -24,12 +24,12 @@ def DetermineSubstitutions(data_extract_full: dict, boxscore_data: dict):
         action['MinElapsed'] = MinElapsed
         action['Clock'] = Clock
 
-
-        # item['descriptionAPI'] = next((api['description'] for api in playbyplay_api_data if item['actionNumber'] == api['actionNumber']), None)
-        if action['actionType'] == 'substitution' or (action['actionType'] == 'game' and action['subType'] == 'end'):
+        game_end = 1 if action['actionType'] == 'game' and action['subType'] == 'end' else 0
+        #This is where i need to handle if the most recent action is a substitution.
+        if action['actionType'] == 'substitution' or (game_end == 1):
             SubTime = f'Q{Qtr} {Clock}'
             game_end = 1 if action['actionType'] == 'game' and action['subType'] == 'end' else 0
-            NextActionNumber = playbyplay_static_data[i+1]['actionNumber'] if game_end == 0 else action['actionNumber']
+            NextActionNumber = playbyplay_data[i+1]['actionNumber'] if game_end == 0 and i+1 < len(playbyplay_data) else action['actionNumber']
             test  = [s['SubTime'] for s in sub_groups]
             if SubTime not in [s['SubTime'] for s in sub_groups]:
                 sub_groups.append({
@@ -78,7 +78,7 @@ def DetermineSubstitutions(data_extract_full: dict, boxscore_data: dict):
 
 
 
-    for action in playbyplay_static_data:
+    for action in playbyplay_data:
         if action['actionType'] == 'substitution':
             bp = 'here'
             if action['subType'] == 'in':
@@ -88,7 +88,7 @@ def DetermineSubstitutions(data_extract_full: dict, boxscore_data: dict):
                 subs_type = 'SubOut'
                 opp_subs_type = 'SubIn'
             action['CorrespondingSubActionNumber'] = next(
-                (p['actionNumber'] for p in playbyplay_static_data
+                (p['actionNumber'] for p in playbyplay_data
                 if p['actionNumber'] != action['actionNumber']  # don't match itself
                 and action[f'{subs_type}Number'] == p[f'{opp_subs_type}Number']
                 and action[f'Team{subs_type}Number'] == p[f'Team{opp_subs_type}Number']),
@@ -97,7 +97,7 @@ def DetermineSubstitutions(data_extract_full: dict, boxscore_data: dict):
             bp = 'here'
 
 
-    return playbyplay_static_data, sub_groups
+    return playbyplay_data, sub_groups
 
 def CalculatePointInGame(Clock: str, Period: int, Periods: int):
     cMinutes = int(Clock[0:2])
@@ -134,21 +134,32 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
     homeStats, awayStats = CreateFirstTeamStatsDict(boxscore_data['Game'], HomeID, AwayID, home, away, StintID)
     
     current_sub_group_index = 0
-    current_sub_group = sub_groups[current_sub_group_index]
+    if len(sub_groups) > 0:
+        current_sub_group = sub_groups[current_sub_group_index]
+    else:
+        current_sub_group = {
+                    'PointInGame': 99,
+                    'NextActionNumber': 9999,
+                    'SubTime': "",
+                    'Period': 1,
+                    'Clock': "0"
+                }
     if start_action != 0:
         currectAction = playbyplay_data[start_action]
         current_sub_group_index = [i for i, s in enumerate(sub_groups) if s['PointInGame'] <= currectAction['PointInGame']][::-1][0]
         current_sub_group = sub_groups[current_sub_group_index]
-        start_sub_group = sub_groups[current_sub_group_index-1] #left off here 2/11
+        start_sub_group = sub_groups[current_sub_group_index-1]
 
 
 
     home_copy = home.copy()
     away_copy = away.copy()
-    bp = 'here'
+    bp = 'here'    
+    lastPossession = 0
     for i, action in enumerate(playbyplay_data[start_action:]):
         #End Stint if Substitutions are done
         if action['actionNumber'] == current_sub_group['NextActionNumber']:
+            last_action = playbyplay_data[(start_action + i) - 1]
             do_home = home != home_copy
             do_away = away != away_copy
             stat_list = [homeStats, awayStats]
@@ -156,19 +167,37 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
                 'home_away': 'Home',
                 'stats': homeStats,
                 'sub_needed': do_home,
-                'team_id': HomeID
+                'team_id': HomeID,
+                'old_lineup': home,
+                'new_lineup': home_copy
             },{
                 'home_away': 'Away',
                 'stats': awayStats,
                 'sub_needed': do_away,
-                'team_id': AwayID
+                'team_id': AwayID,
+                'old_lineup': away,
+                'new_lineup': away_copy
             }]
             #End Stint logic
-            team_stints, player_stints = StintEnding(action, stat_dict_list, team_stints, player_stints, team_player_stints, gameStatus)
-            StintStarting()
+            team_stints, player_stints, team_player_stints = StintEnding(action, last_action, stat_dict_list, team_stints, player_stints, team_player_stints, gameStatus)
+            if do_home:
+                homeStats = StintStarting(homeStats, action, stat_dict_list[0])
+                home = [PlayerID for PlayerID in homeStats['Lineup'].keys()]
+                bp = 'here'
+            if do_away:
+                awayStats = StintStarting(awayStats, action, stat_dict_list[1])
+                away = [PlayerID for PlayerID in awayStats['Lineup'].keys()]
+                bp = 'here'
             #If we arent at the last action, iterate:
             if action['actionNumber'] != final_action['actionNumber']:
                 current_sub_group_index += 1
+                sub_groups.append({
+                            'PointInGame': 999,
+                            'NextActionNumber': last_action['actionNumber'],
+                            'SubTime': "",
+                            'Period': 1,
+                            'Clock': "0"
+                        })
                 current_sub_group = sub_groups[current_sub_group_index]
         
 
@@ -180,35 +209,24 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
         teamStats = homeStats if isHome and TeamID != None else awayStats
         opStats = awayStats if isHome and TeamID != None else homeStats
         actionType = action['actionType']
+        lastPossession = playbyplay_data[start_action + i-1]['possession'] if i > 0 else 0
 
         if actionType == 'substitution':
             home_copy, away_copy = InitiateSubstitution(action, playbyplay_data, HomeID, AwayID, home_copy, away_copy)
 
         elif actionType != 'substitution':
-            teamStats, opStats = IncrementStats(action, teamStats, opStats, HomeID, AwayID)
+            teamStats, opStats = IncrementStats(action, teamStats, opStats, HomeID, AwayID, lastPossession)
 
-
-    return
+    stints = {
+        'team_stints': team_stints,
+        'player_stints': player_stints,
+        'team_player_stints': team_player_stints
+    }
+    return stints
 
 
 #region Stint Start/End
-def StintEnding(action: dict, stat_dict_list: list, team_stints: list, player_stints: list, team_player_stints: list, gameStatus: str):
-    '''
-    Docstring for StintEnding
-    
-    :param action: Description
-    :type action: dict
-    :param stat_dict_list: Description
-    :type stat_dict_list: list
-    :param team_stints: Description
-    :type team_stints: list
-    :param player_stints: Description
-    :type player_stints: list
-    :param team_player_stints: Description
-    :type team_player_stints: list
-    :param gameStatus: Description
-    :type gameStatus: str
-    ''' 
+def StintEnding(action: dict, last_action: dict, stat_dict_list: list, team_stints: list, player_stints: list, team_player_stints: list, gameStatus: str):
 
     for dict in stat_dict_list:
         sub_needed = dict['sub_needed']
@@ -218,7 +236,7 @@ def StintEnding(action: dict, stat_dict_list: list, team_stints: list, player_st
             continue
         stat_dict = dict['stats']
         stat_dict['MinutesPlayed'] = round(action['MinElapsed'] - stat_dict['MinElapsedStart'], 2)
-        if 'Final' not in gameStatus and action['actionType'] != 'substitution':
+        if 'Final' not in gameStatus and action['actionType'] != 'substitution' and last_action['actionType'] != 'substitution':
             stat_dict['QtrEnd'] = None
             stat_dict['ClockEnd'] = None
             stat_dict['MinElapsedEnd'] = None
@@ -233,28 +251,44 @@ def StintEnding(action: dict, stat_dict_list: list, team_stints: list, player_st
 
         team_stint = {key: value for key, value in stat_dict.items() if key != 'Lineup'}
         team_stints.append(team_stint)
-
-    # home_stats = stat_dict_list[0]['stats']
-    # away_stats = stat_dict_list[1]['stats']
-
-    return team_stints, player_stints
-
-def StintStarting():
+        team_player_stints.append(stat_dict)
 
 
-    return
+    return team_stints, player_stints, team_player_stints
+
+def StintStarting(stint_team_dict: dict, action: dict, team_dict: dict):
+    new_stint_team_dict = stint_team_dict.copy()
+    new_lineup = team_dict['new_lineup']
+    new_stint_team_dict = CreateTeamStats(new_stint_team_dict, action, new_lineup)
+    return new_stint_team_dict
 
 #endregion Stint Start/End
 
 
-def IncrementStats(action: dict, teamStats: dict, opStats: dict, HomeID: int, AwayID: int):
-    actionType = action['actionType']
+def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, AwayID: int, last_possession: int):
+    action_type = action['actionType']
+    try:
+        #Field Goals & Freethrows
+        if action_type in ['2pt', '3pt', 'freethrow']:
+            team_stats, op_stats = ParseFieldGoals(action, team_stats, op_stats)
 
-    if actionType in ['2pt', '3pt', 'freethrow']:
-        teamStats, opStats = ParseFieldGoals(action, teamStats, opStats)
+        #Possessions
+        current_possession = action['possession']
+        if pd.notna(current_possession) and current_possession != last_possession:
+            if current_possession == team_stats['TeamID']:
+                team_stats['Possessions'] += 1
+            last_possession = current_possession  
+        """Assists"""
+        if action.get('assistPersonId'):
+            PlayerIDAst = action.get('assistPersonId')
+            team_stats['AST'] += 1
+            team_stats['Lineup'][PlayerIDAst]['AST'] += 1
+        
+    except Exception as e:
+        bp = 'here'
 
 
-    return teamStats, opStats
+    return team_stats, op_stats
 
 
 
@@ -391,20 +425,25 @@ def CreateFirstTeamStatsDict(Game: dict, HomeID, AwayID, homeLineup, awayLineup,
     return homeStats, awayStats
 
 
-def CreateTeamStats(Game: dict, HomeID, AwayID, homeLineup, awayLineup, stintID):
-    #Contents of a row in Stints table     
-    teamStats = {
-        'SeasonID': Game['SeasonID'],
-        'GameID': Game['GameID'],
-        'TeamID': 0,
-        'StintID': stintID,
-        'QtrStart': 1,
+def CreateTeamStats(current_stint: dict, action: dict, new_lineup: list):
+    #Contents of a row in Stints table
+    SeasonID = current_stint['SeasonID']
+    GameID = current_stint['GameID']
+    TeamID = current_stint['TeamID']
+    StintID = current_stint['StintID'] + 1
+    Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
+    team_stats = {
+        'SeasonID': SeasonID,
+        'GameID': GameID,
+        'TeamID': TeamID,
+        'StintID': StintID,
+        'QtrStart': action['period'],
         'QtrEnd': 0,
-        'ClockStart': '12:00.00',
+        'ClockStart': Clock,
         'ClockEnd': None,
-        'MinElapsedStart': 0, 
+        'MinElapsedStart': current_stint['MinElapsedEnd'], 
         'MinElapsedEnd': None,
-        'MinutesPlayed': None,
+        'MinutesPlayed': 0,
         'Possessions': 0,
         'PtsScored': 0,
         'PtsAllowed': 0,
@@ -424,17 +463,15 @@ def CreateTeamStats(Game: dict, HomeID, AwayID, homeLineup, awayLineup, stintID)
         'STL': 0,
         'BLK': 0,
         'BLKd': 0,
-        'F': 0
+        'F': 0,
+        'Lineup': {
+            PlayerID: CreatePlayerStats(PlayerID, TeamID, SeasonID, GameID, StintID)
+            for PlayerID in new_lineup
+            }
     }
-    homeStats = teamStats.copy()
-    homeStats['TeamID'] = HomeID
-    homeStats['Lineup'] = {player: CreatePlayerStats(player, HomeID, Game['SeasonID'], Game['GameID'], stintID) for player in homeLineup}
-    awayStats = teamStats.copy()
-    awayStats['TeamID'] = AwayID
-    awayStats['Lineup'] = {player: CreatePlayerStats(player, AwayID, Game['SeasonID'], Game['GameID'], stintID) for player in awayLineup}
-    return homeStats, awayStats
+    return team_stats
 def CreatePlayerStats(playerID, teamID, SeasonID, GameID, stintID):
-        return {
+    player_stats = {
         'SeasonID': SeasonID,
         'GameID': GameID,
         'TeamID': teamID,
@@ -461,5 +498,5 @@ def CreatePlayerStats(playerID, teamID, SeasonID, GameID, stintID):
         'BLKd': 0,
         'F': 0
     }
-
+    return player_stats
 #endregion Stat Dictionaries

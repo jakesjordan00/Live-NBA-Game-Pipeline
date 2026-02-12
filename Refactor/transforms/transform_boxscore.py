@@ -103,6 +103,11 @@ def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: 
         WScore = box_data['awayTeam']['score']
         LoserID = box_data['homeTeam']['teamId']
         LScore = box_data['homeTeam']['score']
+    else:
+        WinnerID = None
+        WScore = None
+        LoserID = None
+        LScore = None
 
     bp = 'here'
     formatted_Game = {
@@ -161,6 +166,8 @@ def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int
         WinnerID = MatchupID
         LoserID = TeamID
         Win = 0
+    else:
+        Win = None
 
     Home = 1 if selector == 'homeTeam' else 0
     game_data_payload = {
