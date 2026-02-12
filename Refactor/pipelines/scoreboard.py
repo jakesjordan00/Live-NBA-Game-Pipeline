@@ -17,6 +17,7 @@ class ScoreboardPipeline(Pipeline[pl.DataFrame]):
 
     def extract(self):
         data_extract = self.source.fetch_file()
+        # data_extract = self.source.fetch()
         bp = 'here'
         return data_extract
 
