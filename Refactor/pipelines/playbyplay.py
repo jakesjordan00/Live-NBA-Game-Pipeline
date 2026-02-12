@@ -8,14 +8,15 @@ from connectors.api_data import APIDataConnector
 from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
-    def __init__(self, scoreboard_data, boxscore_data, environment: str, start_action = 0):
+    def __init__(self, scoreboard_data, boxscore_data, start_action: int, environment: str, iterations: int):
         super().__init__('PlayByPlay')
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']
         self.url = f'https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_{self.GameIDStr}.json'
         self.source = StaticDataConnector(self)
         self.environment = environment
-        self.file_source = 'Refactor/tests/playbyplay'
+        self.file_source = f'Refactor/tests/pbp/{self.GameID}'
+        self.iterations = iterations
 
         
         self.transformer = Transform(self)

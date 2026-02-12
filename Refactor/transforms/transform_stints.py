@@ -158,8 +158,7 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
     lastPossession = 0
     for i, action in enumerate(playbyplay_data[start_action:]):
         #End Stint if Substitutions are done
-        if action['actionNumber'] == current_sub_group['NextActionNumber']:
-            last_action = playbyplay_data[(start_action + i) - 1]
+        if action['actionNumber'] == current_sub_group['NextActionNumber'] or action['actionNumber'] == final_action['actionNumber']:
             do_home = home != home_copy
             do_away = away != away_copy
             stat_list = [homeStats, awayStats]
@@ -179,7 +178,7 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
                 'new_lineup': away_copy
             }]
             #End Stint logic
-            team_stints, player_stints, team_player_stints = StintEnding(action, last_action, stat_dict_list, team_stints, player_stints, team_player_stints, gameStatus)
+            team_stints, player_stints, team_player_stints = StintEnding(action, final_action, stat_dict_list, team_stints, player_stints, team_player_stints, gameStatus)
             if do_home:
                 homeStats = StintStarting(homeStats, action, stat_dict_list[0])
                 home = [PlayerID for PlayerID in homeStats['Lineup'].keys()]
@@ -193,7 +192,7 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
                 current_sub_group_index += 1
                 sub_groups.append({
                             'PointInGame': 999,
-                            'NextActionNumber': last_action['actionNumber'],
+                            'NextActionNumber': final_action['actionNumber'],
                             'SubTime': "",
                             'Period': 1,
                             'Clock': "0"
@@ -229,7 +228,7 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
 def StintEnding(action: dict, last_action: dict, stat_dict_list: list, team_stints: list, player_stints: list, team_player_stints: list, gameStatus: str):
 
     for dict in stat_dict_list:
-        sub_needed = dict['sub_needed']
+        sub_needed = dict['sub_needed'] or action['actionNumber'] == last_action['actionNumber']
         #If we don't need a sub, don't do anything
         #
         if sub_needed == False: 

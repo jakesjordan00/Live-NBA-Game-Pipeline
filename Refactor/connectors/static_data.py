@@ -18,9 +18,9 @@ class StaticDataConnector:
         return data
     
     def fetch_file(self):
-        pipeline = self.pipeline
         dir_files = os.listdir(self.pipeline.file_source)
-        with open(f'{self.pipeline.file_source}/{dir_files[0]}', 'r') as f:
+        test = f'{self.pipeline.file_source}/{dir_files[self.pipeline.iterations]}'
+        with open(f'{self.pipeline.file_source}/{dir_files[self.pipeline.iterations]}', 'r', encoding='utf-8') as f:
             data = json.load(f)
         return data
         
