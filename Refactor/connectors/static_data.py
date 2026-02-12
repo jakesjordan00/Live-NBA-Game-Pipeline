@@ -18,9 +18,9 @@ class StaticDataConnector:
         return data
     
     def fetch_file(self):
-        dir_files = os.listdir('Refactor/connectors/fixtures')
-        dir_files.sort(reverse=True)
-        with open(f'Refactor/connectors/fixtures/{dir_files[0]}', 'r') as f:
+        pipeline = self.pipeline
+        dir_files = os.listdir(self.pipeline.file_source)
+        with open(f'{self.pipeline.file_source}/{dir_files[0]}', 'r') as f:
             data = json.load(f)
         return data
         

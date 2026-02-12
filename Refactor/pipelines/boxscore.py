@@ -8,7 +8,7 @@ from transforms.transform_boxscore import Transform
 
 class BoxscorePipeline(Pipeline[dict]):
 
-    def __init__(self, scoreboard_data: pl.DataFrame):
+    def __init__(self, scoreboard_data: pl.DataFrame, environment: str):
         super().__init__('Boxscore')
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']
@@ -16,10 +16,11 @@ class BoxscorePipeline(Pipeline[dict]):
         self.url = f'https://cdn.nba.com/static/json/liveData/boxscore/boxscore_{self.GameIDStr}.json'
         self.source = StaticDataConnector(self)
         self.transformer = Transform(self)
-        #Need self.loader here
+        self.environment = environment
+        self.file_source = 'Refactor/tests/box'
         
     def extract(self):
-        data_extract = self.source.fetch()
+        data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
         bp = 'here'
         return data_extract
 

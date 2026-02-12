@@ -7,17 +7,18 @@ from transforms.transform_data import Transform
 
 class ScoreboardPipeline(Pipeline[pl.DataFrame]):
 
-    def __init__(self):
+    def __init__(self, environment: str):
         super().__init__('scoreboard')
 
         self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
         self.source = StaticDataConnector(self)
+        self.file_source = 'Refactor/tests/scoreboard'
         self.transformer = Transform(self)
+        self.environment = environment
 
 
     def extract(self):
-        # data_extract = self.source.fetch_file()
-        data_extract = self.source.fetch()
+        data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
         bp = 'here'
         return data_extract
 

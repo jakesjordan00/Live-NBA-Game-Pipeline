@@ -8,15 +8,15 @@ from connectors.api_data import APIDataConnector
 from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
-    def __init__(self, scoreboard_data, boxscore_data, start_action = 0):
+    def __init__(self, scoreboard_data, boxscore_data, environment: str, start_action = 0):
         super().__init__('PlayByPlay')
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']
         self.url = f'https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_{self.GameIDStr}.json'
         self.source = StaticDataConnector(self)
-        self.api_source = APIDataConnector(self)
-        self.api_map = config.api_map.nba_stats_endpoints['playbyplayv3']
-        self.api_map['params']['GameID'] = self.GameIDStr
+        self.environment = environment
+        self.file_source = 'Refactor/tests/playbyplay'
+
         
         self.transformer = Transform(self)
         self.start_action = start_action
@@ -26,7 +26,7 @@ class PlayByPlayPipeline(Pipeline[dict]):
         }
 
     def extract(self):
-        static_data_extract = self.source.fetch()
+        static_data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
         if static_data_extract == None:
             bp= 'here'
             """Need to handle error here
