@@ -128,8 +128,7 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
         lineups = boxscore_data['StartingLineups']
         home = [player['PlayerID'] for player in lineups if player['TeamID'] == HomeID and player['Unit'] == 'Starters']
         away = [player['PlayerID'] for player in lineups if player['TeamID'] == AwayID and player['Unit'] == 'Starters']
-        bp = 'here'
-    
+        bp = 'here'   
     
     homeStats, awayStats = CreateFirstTeamStatsDict(boxscore_data['Game'], HomeID, AwayID, home, away, StintID)
     
@@ -265,8 +264,9 @@ def StintStarting(stint_team_dict: dict, action: dict, team_dict: dict):
 
 
 def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, AwayID: int, last_possession: int):
-    action_type = action['actionType'].lower()
     try:
+        action_type = action['actionType'].lower()
+        player_id = action['personId']
         #Field Goals & Freethrows
         if action_type in ['2pt', '3pt', 'freethrow']:
             team_stats, op_stats = ParseFieldGoal(action, team_stats, op_stats)
@@ -282,8 +282,22 @@ def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, 
         if action_type == 'rebound':
             team_stats = ParseRebound(action, team_stats)
         
+        #Blocks
+        if action_type == 'block':
+            ParseBlock(player_id, team_stats, op_stats)
+
+        #Steals
+        if action_type == 'steal':
+            team_stats = ParseSteal(player_id, team_stats)
+
+        #Turnovers
+        if action_type == 'turnover':
+            team_stats = ParseTurnover(player_id, team_stats)
 
 
+        if action_type == 'foul':
+            team_stats, op_stats = ParseFoul(action, team_stats, op_stats)
+            
     except Exception as e:
         bp = 'here'
 
@@ -364,11 +378,37 @@ def ParseRebound(action: dict, team_stats: dict):
     return team_stats
 
 
-def ParseBlock(action: dict, team_stats: dict, op_stats: dict):
-
-
+def ParseBlock(PlayerID: int, team_stats: dict, op_stats: dict):
+    team_stats['BLK'] += 1
+    team_stats['Lineup'][PlayerID]['BLK'] += 1
+    op_stats['BLKd'] += 1
     return team_stats, op_stats
 
+
+def ParseTurnover(PlayerID: int, team_stats: dict) -> dict:
+    team_stats['TOV'] += 1
+    if PlayerID != 0:
+        team_stats['Lineup'][PlayerID]['TOV'] += 1
+    return team_stats
+
+def ParseSteal(PlayerID: int, team_stats: dict) -> dict:
+    team_stats['STL'] += 1
+    team_stats['Lineup'][PlayerID]['STL'] += 1
+
+    return team_stats
+
+def ParseFoul(action: dict, team_stats: dict, op_stats: dict):
+    team_stats['F'] +=1
+
+    PlayerID = action['personId']
+    if PlayerID != 0:
+        team_stats['Lineup'][PlayerID]['F'] += 1
+    PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
+    if PlayerIDFoulDrawn:
+        op_stats['FDrwn'] += 1
+        op_stats['Lineup'][PlayerIDFoulDrawn]['FDrwn'] += 1
+
+    return team_stats, op_stats
 
 #endregion Stint Parsing
 
@@ -451,7 +491,8 @@ def CreateFirstTeamStatsDict(Game: dict, HomeID, AwayID, homeLineup, awayLineup,
         'STL': 0,
         'BLK': 0,
         'BLKd': 0,
-        'F': 0
+        'F': 0,
+        'FDrwn': 0
     }
     homeStats = teamStats.copy()
     homeStats['TeamID'] = HomeID
@@ -501,6 +542,7 @@ def CreateTeamStats(current_stint: dict, action: dict, new_lineup: list):
         'BLK': 0,
         'BLKd': 0,
         'F': 0,
+        'FDrwn': 0,
         'Lineup': {
             PlayerID: CreatePlayerStats(PlayerID, TeamID, SeasonID, GameID, StintID)
             for PlayerID in new_lineup
@@ -533,7 +575,8 @@ def CreatePlayerStats(playerID, teamID, SeasonID, GameID, stintID):
         'STL': 0,
         'BLK': 0,
         'BLKd': 0,
-        'F': 0
+        'F': 0,
+        'FDrwn': 0
     }
     return player_stats
 #endregion Stat Dictionaries
