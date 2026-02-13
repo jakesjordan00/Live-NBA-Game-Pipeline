@@ -1,8 +1,7 @@
-import config.data_map
+
 from transforms import transform_stints
 import pandas as pd
 import polars as pl
-import unicodedata
 
 class Transform:
 
@@ -16,7 +15,7 @@ class Transform:
         playbyplay_data, sub_groups = transform_stints.DetermineSubstitutions(playbyplay_data, boxscore_data)
         start_action = self.pipeline.start_action
         transformed_playbyplay = TransformPlayByPlay(playbyplay_data, boxscore_data, start_action)
-        stints = transform_stints.Stints(playbyplay_data, transformed_playbyplay, sub_groups, start_action,  boxscore_data)
+        stints = transform_stints.Stints(playbyplay_data, sub_groups, start_action, boxscore_data)
         return transformed_playbyplay
 
 

@@ -114,7 +114,7 @@ def CalculatePointInGame(Clock: str, Period: int, Periods: int):
 
 
 #region Stint Parsing
-def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list, start_action: int, boxscore_data: dict):
+def Stints(playbyplay_data: list, sub_groups: list, start_action: int, boxscore_data: dict):
     StintID = 1
     final_action = playbyplay_data[-1]
 
@@ -137,12 +137,12 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
         current_sub_group = sub_groups[current_sub_group_index]
     else:
         current_sub_group = {
-                    'PointInGame': 99,
-                    'NextActionNumber': 9999,
-                    'SubTime': "",
-                    'Period': 1,
-                    'Clock': "0"
-                }
+            'PointInGame': 99,
+            'NextActionNumber': 9999,
+            'SubTime': "",
+            'Period': 1,
+            'Clock': "0"
+        }
     if start_action != 0:
         currectAction = playbyplay_data[start_action]
         current_sub_group_index = [i for i, s in enumerate(sub_groups) if s['PointInGame'] <= currectAction['PointInGame']][::-1][0]
@@ -210,7 +210,10 @@ def Stints(playbyplay_data: list, transformed_playbyplay: list, sub_groups: list
         lastPossession = playbyplay_data[start_action + i-1]['possession'] if i > 0 else 0
 
         if actionType == 'substitution':
-            home_copy, away_copy = InitiateSubstitution(action, playbyplay_data, HomeID, AwayID, home_copy, away_copy)
+            if action['actionNumber'] != final_action['actionNumber']:
+                home_copy, away_copy = InitiateSubstitution(action, playbyplay_data, HomeID, AwayID, home_copy, away_copy)
+            else:
+                bp = 'here'
 
         elif actionType != 'substitution':
             teamStats, opStats = IncrementStats(action, teamStats, opStats, HomeID, AwayID, lastPossession)
@@ -420,13 +423,16 @@ def ParseFoul(action: dict, team_stats: dict, op_stats: dict):
 
 #region Substitution Logic
 def InitiateSubstitution(action: dict,  playbyplay_data: list, HomeID: int, AwayID: int, home: list, away: list):
-    if action['actionNumber'] > action['CorrespondingSubActionNumber']:
-        otherPlayerID = next((a['personId'] for a in playbyplay_data if a['actionNumber'] == action['CorrespondingSubActionNumber']), None)
-        if action['teamId'] == HomeID:
-            home = SubstitutePlayers(action['subType'], action['personId'], otherPlayerID, home)
-        elif action['teamId'] == AwayID:
-            away = SubstitutePlayers(action['subType'], action['personId'], otherPlayerID, away)
-        bp = 'here'
+    try:
+        if action['actionNumber'] > action['CorrespondingSubActionNumber']:
+            otherPlayerID = next((a['personId'] for a in playbyplay_data if a['actionNumber'] == action['CorrespondingSubActionNumber']), None)
+            if action['teamId'] == HomeID:
+                home = SubstitutePlayers(action['subType'], action['personId'], otherPlayerID, home)
+            elif action['teamId'] == AwayID:
+                away = SubstitutePlayers(action['subType'], action['personId'], otherPlayerID, away)
+            bp = 'here'
+    except TypeError as e:
+        error = 'Subbing was not complete when data was pulled, no corresponding Player to sub in.'
     return home, away
 
 
