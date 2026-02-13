@@ -265,7 +265,7 @@ def StintStarting(stint_team_dict: dict, action: dict, team_dict: dict):
 
 
 def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, AwayID: int, last_possession: int):
-    action_type = action['actionType']
+    action_type = action['actionType'].lower()
     try:
         #Field Goals & Freethrows
         if action_type in ['2pt', '3pt', 'freethrow']:
@@ -274,12 +274,16 @@ def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, 
         #Possessions
         if action.get('possession') and action.get('possession') != 0:
             team_stats, current_possession, last_possession = ParsePossession(action, team_stats, last_possession)
-
         #Assists
         if action.get('assistPersonId'):
             PlayerIDAst = action['assistPersonId']
             team_stats = ParseAssist(PlayerIDAst, team_stats)
+        #Rebounds
+        if action_type == 'rebound':
+            team_stats = ParseRebound(action, team_stats)
         
+
+
     except Exception as e:
         bp = 'here'
 
@@ -289,6 +293,7 @@ def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, 
 
 def ParseFieldGoal(action: dict, teamStats: dict, opStats: dict):
     try:
+        PlayerID = action['personId']
         shot_type = action['actionType']
         shot_result = action['shotResult']
         result_short = 'M' if shot_result == 'Made' else 'A'
@@ -305,22 +310,25 @@ def ParseFieldGoal(action: dict, teamStats: dict, opStats: dict):
             teamStats[ShotType] += 1
             teamStats['PtsScored'] += ShotValue
             opStats['PtsAllowed'] += ShotValue
-            teamStats['Lineup'][action['personId']]['PTS'] += ShotValue
-            teamStats['Lineup'][action['personId']][ShotType] += 1
+            teamStats['Lineup'][PlayerID]['PTS'] += ShotValue
+            teamStats['Lineup'][PlayerID][ShotType] += 1
+        elif ' - blocked' in action['description']:
+            teamStats['Lineup'][PlayerID]['BLKd'] += 1
+
         if ShotValue == 1:
             teamStats['FTA'] += 1
-            teamStats['Lineup'][action['personId']]['FTA'] += 1
+            teamStats['Lineup'][PlayerID]['FTA'] += 1
         elif ShotValue == 2:
             teamStats['FG2A'] += 1
-            teamStats['Lineup'][action['personId']]['FG2A'] += 1
+            teamStats['Lineup'][PlayerID]['FG2A'] += 1
         elif ShotValue == 3:
             teamStats['FG3A'] += 1
-            teamStats['Lineup'][action['personId']]['FG3A'] += 1
+            teamStats['Lineup'][PlayerID]['FG3A'] += 1
 
         teamStats['FGM'] = teamStats['FG2M'] + teamStats['FG3M']
         teamStats['FGA'] = teamStats['FG2A'] + teamStats['FG3A']
-        teamStats['Lineup'][action['personId']]['FGM'] = teamStats['Lineup'][action['personId']]['FG2M'] + teamStats['Lineup'][action['personId']]['FG3M']
-        teamStats['Lineup'][action['personId']]['FGA'] = teamStats['Lineup'][action['personId']]['FG2A'] + teamStats['Lineup'][action['personId']]['FG3A']
+        teamStats['Lineup'][PlayerID]['FGM'] = teamStats['Lineup'][PlayerID]['FG2M'] + teamStats['Lineup'][PlayerID]['FG3M']
+        teamStats['Lineup'][PlayerID]['FGA'] = teamStats['Lineup'][PlayerID]['FG2A'] + teamStats['Lineup'][PlayerID]['FG3A']
         bp = 'here'
     except Exception as e:
         err = e
@@ -338,11 +346,30 @@ def ParsePossession(action: dict, team_stats: dict, last_possession: int):
         last_possession = current_possession
     return team_stats, current_possession, last_possession
 
-def ParseAssist(PlayerIDAst: int, team_stats: dict):
+def ParseAssist(PlayerIDAst: int, team_stats: dict) -> dict:
     team_stats['AST'] += 1
     team_stats['Lineup'][PlayerIDAst]['AST'] += 1
     
     return team_stats
+
+def ParseRebound(action: dict, team_stats: dict):
+    PlayerID = action['personId']
+    team_stats['REB'] +=1
+    reb_type = f'{action['subType'][0].upper()}REB'
+    team_stats[reb_type] += 1
+    if PlayerID not in [None, 0]:
+        team_stats['Lineup'][PlayerID]['REB'] += 1
+        team_stats['Lineup'][PlayerID][reb_type] += 1
+
+    return team_stats
+
+
+def ParseBlock(action: dict, team_stats: dict, op_stats: dict):
+
+
+    return team_stats, op_stats
+
+
 #endregion Stint Parsing
 
 
