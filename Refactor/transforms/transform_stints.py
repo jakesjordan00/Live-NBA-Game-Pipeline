@@ -269,19 +269,16 @@ def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, 
     try:
         #Field Goals & Freethrows
         if action_type in ['2pt', '3pt', 'freethrow']:
-            team_stats, op_stats = ParseFieldGoals(action, team_stats, op_stats)
+            team_stats, op_stats = ParseFieldGoal(action, team_stats, op_stats)
 
         #Possessions
-        current_possession = action['possession']
-        if pd.notna(current_possession) and current_possession != last_possession:
-            if current_possession == team_stats['TeamID']:
-                team_stats['Possessions'] += 1
-            last_possession = current_possession  
-        """Assists"""
+        if action.get('possession') and action.get('possession') != 0:
+            team_stats, current_possession, last_possession = ParsePossession(action, team_stats, last_possession)
+
+        #Assists
         if action.get('assistPersonId'):
-            PlayerIDAst = action.get('assistPersonId')
-            team_stats['AST'] += 1
-            team_stats['Lineup'][PlayerIDAst]['AST'] += 1
+            PlayerIDAst = action['assistPersonId']
+            team_stats = ParseAssist(PlayerIDAst, team_stats)
         
     except Exception as e:
         bp = 'here'
@@ -290,8 +287,7 @@ def IncrementStats(action: dict, team_stats: dict, op_stats: dict, HomeID: int, 
     return team_stats, op_stats
 
 
-
-def ParseFieldGoals(action: dict, teamStats: dict, opStats: dict):
+def ParseFieldGoal(action: dict, teamStats: dict, opStats: dict):
     try:
         shot_type = action['actionType']
         shot_result = action['shotResult']
@@ -332,6 +328,21 @@ def ParseFieldGoals(action: dict, teamStats: dict, opStats: dict):
 
 
     return teamStats, opStats
+
+
+def ParsePossession(action: dict, team_stats: dict, last_possession: int):
+    current_possession = action['possession']
+    if pd.notna(current_possession) and current_possession != last_possession:
+        if current_possession == team_stats['TeamID']:
+            team_stats['Possessions'] += 1
+        last_possession = current_possession
+    return team_stats, current_possession, last_possession
+
+def ParseAssist(PlayerIDAst: int, team_stats: dict):
+    team_stats['AST'] += 1
+    team_stats['Lineup'][PlayerIDAst]['AST'] += 1
+    
+    return team_stats
 #endregion Stint Parsing
 
 
