@@ -507,7 +507,7 @@ def CreateFirstTeamStatsDict(Game: dict, HomeID, AwayID, homeLineup, awayLineup,
     awayStats['TeamID'] = AwayID
     awayStats['Lineup'] = {player: CreatePlayerStats(player, AwayID, Game['SeasonID'], Game['GameID'], stintID) for player in awayLineup}
     return homeStats, awayStats
-
+ 
 
 def CreateTeamStats(current_stint: dict, action: dict, new_lineup: list):
     #Contents of a row in Stints table

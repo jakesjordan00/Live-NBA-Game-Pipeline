@@ -1,5 +1,7 @@
 
+from multiprocessing import process
 from transforms import transform_stints
+from transforms.stint_processor import StintProcessor
 import pandas as pd
 import polars as pl
 
@@ -15,7 +17,9 @@ class Transform:
         playbyplay_data, sub_groups = transform_stints.DetermineSubstitutions(playbyplay_data, boxscore_data)
         start_action = self.pipeline.start_action
         transformed_playbyplay = TransformPlayByPlay(playbyplay_data, boxscore_data, start_action)
-        stints = transform_stints.Stints(playbyplay_data, sub_groups, start_action, boxscore_data)
+        
+        stint_processor = StintProcessor(playbyplay_data, boxscore_data, sub_groups, start_action)
+        stints = stint_processor.process()
         return transformed_playbyplay
 
 
