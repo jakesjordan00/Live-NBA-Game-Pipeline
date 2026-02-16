@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 from tracemalloc import start
 from typing import Any
+import pandas as pd
 
 @dataclass
 class StintError:
@@ -16,7 +17,7 @@ class StintResult:
     team_player_stints: list
     error: StintError | None = None
 
-
+#region StintProcessor
 class StintProcessor:
     def __init__(self, playbyplay_data: list, boxscore_data: dict, sub_groups: list, start_action: int = 0, current_sub_group_index: int = 0):
         self.playbyplay_data = playbyplay_data
@@ -54,11 +55,28 @@ class StintProcessor:
         
         self.home_copy = self.home.copy()
         self.away_copy = self.away.copy()
-        last_possession = 0
 
         for i, action in enumerate(self.playbyplay_data[self.start_action:]):
-            if action['actionNumber'] == self.current_sub_group['NextActionNumber'] or action['actionNumber'] == self.last_action['actionNumber']:
+            action_number = action['actionNumber']
+            action_type = action['actionType'] 
+            if action_number == self.current_sub_group['NextActionNumber'] or action_number == self.last_action['actionNumber']:
                 self._switch_stint(action)
+
+            TeamID = action.get('teamId')
+            if TeamID == None:
+                continue
+            is_home = TeamID == self.HomeID
+            self.team_stats = self.home_stats if is_home else self.away_stats
+            self.op_stats = self.away_stats if is_home else self.home_stats
+
+            last_possession = self.playbyplay_data[self.start_action+i-1]['possession'] if i > 0 else 0
+
+            if action_type == 'substitution':
+                if action_number != self.last_action['actionNumber']:
+                    self._initiate_substitution(action)
+            elif action_type != 'substitution':
+                self._increment_stats(action, last_possession)
+
             bp = 'here'
 
         processed_stints = StintResult(team_stints = self.team_stints, player_stints = self.player_stints, team_player_stints=self.tp_stints)
@@ -66,7 +84,7 @@ class StintProcessor:
         return processed_stints
 
 
-
+    #region Stint Changing
     def _switch_stint(self, action: dict):
         do_home = self.home != self.home_copy
         do_away = self.away != self.away_copy
@@ -135,7 +153,162 @@ class StintProcessor:
             self.team_stints.append(team_stint)
             self.tp_stints.append(stat_dict)
     
+    #endregion Stint Changing
 
+
+    #region Action Parsing
+    def _initiate_substitution(self, action: dict):
+        try:
+            if(action['actionNumber'] > action['CorrespondingSubActionNumber']):
+                other_PlayerID = next((act['personId'] for act in self.playbyplay_data if act['actionNumber'] == action['CorrespondingSubActionNumber']), None)
+                if action['teamId'] == self.HomeID:
+                    SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.home_copy)
+                if action['teamId'] == self.AwayID:
+                    SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.away_copy)
+        except TypeError as e:
+            error = 'Subbing was not complete when data was pulled, no corresponding Player to sub in.'
+
+
+
+    def _increment_stats(self, action: dict, last_possession: int):
+        try:
+            action_type = action['actionType'].lower()
+            player_id = action['personId']
+
+            #Possession    
+            if action.get('possession') and action.get('possession') != 0:
+                self._parse_possession(action, last_possession)
+            #Field Goal or Freethrow
+            if action_type in ['2pt', '3pt', 'freethrow']:
+                self._parse_fieldgoal(action)
+                #Assist
+                if action.get('assistPersonId'):
+                    PlayerIDAst = action['assistPersonId']
+                    self._parse_assist(action)
+
+            
+            #Rebound
+            if action_type == 'rebound':
+                self._parse_rebound(action)
+
+
+            #Block
+            if action_type == 'block':
+                self._parse_block(player_id)
+
+            #Steal
+            if action_type == 'rebound':
+                self._parse_steal(player_id)
+
+            #Turnover
+            if action_type == 'rebound':
+                self._parse_turnover(player_id)
+
+            #Foul
+            if action_type == 'foul':
+                self._parse_foul(action)
+
+
+            
+        except Exception as e:
+            bp = 'here'
+        
+        return last_possession
+        
+
+    
+    def _parse_possession(self, action: dict, last_possession: int):
+        current_possession = action['possession']
+        if pd.notna(current_possession) and current_possession != last_possession:
+            if current_possession == self.team_stats['TeamID']:
+                self.team_stats['Possessions'] += 1
+            last_possession = current_possession
+
+    def _parse_fieldgoal(self, action: dict):
+        try:
+            PlayerID = action['personId']
+            shot_type = action['actionType']
+            shot_result = action['shotResult']
+            result_short = 'M' if shot_result == 'Made' else 'A'
+            is_fieldgoal = action['isFieldGoal']
+            made = shot_result == 'Made'
+            if is_fieldgoal == 1:
+                ShotType = f'FG{shot_type[0]}{result_short}'
+                ShotValue = int(shot_type[0]) 
+            else:
+                ShotType = f'FT{result_short}'
+                ShotValue = 1
+            if made:
+                self.team_stats[ShotType] += 1
+                self.team_stats['PtsScored'] += ShotValue
+                self.op_stats['PtsAllowed'] += ShotValue
+                self.team_stats['Lineup'][PlayerID]['PTS'] += ShotValue
+                self.team_stats['Lineup'][PlayerID][ShotType] += 1
+            elif ' - blocked' in action['description']:
+                self.team_stats['Lineup'][PlayerID]['BLKd'] += 1
+
+            if ShotValue == 1:
+                self.team_stats['FTA'] += 1
+                self.team_stats['Lineup'][PlayerID]['FTA'] += 1
+            elif ShotValue == 2:
+                self.team_stats['FG2A'] += 1
+                self.team_stats['Lineup'][PlayerID]['FG2A'] += 1
+            elif ShotValue == 3:
+                self.team_stats['FG3A'] += 1
+                self.team_stats['Lineup'][PlayerID]['FG3A'] += 1
+
+            self.team_stats['FGM'] = self.team_stats['FG2M'] + self.team_stats['FG3M']
+            self.team_stats['FGA'] = self.team_stats['FG2A'] + self.team_stats['FG3A']
+            self.team_stats['Lineup'][PlayerID]['FGM'] = self.team_stats['Lineup'][PlayerID]['FG2M'] + self.team_stats['Lineup'][PlayerID]['FG3M']
+            self.team_stats['Lineup'][PlayerID]['FGA'] = self.team_stats['Lineup'][PlayerID]['FG2A'] + self.team_stats['Lineup'][PlayerID]['FG3A']
+        except Exception as e:
+            err = e
+            raise
+
+
+    def _parse_assist(self, PlayerIDAst):
+        self.team_stats['Lineup'][PlayerIDAst]['AST'] += 1
+
+
+    def _parse_rebound(self, action:dict):
+        PlayerID = action['personId']
+        self.team_stats['REB'] += 1
+        reb_type = f'{action['subType'][0].upper()}REB'
+        self.team_stats[reb_type] += 1
+        if PlayerID not in [None, 0]:
+            self.team_stats['Lineup'][PlayerID]['REB'] += 1
+            self.team_stats['Lineup'][PlayerID][reb_type] += 1
+
+    def _parse_block(self, PlayerID: int):
+        self.team_stats['BLK'] += 1
+        self.team_stats['Lineup'][PlayerID]['BLK'] += 1
+        self.op_stats['BLKd'] += 1
+
+    def _parse_steal(self, PlayerID: int):
+        self.team_stats['STL'] += 1
+        self.team_stats['Lineup'][PlayerID]['STL'] += 1
+
+
+    def _parse_turnover(self, PlayerID: int):
+        self.team_stats['TOV'] += 1
+        if PlayerID != 0:
+            self.team_stats['Lineup'][PlayerID]['TOV'] += 1
+
+
+    def _parse_foul(self, action:dict):
+        self.team_stats['F'] +=1
+
+        PlayerID = action['personId']
+        if PlayerID != 0:
+            self.team_stats['Lineup'][PlayerID]['F'] += 1
+        PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
+        if PlayerIDFoulDrawn:
+            self.op_stats['FDrwn'] += 1
+            self.op_stats['Lineup'][PlayerIDFoulDrawn]['FDrwn'] += 1
+
+
+
+    #endregion Action Parsing
 
 
 
@@ -143,6 +316,7 @@ class StintProcessor:
 
 
     #region pre-processing
+
     def _pre_process_existing_games(self) -> tuple[int, int, dict, dict]:
         '''
         Determines starting position of Stint Processor when data already exists for game. Part of pre-processing function group
@@ -243,6 +417,7 @@ class StintProcessor:
 
 
     #region stat dictionaries
+
     def _create_team_stats(self, current_stint: dict, action: dict, new_lineup: list):
     #Contents of a row in Stints table
         SeasonID = current_stint['SeasonID']
@@ -331,3 +506,27 @@ class StintProcessor:
         return player_stats
 
     #endregion stat dictionaries
+
+
+
+#endregion StintProcessor
+
+
+def SubstitutePlayers(SubType: str, PlayerID: int, otherPlayerID: int | None, lineup: list):
+    if otherPlayerID == None:
+        bp = 'here'
+    if SubType == 'in':
+        lineup_copy = lineup.copy()
+        index_out = lineup.index(otherPlayerID)
+        lineup[index_out] = PlayerID
+        test = lineup
+        bp = 'here'
+    elif SubType == 'out':
+        lineup_copy = lineup.copy()
+        index_out = lineup.index(PlayerID)
+        lineup[index_out] = otherPlayerID
+        test = lineup
+        bp = 'here'
+
+
+    return lineup
