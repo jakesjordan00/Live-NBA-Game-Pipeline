@@ -4,6 +4,7 @@ import logging
 from typing import TypeVar, Generic
 import polars as pl
 import pandas as pd
+from connectors.sql import SQLConnector 
 
 
 T = TypeVar('T', pl.DataFrame, dict)
@@ -13,6 +14,7 @@ class Pipeline(ABC, Generic[T]):
     def __init__(self, pipeline_name):
         self.pipeline_name = pipeline_name
         self.logger = logging.getLogger(pipeline_name)
+        self.destination = SQLConnector('JJsNBA')
         self.run_timestamp = None
 
     @abstractmethod

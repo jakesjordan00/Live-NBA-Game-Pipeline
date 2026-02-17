@@ -47,22 +47,22 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
             formatted_playerbox_list.append(player['PlayerBox'])
             formatted_startinglineups_list.append(player['StartingLineups'])
 
-    formatted_officials = FormatOfficial(box_data['officials'])
+    formatted_officials = FormatOfficial(SeasonID, box_data['officials'])
     formatted_arena = FormatArena(box_data['arena'], SeasonID, HomeID if not scoreboard_data['IsNeutral'] else None)
     formatted_game, formatted_gameExt = FormatGame(box_data, scoreboard_data, formatted_officials, formatted_arena['ArenaID'])
 
     prepared_box_data = {
-        'SeasonID': 2000 + int(box_data['gameId'][3:5]),
+        'SeasonID': SeasonID,
         'GameID': scoreboard_data['GameID'],
+        'Team': formatted_team_list,
+        'Arena': formatted_arena,
+        'Official': formatted_officials,
+        'Player': formatted_player_list,
         'Game': formatted_game,
         'GameExt': formatted_gameExt,
-        'Team': formatted_team_list,
         'TeamBox': formatted_teambox_list,
-        'Player': formatted_player_list,
         'PlayerBox': formatted_playerbox_list,
         'StartingLineups': formatted_startinglineups_list,
-        'Officials': formatted_officials,
-        'Arena': formatted_arena,
     }
 
     return prepared_box_data
@@ -405,10 +405,11 @@ def FormatArena(arena: dict, SeasonID: int, HomeTeamID: int | None) -> dict:
 
 
 #region Official data
-def FormatOfficial(officials: list) -> list:
+def FormatOfficial(SeasonID: int, officials: list) -> list:
     prepared_officials = []
     for official in officials:
         prepared_officials.append({
+            'SeasonID': SeasonID,
             'OfficialID': official['personId'],
             'Name': official['name'],
             'NameInitial': official['nameI'],

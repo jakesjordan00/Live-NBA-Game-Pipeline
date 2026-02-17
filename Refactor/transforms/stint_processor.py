@@ -12,8 +12,8 @@ class StintError:
 
 @dataclass
 class StintResult:
-    team_stints: list
-    player_stints: list
+    Stint: list
+    StintPlayer: list
     team_player_stints: list
     error: StintError | None = None
 
@@ -47,11 +47,15 @@ class StintProcessor:
         if self.start_action == 0:
             self.home, self.away = self._get_starting_lineups()
             self.home_stats, self.away_stats = self._create_initial_stats_dict(self.home, self.away)
-            self.current_sub_group = {'PointInGame': 99, 'NextActionNumber': 9999, 'SubTime': "", 'Period': 1, 'Clock': "0"}
         else:
             #Need to get the lineup as of the start action.
             #If start_action != 0, we should get it from the sub group proior to the current
             pass
+        if len(self.sub_groups) == 0:
+            self.current_sub_group = {'PointInGame': 99, 'NextActionNumber': 9999, 'SubTime': "", 'Period': 1, 'Clock': "0"}
+        else:
+            self.current_sub_group = self.sub_groups[self.current_sub_group_index]
+
         
         self.home_copy = self.home.copy()
         self.away_copy = self.away.copy()
@@ -77,9 +81,8 @@ class StintProcessor:
             elif action_type != 'substitution':
                 self._increment_stats(action, last_possession)
 
-            bp = 'here'
 
-        processed_stints = StintResult(team_stints = self.team_stints, player_stints = self.player_stints, team_player_stints=self.tp_stints)
+        processed_stints = StintResult(Stint = self.team_stints, StintPlayer = self.player_stints, team_player_stints=self.tp_stints)
         bp = 'here'
         return processed_stints
 
@@ -161,11 +164,12 @@ class StintProcessor:
             if(action['actionNumber'] > action['CorrespondingSubActionNumber']):
                 other_PlayerID = next((act['personId'] for act in self.playbyplay_data if act['actionNumber'] == action['CorrespondingSubActionNumber']), None)
                 if action['teamId'] == self.HomeID:
-                    SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.home_copy)
+                    home_copy = SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.home_copy)
                 if action['teamId'] == self.AwayID:
-                    SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.away_copy)
+                    away_copy = SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.away_copy)
         except TypeError as e:
-            error = 'Subbing was not complete when data was pulled, no corresponding Player to sub in.'
+            self.logger.error = 'Subbing was not complete when data was pulled, no corresponding Player to sub in.'
+        bp = 'here'
 
 
 
@@ -183,34 +187,33 @@ class StintProcessor:
                 #Assist
                 if action.get('assistPersonId'):
                     PlayerIDAst = action['assistPersonId']
-                    self._parse_assist(action)
+                    self._parse_assist(PlayerIDAst)
 
-            
             #Rebound
-            if action_type == 'rebound':
+            elif action_type == 'rebound':
                 self._parse_rebound(action)
 
-
             #Block
-            if action_type == 'block':
+            elif action_type == 'block':
                 self._parse_block(player_id)
 
             #Steal
-            if action_type == 'rebound':
+            elif action_type == 'steal':
                 self._parse_steal(player_id)
 
             #Turnover
-            if action_type == 'rebound':
+            elif action_type == 'turnover':
                 self._parse_turnover(player_id)
 
             #Foul
-            if action_type == 'foul':
+            elif action_type == 'foul':
                 self._parse_foul(action)
 
 
             
         except Exception as e:
-            bp = 'here'
+            self.logger.error(e)
+            raise
         
         return last_possession
         
@@ -403,10 +406,10 @@ class StintProcessor:
         }
         home_stats = team_stats.copy()
         home_stats['TeamID'] = self.HomeID
-        home_stats['Lineup'] = {PlayerID: self._create_player_stats(self.HomeID, 1, PlayerID) for PlayerID in home}
+        home_stats['Lineup'] = {PlayerID: self._create_player_stats(PlayerID, self.HomeID, 1) for PlayerID in home}
         away_stats = team_stats.copy()
         away_stats['TeamID'] = self.AwayID
-        away_stats['Lineup'] = {PlayerID: self._create_player_stats(self.AwayID, 1, PlayerID) for PlayerID in away}
+        away_stats['Lineup'] = {PlayerID: self._create_player_stats(PlayerID, self.AwayID, 1) for PlayerID in away}
 
 
         return home_stats, away_stats
@@ -464,7 +467,7 @@ class StintProcessor:
         }
         return team_stats
 
-    def _create_player_stats(self, TeamID, StintID, PlayerID) -> dict:
+    def _create_player_stats(self, PlayerID, TeamID, StintID) -> dict:
         '''
         Generates Stats dictionary for each Player currently on court.
         

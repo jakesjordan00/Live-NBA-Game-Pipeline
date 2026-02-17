@@ -44,5 +44,5 @@ class PlayByPlayPipeline(Pipeline[dict]):
 
 
     def load(self, data_transformed):
-        data_loaded = data_transformed
+        data_loaded = self.destination.initiate_insert(data_transformed)
         return data_loaded
