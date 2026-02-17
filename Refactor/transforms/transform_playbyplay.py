@@ -20,7 +20,11 @@ class Transform:
         
         stint_processor = StintProcessor(playbyplay_data, boxscore_data, sub_groups, start_action)
         stints = stint_processor.process()
-        return transformed_playbyplay
+        data_transformed = {
+            'PlayByPlay': transformed_playbyplay,
+            'Stints': stints
+        }
+        return data_transformed
 
 
 

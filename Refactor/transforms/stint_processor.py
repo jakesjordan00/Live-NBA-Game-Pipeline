@@ -124,7 +124,6 @@ class StintProcessor:
                     })
             self.current_sub_group = self.sub_groups[self.current_sub_group_index]
 
-        return 
     
 
 
