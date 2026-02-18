@@ -28,10 +28,11 @@ class PlayByPlayPipeline(Pipeline[dict]):
 
     def extract(self):
         static_data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
+        if static_data_extract:
+            self.logger.info(f'Extracted {self.GameID} Playbyplay data, {len(static_data_extract['game']['actions'])} actions')
+
         if static_data_extract == None:
-            bp= 'here'
-            """Need to handle error here
-       !                                                                                    !"""
+            self.logger.warning(f'No Playbyplay data!')
         
 
         return static_data_extract
@@ -39,6 +40,7 @@ class PlayByPlayPipeline(Pipeline[dict]):
 
     def transform(self, data_extract):
         data_transformed = self.transformer.playbyplay(data_extract)
+        self.logger.info(f'Transformed {len(data_transformed['PlayByPlay'])} actions')
         return data_transformed
 
 

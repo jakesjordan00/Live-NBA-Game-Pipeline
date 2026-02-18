@@ -22,19 +22,19 @@ class BoxscorePipeline(Pipeline[dict]):
         
     def extract(self):
         data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
-        self.logger.info(f'Extracted {self.GameID}')
+        self.logger.info(f'Extracted {self.GameID} Box data')
         return data_extract
 
 
     def transform(self, data_extract):
         data_transformed = self.transformer.box(data_extract)
-        self.logger.info(f'Transformed Box data to {', '.join(name for name, data in data_transformed.items())}')
+        self.logger.info(f'Transformed Box data to {', '.join(name for name, data in data_transformed['sql_tables'].items())}')
         bp = 'here'
         return data_transformed
 
 
 
     def load(self, data_transformed):
-        data_loaded = self.destination.initiate_insert(data_transformed)
+        data_loaded = self.destination.initiate_insert(data_transformed['sql_tables'])
 
-        return data_loaded
+        return data_transformed

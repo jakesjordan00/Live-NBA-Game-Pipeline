@@ -15,7 +15,7 @@ def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
     away_out = 0
     sub_groups = []
     
-    Periods = 4 if boxscore_data['GameExt']['Periods'] <= 4 else boxscore_data['GameExt']['Periods']
+    Periods = 4 if boxscore_data['sql_tables']['GameExt']['Periods'] <= 4 else boxscore_data['sql_tables']['GameExt']['Periods']
     for i, action in enumerate(playbyplay_data):
         Qtr = action['period']
         Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
@@ -49,10 +49,10 @@ def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
                 sub_in_actions += 1
                 action['SubInNumber'] = sub_in_actions
                 action['SubOutNumber'] = None
-                if action['teamId'] == boxscore_data['Game']['HomeID']:
+                if action['teamId'] == boxscore_data['sql_tables']['Game']['HomeID']:
                     home_in += 1
                     team_in_actions = home_in
-                elif action['teamId'] == boxscore_data['Game']['AwayID']:
+                elif action['teamId'] == boxscore_data['sql_tables']['Game']['AwayID']:
                     away_in += 1
                     team_in_actions = away_in
                 action['TeamSubInNumber'] = team_in_actions
@@ -62,10 +62,10 @@ def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
                 sub_out_actions += 1
                 action['SubInNumber'] = None
                 action['SubOutNumber'] = sub_out_actions
-                if action['teamId'] == boxscore_data['Game']['HomeID']:
+                if action['teamId'] == boxscore_data['sql_tables']['Game']['HomeID']:
                     home_out += 1
                     team_out_actions = home_out
-                elif action['teamId'] == boxscore_data['Game']['AwayID']:
+                elif action['teamId'] == boxscore_data['sql_tables']['Game']['AwayID']:
                     away_out += 1
                     team_out_actions = away_out
                 action['TeamSubInNumber'] = None
@@ -118,19 +118,19 @@ def Stints(playbyplay_data: list, sub_groups: list, start_action: int, boxscore_
     StintID = 1
     final_action = playbyplay_data[-1]
 
-    HomeID = boxscore_data['Game']['HomeID']
-    AwayID = boxscore_data['Game']['AwayID']
-    gameStatus = boxscore_data['GameExt']['Status']
+    HomeID = boxscore_data['sql_tables']['Game']['HomeID']
+    AwayID = boxscore_data['sql_tables']['Game']['AwayID']
+    gameStatus = boxscore_data['sql_tables']['GameExt']['Status']
     team_stints = []
     player_stints = []
     team_player_stints = []
     if start_action == 0:
-        lineups = boxscore_data['StartingLineups']
+        lineups = boxscore_data['sql_tables']['StartingLineups']
         home = [player['PlayerID'] for player in lineups if player['TeamID'] == HomeID and player['Unit'] == 'Starters']
         away = [player['PlayerID'] for player in lineups if player['TeamID'] == AwayID and player['Unit'] == 'Starters']
         bp = 'here'   
     
-    homeStats, awayStats = CreateFirstTeamStatsDict(boxscore_data['Game'], HomeID, AwayID, home, away, StintID)
+    homeStats, awayStats = CreateFirstTeamStatsDict(boxscore_data['sql_tables']['Game'], HomeID, AwayID, home, away, StintID)
     
     current_sub_group_index = 0
     if len(sub_groups) > 0:

@@ -52,15 +52,23 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
     formatted_game, formatted_gameExt = FormatGame(box_data, scoreboard_data, formatted_officials, formatted_arena['ArenaID'])
 
     prepared_box_data = {
-        'Team': formatted_team_list,
-        'Arena': formatted_arena,
-        'Official': formatted_officials,
-        'Player': formatted_player_list,
-        'Game': formatted_game,
-        'GameExt': formatted_gameExt,
-        'TeamBox': formatted_teambox_list,
-        'PlayerBox': formatted_playerbox_list,
-        'StartingLineups': formatted_startinglineups_list,
+        'SeasonID': SeasonID,
+        'GameID': scoreboard_data['GameID'],
+        'sql_tables':{
+            'Team': formatted_team_list,
+            'Arena': formatted_arena,
+            'Official': formatted_officials,
+            'Player': formatted_player_list,
+            'Game': formatted_game,
+            'GameExt': formatted_gameExt,
+            'TeamBox': formatted_teambox_list,
+            'PlayerBox': formatted_playerbox_list,
+            'StartingLineups': formatted_startinglineups_list
+        },
+        'start_action_keys':{
+            'season_id': str(SeasonID),
+            'game_id': str(scoreboard_data['GameID'])
+        }
     }
 
     return prepared_box_data

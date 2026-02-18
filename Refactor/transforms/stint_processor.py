@@ -27,11 +27,11 @@ class StintProcessor:
         self.last_action = playbyplay_data[-1]
         self.current_sub_group_index = current_sub_group_index
         
-        self.SeasonID = boxscore_data['Game']['SeasonID']
-        self.GameID = boxscore_data['Game']['GameID']
-        self.HomeID = boxscore_data['Game']['HomeID']
-        self.AwayID = boxscore_data['Game']['AwayID']
-        self.GameStatus = boxscore_data['GameExt']['Status']
+        self.SeasonID = boxscore_data['SeasonID']
+        self.GameID = boxscore_data['GameID']
+        self.HomeID = boxscore_data['sql_tables']['Game']['HomeID']
+        self.AwayID = boxscore_data['sql_tables']['Game']['AwayID']
+        self.GameStatus = boxscore_data['sql_tables']['GameExt']['Status']
 
         self.logger = logging.getLogger(f'StintProcessor.{self.GameID}')
 
@@ -84,6 +84,7 @@ class StintProcessor:
 
         processed_stints = StintResult(Stint = self.team_stints, StintPlayer = self.player_stints, team_player_stints=self.tp_stints)
         bp = 'here'
+        self.logger.info(f'Transformed {len(self.team_stints)} Team Stints and {len(self.player_stints)} Player Stints')
         return processed_stints
 
 
@@ -354,7 +355,7 @@ class StintProcessor:
 
             * **away** (*list*): Away team starter PlayerIDs
         '''
-        lineups = self.boxscore_data['StartingLineups']
+        lineups = self.boxscore_data['sql_tables']['StartingLineups']
         home = [player['PlayerID'] for player in lineups if player['TeamID'] == self.HomeID and player['Unit'] == 'Starters']
         away = [player['PlayerID'] for player in lineups if player['TeamID'] == self.AwayID and player['Unit'] == 'Starters']
         return home, away

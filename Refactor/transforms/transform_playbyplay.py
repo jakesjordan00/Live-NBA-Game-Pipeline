@@ -33,12 +33,12 @@ class Transform:
 
 def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, start_action: int):
     transformed_playbyplay = []
-    gameTime = 48 if boxscore_data['GameExt']['Periods'] <= 4 else (5 * (boxscore_data['GameExt']['Periods'] - 4))
+    gameTime = 48 if boxscore_data['sql_tables']['GameExt']['Periods'] <= 4 else (5 * (boxscore_data['sql_tables']['GameExt']['Periods'] - 4))
 
 
     for i, action in enumerate(playbyplay_data[start_action:]):
-        SeasonID = boxscore_data['Game']['SeasonID']
-        GameID = boxscore_data['Game']['GameID']
+        SeasonID = boxscore_data['SeasonID']
+        GameID = boxscore_data['GameID']
         ActionID = int(i + 1) if start_action == 0 else int(i + 1 + start_action)
         ActionNumber = action['actionNumber']
         Qtr = action['period']
