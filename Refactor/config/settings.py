@@ -410,7 +410,11 @@ DATABASES = {
                     'OfficialID',
                     'QtrType'
                 ],
-                'update_columns': []
+                'update_columns': [],
+                'check_query': '''select max(ActionNumber) LastActionNumber
+	 , count(p.ActionID) Actions
+from PlayByPlay p
+where p.SeasonID = season_id and p.GameID = game_id'''
             },
             'jjs.Stint':{
                 'keys': ['SeasonID', 'GameID', 'TeamID', 'StintID'],

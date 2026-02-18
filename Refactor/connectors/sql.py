@@ -103,7 +103,6 @@ values({', '.join(['?'] * len(sql_table['columns']))})
         try:
             params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
-            # cursor.fast_executemany = True
             cursor.executemany(insert_string, params)
             cursor.commit()
             self.logger.info({
@@ -115,6 +114,13 @@ values({', '.join(['?'] * len(sql_table['columns']))})
                 'Table': table_name,
                 'err_msg': e
             })
+
+    def cursor_query(self, table_name: str):
+        sql_table = self.tables[table_name]
+        query = sql_table['check_query']
+        
+
+
 
 
 
