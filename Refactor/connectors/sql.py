@@ -4,6 +4,10 @@ from sqlalchemy import create_engine, text, Numeric
 from transforms.stint_processor import StintResult
 import pyodbc
 import logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 class SQLConnector:
 
@@ -43,18 +47,23 @@ class SQLConnector:
         
         for table_name, data in data_transformed.items():
             if type(data) == dict:
-                self.insert(table_name, [data])
-            elif type(data) == list:
-                self.insert(table_name, data)
+                self.checked_insert(table_name, [data])
+
+            elif type(data) == list and table_name != 'PlayByPlay':
+                self.checked_insert(table_name, data)
+
+            elif type(data) == list and table_name == 'PlayByPlay':
+                self.unchecked_insert(table_name, data)
+                
             elif type(data) == StintResult:
-                self.insert('jjs.Stint', data.Stint)
-                self.insert('jjs.StintPlayer', data.StintPlayer)
+                self.checked_insert('jjs.Stint', data.Stint)
+                self.checked_insert('jjs.StintPlayer', data.StintPlayer)
 
         return data_transformed #change this to some sort of logging mechanism
     
 
 
-    def insert(self, table_name: str, data: list):
+    def checked_insert(self, table_name: str, data: list):
         sql_table = self.tables[table_name]
         insert_string = f'''
 if not exists(
@@ -66,22 +75,50 @@ begin
 insert into {table_name}({', '.join(sql_table['columns'])})
 values({', '.join(['?'] * len(sql_table['columns']))})
 end
+
 '''
         try:
             params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
-            db_response = cursor.executemany(insert_string, params)
-            cursor.commit()
+            cursor.fast_executemany = True
+            cursor.executemany(insert_string, params)
             self.logger.info({
                 'Table': table_name,
-                'response': db_response
+                'rows': len(data)
             })
+            cursor.commit()
         except Exception as e:
             self.logger.error({
                 'Table': table_name,
                 'err_msg': e
             })
     
-    
+
+    def unchecked_insert(self, table_name: str, data: list):
+        sql_table = self.tables[table_name]
+        insert_string = f'''
+insert into {table_name}({', '.join(sql_table['columns'])})
+values({', '.join(['?'] * len(sql_table['columns']))})
+        '''
+        try:
+            params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns']) for data_dict in data]
+            cursor = self.pyodbc_connection.cursor()
+            # cursor.fast_executemany = True
+            cursor.executemany(insert_string, params)
+            cursor.commit()
+            self.logger.info({
+                'Table': table_name,
+                'rows': len(data)
+            })
+        except Exception as e:
+            self.logger.error({
+                'Table': table_name,
+                'err_msg': e
+            })
+
+
+
+
+
     def dict_to_params(self, d: dict, keys: list) -> tuple:
         return tuple(d[k.replace('[', '').replace(']', '')] for k in keys)

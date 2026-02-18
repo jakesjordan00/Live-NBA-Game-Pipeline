@@ -52,8 +52,6 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
     formatted_game, formatted_gameExt = FormatGame(box_data, scoreboard_data, formatted_officials, formatted_arena['ArenaID'])
 
     prepared_box_data = {
-        'SeasonID': SeasonID,
-        'GameID': scoreboard_data['GameID'],
         'Team': formatted_team_list,
         'Arena': formatted_arena,
         'Official': formatted_officials,

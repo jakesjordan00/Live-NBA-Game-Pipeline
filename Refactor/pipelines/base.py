@@ -37,17 +37,14 @@ class Pipeline(ABC, Generic[T]):
         #Extract
         self.logger.info(f'Extracting...')
         data_extract = self.extract()
-        self.logger.info(f'Extracted {len(data_extract)} records')
 
         #Transform
         self.logger.info(f'Transforming...')
         data_transformed = self.transform(data_extract)
-        self.logger.info(f'Transformed to {len(data_transformed)} records')
 
         #Load
         self.logger.info(f'Loading...')
         data = self.load(data_transformed)
-        self.logger.info(f'Loaded {len(data)} records')
 
         return {
             'pipeline': self.pipeline_name,

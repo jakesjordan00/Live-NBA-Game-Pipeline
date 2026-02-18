@@ -37,8 +37,8 @@ def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, start_action
 
 
     for i, action in enumerate(playbyplay_data[start_action:]):
-        SeasonID = boxscore_data['SeasonID']
-        GameID = boxscore_data['GameID']
+        SeasonID = boxscore_data['Game']['SeasonID']
+        GameID = boxscore_data['Game']['GameID']
         ActionID = int(i + 1) if start_action == 0 else int(i + 1 + start_action)
         ActionNumber = action['actionNumber']
         Qtr = action['period']
