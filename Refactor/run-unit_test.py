@@ -4,7 +4,7 @@ from pipelines.boxscore import BoxscorePipeline
 from pipelines.playbyplay import PlayByPlayPipeline
 import polars as pl
 
-iterations = 3
+iterations = 1
 
 scoreboard_pipeline = ScoreboardPipeline('Development', iterations)
 completed_scoreboard_pipeline = scoreboard_pipeline.run()
