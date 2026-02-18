@@ -115,9 +115,19 @@ values({', '.join(['?'] * len(sql_table['columns']))})
                 'err_msg': e
             })
 
-    def cursor_query(self, table_name: str):
+    def cursor_query(self, table_name: str, keys: dict):
         sql_table = self.tables[table_name]
-        query = sql_table['check_query']
+        query = sql_table['check_query'].replace('season_id', keys['season_id']).replace('game_id', keys['game_id'])
+        try:
+            cursor = self.pyodbc_connection.cursor()
+            cursor.execute(query)
+            row = cursor.fetchone()
+            actions = row[0] if row else 0
+        except Exception as e:
+            test = 1
+        
+        return actions
+
         
 
 

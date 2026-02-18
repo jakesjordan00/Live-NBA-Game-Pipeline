@@ -411,8 +411,8 @@ DATABASES = {
                     'QtrType'
                 ],
                 'update_columns': [],
-                'check_query': '''select max(ActionNumber) LastActionNumber
-	 , count(p.ActionID) Actions
+                'check_query': '''select count(p.ActionID) Actions
+	 , max(ActionNumber) LastActionNumber
 from PlayByPlay p
 where p.SeasonID = season_id and p.GameID = game_id'''
             },
