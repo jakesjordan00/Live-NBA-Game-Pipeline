@@ -168,7 +168,7 @@ class StintProcessor:
                 if action['teamId'] == self.AwayID:
                     away_copy = SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.away_copy)
         except TypeError as e:
-            self.logger.error = 'Subbing was not complete when data was pulled, no corresponding Player to sub in.'
+            self.logger.error('Subbing was not complete when data was pulled, no corresponding Player to sub in.')
         bp = 'here'
 
 
