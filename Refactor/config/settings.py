@@ -363,7 +363,8 @@ DATABASES = {
                 'update_columns': []
             },
             'PlayByPlay':{
-                'keys': ['SeasonID', 'GameID', 'ActionID', 'ActionNumber'],
+                # 'keys': ['SeasonID', 'GameID', 'ActionID', 'ActionNumber'],
+                'keys': [],
                 'columns': [
                     'SeasonID',
                     'GameID',
