@@ -19,7 +19,7 @@ class StintResult:
 
 #region StintProcessor
 class StintProcessor:
-    def __init__(self, playbyplay_data: list, boxscore_data: dict, sub_groups: list, start_action: int = 0, current_sub_group_index: int = 0):
+    def __init__(self, playbyplay_data: list, boxscore_data: dict, sub_groups: list, home_stats: dict | None, away_stats: dict | None, start_action: int = 0, current_sub_group_index: int = 0):
         self.playbyplay_data = playbyplay_data
         self.boxscore_data = boxscore_data
         self.sub_groups = sub_groups
@@ -32,6 +32,8 @@ class StintProcessor:
         self.HomeID = boxscore_data['sql_tables']['Game']['HomeID']
         self.AwayID = boxscore_data['sql_tables']['Game']['AwayID']
         self.GameStatus = boxscore_data['sql_tables']['GameExt']['Status']
+        self.home_stats = home_stats
+        self.away_stats = away_stats
 
         self.logger = logging.getLogger(f'StintProcessor.{self.GameID}')
 
@@ -44,23 +46,35 @@ class StintProcessor:
         self.tp_stints = []
 
 
-        if self.start_action == 0:
-            self.home, self.away = self._get_starting_lineups()
-            self.home_stats, self.away_stats = self._create_initial_stats_dict(self.home, self.away)
-        else:
-            #Need to get the lineup as of the start action.
-            #If start_action != 0, we should get it from the sub group proior to the current
-            pass
         if len(self.sub_groups) == 0:
             self.current_sub_group = {'PointInGame': 99, 'NextActionNumber': 9999, 'SubTime': "", 'Period': 1, 'Clock': "0"}
+            self.home, self.away = self._get_starting_lineups()
+            self.home_stats, self.away_stats = self._create_initial_stats_dict(self.home, self.away, 1, 1)
         else:
             self.current_sub_group = self.sub_groups[self.current_sub_group_index]
+            
+        if self.start_action == 0 or len(self.sub_groups) == 1:
+            self.logger.info(f'Starting at first action...Getting starting lineups and creating dictionaries...')
+            self.home, self.away = self._get_starting_lineups()
+            self.home_stats, self.away_stats = self._create_initial_stats_dict(self.home, self.away, 1, 1)
+            self.start_action = 0
+        else:
+            self.home = list(self.home_stats['Lineup'].keys())
+            self.away = list(self.away_stats['Lineup'].keys())
+            current_action = self.playbyplay_data[self.start_action]
+            action_before = self.playbyplay_data[self.start_action-1]
+            for i, sub_group in enumerate(self.sub_groups):
+                if sub_group['NextActionNumber'] >= current_action['actionNumber']:
+                    self.current_sub_group = sub_group
+                    self.current_sub_group_index = i
+                    break
+        
 
         
         self.home_copy = self.home.copy()
         self.away_copy = self.away.copy()
-
-        for i, action in enumerate(self.playbyplay_data[self.start_action:]):
+        self.condensed_playbyplay_data = self.playbyplay_data[self.start_action:]
+        for i, action in enumerate(self.condensed_playbyplay_data):
             action_number = action['actionNumber']
             action_type = action['actionType'] 
             if action_number == self.current_sub_group['NextActionNumber'] or action_number == self.last_action['actionNumber']:
@@ -111,11 +125,12 @@ class StintProcessor:
         self._stint_end(action, stat_dict_list)
 
         if do_home:
-            self.home_stats = self._create_team_stats(self.home_stats, action, stat_dict_list[0]['new_lineup'])
+            self.home_stats = self._create_team_stats(self.HomeID, self.home_stats['StintID'] + 1, action, stat_dict_list[0]['new_lineup'])
             self.home = list(self.home_stats['Lineup'].keys())
         if do_away:
-            self.away_stats = self._create_team_stats(self.away_stats, action, stat_dict_list[1]['new_lineup'])
+            self.away_stats = self._create_team_stats(self.AwayID, self.away_stats['StintID'] + 1, action, stat_dict_list[1]['new_lineup'])
             self.away = list(self.away_stats['Lineup'].keys())
+    # def _create_team_stats(self, SeasonID: int, GameID: int, TeamID: int, StintID: int, MinElapsedStart, action: dict, new_lineup: list):
             
         if action['actionNumber'] != self.last_action['actionNumber']:
             self.current_sub_group_index += 1
@@ -361,7 +376,7 @@ class StintProcessor:
         return home, away
     
     
-    def _create_initial_stats_dict(self, home, away) -> tuple[dict, dict]:
+    def _create_initial_stats_dict(self, home, away, home_stint: int, away_stint: int) -> tuple[dict, dict]:
         '''
         If game has yet to be loaded, create an emtpy Team Stats dictionary for each team. Part of pre-processing function group
         
@@ -407,9 +422,11 @@ class StintProcessor:
         }
         home_stats = team_stats.copy()
         home_stats['TeamID'] = self.HomeID
+        home_stats['StintID'] = home_stint
         home_stats['Lineup'] = {PlayerID: self._create_player_stats(PlayerID, self.HomeID, 1) for PlayerID in home}
         away_stats = team_stats.copy()
         away_stats['TeamID'] = self.AwayID
+        away_stats['StintID'] = away_stint
         away_stats['Lineup'] = {PlayerID: self._create_player_stats(PlayerID, self.AwayID, 1) for PlayerID in away}
 
 
@@ -421,23 +438,18 @@ class StintProcessor:
 
     #region stat dictionaries
 
-    def _create_team_stats(self, current_stint: dict, action: dict, new_lineup: list):
+    def _create_team_stats(self, TeamID: int, StintID: int, action: dict, new_lineup: list):
     #Contents of a row in Stints table
-        SeasonID = current_stint['SeasonID']
-        GameID = current_stint['GameID']
-        TeamID = current_stint['TeamID']
-        StintID = current_stint['StintID'] + 1
-        Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
         team_stats = {
-            'SeasonID': SeasonID,
-            'GameID': GameID,
+            'SeasonID': self.SeasonID,
+            'GameID': self.GameID,
             'TeamID': TeamID,
             'StintID': StintID,
             'QtrStart': action['period'],
             'QtrEnd': 0,
-            'ClockStart': Clock,
+            'ClockStart': action['Clock'],
             'ClockEnd': None,
-            'MinElapsedStart': current_stint['MinElapsedEnd'], 
+            'MinElapsedStart': action['MinElapsed'],
             'MinElapsedEnd': None,
             'MinutesPlayed': 0,
             'Possessions': 0,

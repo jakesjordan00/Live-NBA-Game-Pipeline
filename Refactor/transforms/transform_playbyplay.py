@@ -18,7 +18,7 @@ class Transform:
         start_action = self.pipeline.start_action
         transformed_playbyplay = TransformPlayByPlay(playbyplay_data, boxscore_data, start_action)
         
-        stint_processor = StintProcessor(playbyplay_data, boxscore_data, sub_groups, start_action)
+        stint_processor = StintProcessor(playbyplay_data, boxscore_data, sub_groups, self.pipeline.home_stats, self.pipeline.away_stats, start_action)
         stints = stint_processor.process()
         data_transformed = {
             'PlayByPlay': transformed_playbyplay,

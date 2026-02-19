@@ -37,7 +37,9 @@ def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
                     'NextActionNumber': NextActionNumber,
                     'SubTime': SubTime,
                     'Period': Qtr,
-                    'Clock': Clock
+                    'Clock': Clock,
+                    'MinElapsed': MinElapsed,
+                    'Index': i
                 })
                 bp = 'here'
             else:

@@ -56,8 +56,8 @@ class SQLConnector:
                 self.unchecked_insert(table_name, data)
                 
             elif type(data) == StintResult:
-                self.checked_insert('jjs.Stint', data.Stint)
-                self.checked_insert('jjs.StintPlayer', data.StintPlayer)
+                self.checked_upsert('jjs.Stint', data.Stint)
+                self.checked_upsert('jjs.StintPlayer', data.StintPlayer)
 
         return data_transformed #change this to some sort of logging mechanism
     
@@ -115,20 +115,100 @@ values({', '.join(['?'] * len(sql_table['columns']))})
                 'err_msg': e
             })
 
+
+
+
+    
+    def checked_upsert(self, table_name: str, data: list):
+        sql_table = self.tables[table_name]
+
+        test = f'update {table_name} set {' = ?, '.join(col for col in sql_table['update_columns'])} = ?'
+        test2 = f'where {' = ? and '.join(sql_table['keys'])} = ?'
+        bp = 'here'
+
+
+        insert_string = f'''
+if not exists(
+select 1 
+from {table_name}
+where {' = ? and '.join(sql_table['keys'])} = ?
+)
+begin
+insert into {table_name}({', '.join(sql_table['columns'])})
+values({', '.join(['?'] * len(sql_table['columns']))})
+end
+else
+begin
+update {table_name} set {' = ?, '.join(col for col in sql_table['update_columns'])} = ?
+where {' = ? and '.join(sql_table['keys'])} = ?
+end
+'''
+        try:
+            params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns'] + sql_table['update_columns'] + sql_table['keys']) for data_dict in data]
+            cursor = self.pyodbc_connection.cursor()
+            cursor.fast_executemany = True
+            cursor.executemany(insert_string, params)
+            self.logger.info({
+                'Table': table_name,
+                'rows': len(data)
+            })
+            cursor.commit()
+        except Exception as e:
+            self.logger.error({
+                'Table': table_name,
+                'err_msg': e
+            })
+
     def cursor_query(self, table_name: str, keys: dict):
         sql_table = self.tables[table_name]
         query = sql_table['check_query'].replace('season_id', keys['season_id']).replace('game_id', keys['game_id'])
-        try:
-            cursor = self.pyodbc_connection.cursor()
-            cursor.execute(query)
-            row = cursor.fetchone()
-            actions = row[0] if row else 0
-        except Exception as e:
-            test = 1
-        
-        return actions
+        cursor = self.pyodbc_connection.cursor()
+        if table_name == 'PlayByPlay':
+            try:
+                cursor.execute(query)
+                row = cursor.fetchone()
+                actions = row[0] if row else 0
+            except Exception as e:
+                test = 1        
+            return actions     
+                
 
-        
+    def stint_cursor(self, stint_keys: dict):  
+        cursor = self.pyodbc_connection.cursor()      
+        stint = self.tables['jjs.Stint']
+        stint_player = self.tables['jjs.StintPlayer']
+        for table in [stint, stint_player]:
+            table['check_query'] = table['check_query'].replace('season_id', stint_keys['season_id']).replace('game_id', stint_keys['game_id'])
+            
+        try:
+            cursor.execute(stint['check_query'])
+            team_results = cursor.fetchall()
+            stint_columns = [col[0] for col in cursor.description if col[0] != 'OnCourt']
+
+            home_stats = dict(zip(stint_columns, next(row for row in team_results if row[2] == stint_keys['home_id'])))
+            away_stats = dict(zip(stint_columns, next(row for row in team_results if row[2] == stint_keys['away_id'])))
+
+
+            cursor.execute(stint_player['check_query'])
+            player_results = cursor.fetchall()            
+            p_stint_columns = [col[0] for col in cursor.description if col[0] != 'OnCourt']
+            
+            home_players = {
+                row[4]: dict(zip(p_stint_columns, row))
+                for row in player_results if row[2] == stint_keys['home_id']
+            }
+            away_players = {
+                row[4]: dict(zip(p_stint_columns, row))
+                for row in player_results if row[2] == stint_keys['away_id']
+            }
+
+            home_stats['Lineup'] = home_players
+            away_stats['Lineup'] = away_players
+            bp = 'here'
+            return home_stats, away_stats
+        except Exception as e:
+            self.logger.error(f'Error getting OnCourt Lineups!')
+
 
 
 

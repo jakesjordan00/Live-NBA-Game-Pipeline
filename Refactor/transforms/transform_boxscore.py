@@ -68,6 +68,12 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
         'start_action_keys':{
             'season_id': str(SeasonID),
             'game_id': str(scoreboard_data['GameID'])
+        },
+        'lineup_keys':{            
+            'season_id': str(SeasonID),
+            'game_id': str(scoreboard_data['GameID']),
+            'home_id': formatted_game['HomeID'],
+            'away_id': formatted_game['AwayID']
         }
     }
 

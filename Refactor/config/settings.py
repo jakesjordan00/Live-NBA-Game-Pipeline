@@ -450,6 +450,7 @@ where p.SeasonID = season_id and p.GameID = game_id'''
                     'BLK',
                     'BLKd',
                     'F',
+                    'FDrwn'
                 ],
                 'update_columns': [
                     'QtrEnd',
@@ -476,7 +477,20 @@ where p.SeasonID = season_id and p.GameID = game_id'''
                     'BLK',
                     'BLKd',
                     'F',
-                ]
+                    'FDrwn'
+                ],
+                'check_query':
+                '''
+with TeamsOnCourt as(
+select s.*
+	 , dense_rank() over(partition by TeamID order by StintID desc) OnCourt
+from jjs.Stint s
+where s.SeasonID = season_id and s.GameID = game_id
+)
+select *
+from TeamsOnCourt
+where OnCourt = 1
+order by OnCourt asc,TeamID'''
             },
             'jjs.StintPlayer':{
                 'keys': ['SeasonID', 'GameID', 'TeamID', 'StintID', 'PlayerID'],
@@ -506,6 +520,7 @@ where p.SeasonID = season_id and p.GameID = game_id'''
                     'BLK',
                     'BLKd',
                     'F',
+                    'FDrwn'
                 ],
                 'update_columns': [
                     'MinutesPlayed',
@@ -528,7 +543,20 @@ where p.SeasonID = season_id and p.GameID = game_id'''
                     'BLK',
                     'BLKd',
                     'F',
-                ]
+                    'FDrwn'
+                ],
+                'check_query': '''
+with PlayersOnCourt as(
+select sp.*
+	 , dense_rank() over(partition by TeamID order by StintID desc) OnCourt
+from jjs.StintPlayer sp
+where sp.SeasonID = season_id and sp.GameID = game_id
+)
+select *
+from PlayersOnCourt
+where OnCourt = 1
+order by OnCourt asc,TeamID, PlayerID
+'''
             },
         }
     }
