@@ -558,6 +558,35 @@ where OnCourt = 1
 order by OnCourt asc,TeamID, PlayerID
 '''
             },
+            'Schedule': {
+                'check_query': '''
+select s.SeasonID
+     , s.GameID
+     , s.Status
+     , s.HomeID
+     , h.Name HomeName
+     , h.City HomeCity
+     , h.Tricode HomeTri
+     , s.HomeWins
+     , s.HomeLosses
+     , s.HomeScore
+     , s.HomeSeed
+     , s.AwayID
+     , a.Name AwayName
+     , a.City AwayCity
+     , a.Tricode AwayTri
+     , s.AwayWins
+     , s.AwayLosses
+     , s.AwayScore
+     , s.AwaySeed
+     , s.IfNecessary
+     , s.SeriesText
+from Schedule s
+left join Team h on s.SeasonID = h.SeasonID and s.HomeID = h.TeamID
+left join Team a on s.SeasonID = a.SeasonID and s.AwayID = a.TeamID
+where s.SeasonID = season_id and s.GameID in(game_id)
+'''
+            }
         }
     }
 }
