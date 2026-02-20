@@ -6,7 +6,7 @@ from connectors.sql import SQLConnector
 import polars as pl
 
 #Will replace the iterations with something better
-iterations = 0 
+iterations = 4
 
 scoreboard_pipeline = ScoreboardPipeline('Production', iterations)
 completed_scoreboard_pipeline = scoreboard_pipeline.run()

@@ -78,7 +78,10 @@ class StintProcessor:
             action_number = action['actionNumber']
             action_type = action['actionType'] 
             if action_number == self.current_sub_group['NextActionNumber'] or action_number == self.last_action['actionNumber']:
-                self._switch_stint(action)
+                action_prior = self.condensed_playbyplay_data[i-1]
+                if action_number >= self.last_action['actionNumber'] - 5:
+                    bp = 'here'
+                self._switch_stint(action, action_prior)
 
             TeamID = action.get('teamId')
             if TeamID == None:
@@ -94,6 +97,7 @@ class StintProcessor:
                     self._initiate_substitution(action)
             elif action_type != 'substitution':
                 self._increment_stats(action, last_possession)
+            bp = 'here'
 
 
         processed_stints = StintResult(Stint = self.team_stints, StintPlayer = self.player_stints, team_player_stints=self.tp_stints)
@@ -103,7 +107,7 @@ class StintProcessor:
 
 
     #region Stint Changing
-    def _switch_stint(self, action: dict):
+    def _switch_stint(self, action: dict, action_prior: dict):
         do_home = self.home != self.home_copy
         do_away = self.away != self.away_copy
         stat_list = [self.home_stats, self.away_stats]
@@ -122,46 +126,62 @@ class StintProcessor:
             'old_lineup': self.away,
             'new_lineup': self.away_copy
         }]
-        self._stint_end(action, stat_dict_list)
+        self._stint_end(action, action_prior, stat_dict_list)
 
         if do_home:
-            self.home_stats = self._create_team_stats(self.HomeID, self.home_stats['StintID'] + 1, action, stat_dict_list[0]['new_lineup'])
+            self.home_stats = self._create_team_stats(self.HomeID, self.home_stats['StintID'] + 1, action, action_prior, stat_dict_list[0]['new_lineup'])
             self.home = list(self.home_stats['Lineup'].keys())
         if do_away:
-            self.away_stats = self._create_team_stats(self.AwayID, self.away_stats['StintID'] + 1, action, stat_dict_list[1]['new_lineup'])
+            self.away_stats = self._create_team_stats(self.AwayID, self.away_stats['StintID'] + 1, action, action_prior, stat_dict_list[1]['new_lineup'])
             self.away = list(self.away_stats['Lineup'].keys())
     # def _create_team_stats(self, SeasonID: int, GameID: int, TeamID: int, StintID: int, MinElapsedStart, action: dict, new_lineup: list):
             
         if action['actionNumber'] != self.last_action['actionNumber']:
             self.current_sub_group_index += 1
-            self.sub_groups.append({
-                        'PointInGame': 999,
-                        'NextActionNumber': self.last_action['actionNumber'],
-                        'SubTime': "",
-                        'Period': 1,
-                        'Clock': "0"
-                    })
+            '''I dont think i need the stuff below'''
+            # self.sub_groups.append({
+            #             'PointInGame': 999,
+            #             'NextActionNumber': self.last_action['actionNumber'],
+            #             'SubTime': "",
+            #             'Period': 1,
+            #             'Clock': "0"
+            #         })
             self.current_sub_group = self.sub_groups[self.current_sub_group_index]
+        else:
+            action_prior = action
+            self._stint_end(action, action_prior, stat_dict_list)
 
     
 
 
-    def _stint_end(self, action: dict, stat_dict_list: list):
+    def _stint_end(self, action: dict, action_prior: dict, stat_dict_list: list):
         for dict in stat_dict_list:
             sub_needed = dict['sub_needed'] or action['actionNumber'] == self.last_action['actionNumber']
-            #If we don't need a sub, don't do anything
             if sub_needed == False: 
                 continue
             stat_dict = dict['stats']
-            stat_dict['MinutesPlayed'] = round(action['MinElapsed'] - stat_dict['MinElapsedStart'], 2)
-            if 'Final' not in self.GameStatus and action['actionType'] != 'substitution' and self.last_action['actionType'] != 'substitution':
+            stat_dict['MinutesPlayed'] = round(action_prior['MinElapsed'] - stat_dict['MinElapsedStart'], 2)
+            
+            #If it's the last action and the game is over:
+            if action['actionNumber'] == self.last_action['actionNumber'] and 'Final' in self.GameStatus:
+                stat_dict['QtrEnd'] = action_prior['period']
+                stat_dict['ClockEnd'] = action_prior['Clock']
+                stat_dict['MinElapsedEnd'] = action_prior['MinElapsed']
+            #If it's the last action but the game is still going:
+            elif action['actionNumber'] == self.last_action['actionNumber'] and 'Final' not in self.GameStatus:
                 stat_dict['QtrEnd'] = None
                 stat_dict['ClockEnd'] = None
                 stat_dict['MinElapsedEnd'] = None
-            else:
-                stat_dict['QtrEnd'] = action['period']
-                stat_dict['ClockEnd'] = action['Clock']
-                stat_dict['MinElapsedEnd'] = action['MinElapsed']
+            #If it's the start of a period that's not Q1, set the stint end to 0 and the period prior
+            elif action_prior['Clock'] == '12:00.00' and action['period'] != 1:
+                stat_dict['QtrEnd'] = action_prior['period'] - 1
+                stat_dict['ClockEnd'] = '00:00.00'
+                stat_dict['MinElapsedEnd'] = action_prior['MinElapsed']
+            else:                                         
+                stat_dict['QtrEnd'] = action_prior['period']
+                stat_dict['ClockEnd'] = action_prior['Clock']
+                stat_dict['MinElapsedEnd'] = action_prior['MinElapsed']
+
             for playerStats in stat_dict['Lineup'].values():
                 playerStats['MinutesPlayed'] = stat_dict['MinutesPlayed']
                 playerStats['PlusMinus'] = stat_dict['PtsScored'] - stat_dict['PtsAllowed']
@@ -438,18 +458,18 @@ class StintProcessor:
 
     #region stat dictionaries
 
-    def _create_team_stats(self, TeamID: int, StintID: int, action: dict, new_lineup: list):
+    def _create_team_stats(self, TeamID: int, StintID: int, action: dict, action_prior: dict, new_lineup: list):
     #Contents of a row in Stints table
         team_stats = {
             'SeasonID': self.SeasonID,
             'GameID': self.GameID,
             'TeamID': TeamID,
             'StintID': StintID,
-            'QtrStart': action['period'],
+            'QtrStart': action_prior['period'],
             'QtrEnd': 0,
-            'ClockStart': action['Clock'],
+            'ClockStart': action_prior['Clock'],
             'ClockEnd': None,
-            'MinElapsedStart': action['MinElapsed'],
+            'MinElapsedStart': action_prior['MinElapsed'],
             'MinElapsedEnd': None,
             'MinutesPlayed': 0,
             'Possessions': 0,

@@ -5,7 +5,7 @@ from pipelines.playbyplay import PlayByPlayPipeline
 from connectors.sql import SQLConnector
 import polars as pl
 
-iterations = 5
+iterations = 4
 
 scoreboard_pipeline = ScoreboardPipeline('Development', iterations)
 completed_scoreboard_pipeline = scoreboard_pipeline.run()
