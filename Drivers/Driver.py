@@ -186,7 +186,7 @@ def RecurringFunction(iterations: int, existingGames: list, completedGames: list
             print(f'  Updating Game, GameExt, TeamBox and PlayerBox.', end='', flush=True)
             
             lastLine = programMap.split('\n')[-1]
-            polePosition = lastLine.index('╞')
+            polePosition = lastLine.index('╞') if lastLine.find('╞') else lastLine.find('│')
             programMap += f'\n{lastLine[:polePosition]}╞╾'
             Box, programMap = GetBox(game['GameID'], game['Data'], 'RecurringFunction', programMap, mapPole)
             print('.', end='', flush=True)

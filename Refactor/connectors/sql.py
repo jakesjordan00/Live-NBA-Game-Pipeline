@@ -1,3 +1,5 @@
+from polars import Int64
+
 from config.settings import DATABASES 
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine, text, Numeric
@@ -159,7 +161,7 @@ end
                 'err_msg': e
             })
 
-    def cursor_query(self, table_name: str, keys: dict):
+    def cursor_query(self, table_name: str, keys: dict) -> int:
         sql_table = self.tables[table_name]
         query = sql_table['check_query'].replace('season_id', keys['season_id']).replace('game_id', keys['game_id'])
         cursor = self.pyodbc_connection.cursor()
@@ -169,8 +171,9 @@ end
                 row = cursor.fetchone()
                 actions = row[0] if row else 0
             except Exception as e:
-                test = 1        
-            return actions     
+                actions = 0
+                test = 1
+        return actions
                 
 
     def stint_cursor(self, stint_keys: dict):  
@@ -208,6 +211,7 @@ end
             return home_stats, away_stats
         except Exception as e:
             self.logger.error(f'Error getting OnCourt Lineups!')
+            return None, None
 
 
 

@@ -32,8 +32,8 @@ class StintProcessor:
         self.HomeID = boxscore_data['sql_tables']['Game']['HomeID']
         self.AwayID = boxscore_data['sql_tables']['Game']['AwayID']
         self.GameStatus = boxscore_data['sql_tables']['GameExt']['Status']
-        self.home_stats = home_stats
-        self.away_stats = away_stats
+        self.home_stats = home_stats if home_stats else {}
+        self.away_stats = away_stats if away_stats else {}
 
         self.logger = logging.getLogger(f'StintProcessor.{self.GameID}')
 
