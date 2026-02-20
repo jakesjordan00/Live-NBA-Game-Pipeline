@@ -72,11 +72,15 @@ def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
                     team_out_actions = away_out
                 action['TeamSubInNumber'] = None
                 action['TeamSubOutNumber'] = team_out_actions
-        else:
-            action['SubInNumber'] = None
-            action['SubOutNumber'] = None
-            action['TeamSubInNumber'] = None
-            action['TeamSubOutNumber'] = None
+        # else:
+        #     action['SubInNumber'] = None
+        #     action['SubOutNumber'] = None
+        #     action['TeamSubInNumber'] = None
+        #     action['TeamSubOutNumber'] = None
+        action['SubInNumber'] = action['SubInNumber'] if action.get('SubInNumber') else None
+        action['SubOutNumber'] = action['SubOutNumber'] if action.get('SubOutNumber') else None
+        action['TeamSubInNumber'] = action['TeamSubInNumber'] if action.get('TeamSubInNumber') else None
+        action['TeamSubOutNumber'] = action['TeamSubOutNumber'] if action.get('TeamSubOutNumber') else None
 
 
 
@@ -89,14 +93,20 @@ def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
             else:
                 subs_type = 'SubOut'
                 opp_subs_type = 'SubIn'
-            action['CorrespondingSubActionNumber'] = next(
-                (p['actionNumber'] for p in playbyplay_data
-                if p['actionNumber'] != action['actionNumber']  # don't match itself
-                and action[f'{subs_type}Number'] == p[f'{opp_subs_type}Number']
-                and action[f'Team{subs_type}Number'] == p[f'Team{opp_subs_type}Number']),
-                None  # default if no match found
-            )
-            bp = 'here'
+            try:
+                action['CorrespondingSubActionNumber'] = next(
+                    (p['actionNumber'] for p in playbyplay_data
+                    if p['actionNumber'] != action['actionNumber']  # don't match itself
+                    and action[f'{subs_type}Number'] == p[f'{opp_subs_type}Number']
+                    and action[f'Team{subs_type}Number'] == p[f'Team{opp_subs_type}Number']),
+                    None  # default if no match found
+                )
+                bp = 'here'
+            except Exception as e:
+                test = playbyplay_data
+                bp = 'here'
+            if action['CorrespondingSubActionNumber'] == None:
+                bp = 'here'
 
 
     return playbyplay_data, sub_groups
