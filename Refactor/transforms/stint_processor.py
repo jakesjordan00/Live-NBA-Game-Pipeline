@@ -108,25 +108,8 @@ class StintProcessor:
 
     #region Stint Changing
     def _switch_stint(self, action: dict, action_prior: dict):
-        do_home = self.home != self.home_copy
-        do_away = self.away != self.away_copy
-        stat_list = [self.home_stats, self.away_stats]
-        stat_dict_list = [{
-            'home_away': 'Home',
-            'stats': self.home_stats,
-            'sub_needed': do_home,
-            'team_id': self.HomeID,
-            'old_lineup': self.home,
-            'new_lineup': self.home_copy
-        },{
-            'home_away': 'Away',
-            'stats': self.away_stats,
-            'sub_needed': do_away,
-            'team_id': self.AwayID,
-            'old_lineup': self.away,
-            'new_lineup': self.away_copy
-        }]
-        self._stint_end(action, action_prior, stat_dict_list)
+        stat_dict_list, do_home, do_away = self._create_stat_dict_list()
+        self._stint_end(action, action_prior, stat_dict_list, 0)
 
         if do_home:
             self.home_stats = self._create_team_stats(self.HomeID, self.home_stats['StintID'] + 1, action, action_prior, stat_dict_list[0]['new_lineup'])
@@ -138,25 +121,23 @@ class StintProcessor:
             
         if action['actionNumber'] != self.last_action['actionNumber']:
             self.current_sub_group_index += 1
-            '''I dont think i need the stuff below'''
-            # self.sub_groups.append({
-            #             'PointInGame': 999,
-            #             'NextActionNumber': self.last_action['actionNumber'],
-            #             'SubTime': "",
-            #             'Period': 1,
-            #             'Clock': "0"
-            #         })
+            self.sub_groups.append({
+                        'PointInGame': 999,
+                        'NextActionNumber': self.last_action['actionNumber'],
+                        'SubTime': "",
+                        'Period': 1,
+                        'Clock': "0"
+                    })
             self.current_sub_group = self.sub_groups[self.current_sub_group_index]
         else:
             action_prior = action
-            self._stint_end(action, action_prior, stat_dict_list)
+            stat_dict_list, do_home, do_away = self._create_stat_dict_list()
+            self._stint_end(action, action_prior, stat_dict_list, 1)
 
     
-
-
-    def _stint_end(self, action: dict, action_prior: dict, stat_dict_list: list):
+    def _stint_end(self, action: dict, action_prior: dict, stat_dict_list: list, last: int):
         for dict in stat_dict_list:
-            sub_needed = dict['sub_needed'] or action['actionNumber'] == self.last_action['actionNumber']
+            sub_needed = dict['sub_needed'] or (action['actionNumber'] == self.last_action['actionNumber'] and last == 1)
             if sub_needed == False: 
                 continue
             stat_dict = dict['stats']
@@ -168,7 +149,7 @@ class StintProcessor:
                 stat_dict['ClockEnd'] = action_prior['Clock']
                 stat_dict['MinElapsedEnd'] = action_prior['MinElapsed']
             #If it's the last action but the game is still going:
-            elif action['actionNumber'] == self.last_action['actionNumber'] and 'Final' not in self.GameStatus:
+            elif action['actionNumber'] == self.last_action['actionNumber'] and 'Final' not in self.GameStatus and last == 1:
                 stat_dict['QtrEnd'] = None
                 stat_dict['ClockEnd'] = None
                 stat_dict['MinElapsedEnd'] = None
@@ -191,6 +172,27 @@ class StintProcessor:
             self.team_stints.append(team_stint)
             self.tp_stints.append(stat_dict)
     
+    def _create_stat_dict_list(self):     
+        do_home = self.home != self.home_copy
+        do_away = self.away != self.away_copy   
+        stat_dict_list = [{
+            'home_away': 'Home',
+            'stats': self.home_stats,
+            'sub_needed': do_home,
+            'team_id': self.HomeID,
+            'old_lineup': self.home,
+            'new_lineup': self.home_copy
+        },{
+            'home_away': 'Away',
+            'stats': self.away_stats,
+            'sub_needed': do_away,
+            'team_id': self.AwayID,
+            'old_lineup': self.away,
+            'new_lineup': self.away_copy
+        }]
+        return stat_dict_list, do_home, do_away
+
+
     #endregion Stint Changing
 
 
@@ -338,7 +340,11 @@ class StintProcessor:
 
         PlayerID = action['personId']
         if PlayerID != 0:
-            self.team_stats['Lineup'][PlayerID]['F'] += 1
+            try:
+                self.team_stats['Lineup'][PlayerID]['F'] += 1
+            except KeyError as e:
+                log_str = ' Probably due to a technical incurred by a Coach/Player not on court' if action['subType'] == 'technical' else ''
+                self.logger.warning(f'KeyError on foul!{log_str}')
         PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
         if PlayerIDFoulDrawn:
             self.op_stats['FDrwn'] += 1

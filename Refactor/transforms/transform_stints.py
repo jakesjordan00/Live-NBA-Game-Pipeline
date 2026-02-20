@@ -97,8 +97,10 @@ def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
                 action['CorrespondingSubActionNumber'] = next(
                     (p['actionNumber'] for p in playbyplay_data
                     if p['actionNumber'] != action['actionNumber']  # don't match itself
-                    and action[f'{subs_type}Number'] == p[f'{opp_subs_type}Number']
-                    and action[f'Team{subs_type}Number'] == p[f'Team{opp_subs_type}Number']),
+                    and action[f'Team{subs_type}Number'] == p[f'Team{opp_subs_type}Number']
+                    and action['teamId'] == p['teamId']
+                    and action['period'] == p['period']
+                    and action['Clock'] == p['Clock']),
                     None  # default if no match found
                 )
                 bp = 'here'
