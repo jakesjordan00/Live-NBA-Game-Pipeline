@@ -14,7 +14,7 @@ class Transform:
     def playbyplay(self, playbyplay_data):
         scoreboard_data = self.pipeline.Data['scoreboard_data']
         boxscore_data = self.pipeline.Data['boxscore_data']
-        playbyplay_data, sub_groups = transform_stints.DetermineSubstitutions(playbyplay_data, boxscore_data)
+        playbyplay_data, sub_groups = transform_stints.determine_substitutions(playbyplay_data, boxscore_data)
         start_action = self.pipeline.start_action
         transformed_playbyplay = TransformPlayByPlay(playbyplay_data, boxscore_data, start_action)
         

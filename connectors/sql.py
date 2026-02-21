@@ -7,8 +7,9 @@ from transforms.stint_processor import StintResult
 import pyodbc
 import logging
 logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%m/%d/%Y %I:%M:%S %p'
 )
 
 class SQLConnector:
@@ -84,10 +85,7 @@ end
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
             cursor.executemany(insert_string, params)
-            self.logger.info({
-                'Table': table_name,
-                'rows': len(data)
-            })
+            self.logger.info(f'Loaded {len(data)} rows to {table_name}')
             cursor.commit()
         except Exception as e:
             self.logger.error({
@@ -107,10 +105,7 @@ values({', '.join(['?'] * len(sql_table['columns']))})
             cursor = self.pyodbc_connection.cursor()
             cursor.executemany(insert_string, params)
             cursor.commit()
-            self.logger.info({
-                'Table': table_name,
-                'rows': len(data)
-            })
+            self.logger.info(f'Loaded {len(data)} rows to {table_name}')
         except Exception as e:
             self.logger.error({
                 'Table': table_name,

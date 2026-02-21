@@ -2,10 +2,15 @@ from tracemalloc import start
 import pandas as pd
 import polars as pl
 #region Substitution Groups
-def DetermineSubstitutions(data_extract: dict, boxscore_data: dict):
-    # api_data_extract = data_extract_full['api_data_extract']
+
+def find_next_action_number():
+
+    return
+
+
+
+def determine_substitutions(data_extract: dict, boxscore_data: dict):
     playbyplay_data = data_extract['game']['actions']
-    # playbyplay_api_data = api_data_extract['game']['actions']
 
     sub_in_actions = 0
     sub_out_actions = 0
