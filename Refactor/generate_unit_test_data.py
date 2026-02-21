@@ -13,16 +13,16 @@ def run():
     try:
         print('Reading clipboard first...')
         #Use line below normally
-        # game_id = pyperclip.paste().replace(', ', ' ',).replace(',', ' ').replace('\n', ' ').strip()
+        game_id = pyperclip.paste().replace(', ', ' ',).replace('\r', '').replace(',', ' ').replace('\n', ' ').strip()
 
         # game_id = '22500792 22500793 22500794 22500795 22500796 22500797 22500798 22500799 22500800 22500801' #replace this
-        game_id = '22500799 22500798' #replace this
+        # game_id = '22500799 22500798' #replace this
         #game_id = '22500798' #replace this
 
         games = game_id.split(' ')
-        if games[0][1:3] == '':
+        if games[0].lstrip('0')[1:3] == '':
             games[0] = 'aaaaaaaaaa'
-        season_id = 2000 + int(f'{games[0][1:3]}')
+        season_id = 2000 + int(f'{games[0].lstrip('0')[1:3]}')
     except Exception as e:
         print('Clipboard text not valid!')
         try:
@@ -37,7 +37,7 @@ def run():
 
     if games:
         try:
-            game_str = ', '.join(game for game in games)
+            game_str = ', '.join(game.lstrip('0') for game in games if game != '')
             print('Success!')
             print(f'SeasonID: {season_id}')
             print(f'Games: {game_str}')
