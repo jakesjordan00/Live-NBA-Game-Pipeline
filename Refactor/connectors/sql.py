@@ -202,7 +202,6 @@ end
             cursor.execute(stint['check_query'])
             team_results = cursor.fetchall()
             stint_columns = [col[0] for col in cursor.description if col[0] != 'OnCourt']
-            self.logger.error(stint['check_query'])
             home_stats = dict(zip(stint_columns, next(row for row in team_results if row[2] == stint_keys['home_id'])))
             away_stats = dict(zip(stint_columns, next(row for row in team_results if row[2] == stint_keys['away_id'])))
 

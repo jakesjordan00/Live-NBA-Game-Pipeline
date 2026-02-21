@@ -58,5 +58,6 @@ class Transform:
         dfplScoreboard = dfplScoreboard.with_columns(
             pl.col('GameID').alias('GameIDStr')
         ).cast({'GameID': pl.Int64})
+        dfplScoreboard = dfplScoreboard.filter(pl.col('GameStatus') != 3)
         return dfplScoreboard
 

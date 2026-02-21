@@ -5,6 +5,7 @@ from pipelines.playbyplay import PlayByPlayPipeline
 from connectors.sql import SQLConnector
 import polars as pl
 
+#Will replace the iterations with something better
 iterations = 0
 
 scoreboard_pipeline = ScoreboardPipeline('Development', iterations)
@@ -13,6 +14,7 @@ print(completed_scoreboard_pipeline)
 scoreboard_data = completed_scoreboard_pipeline['loaded']
 
 bp = 'here'
+
 
 for scoreboard in scoreboard_data.iter_rows(named=True):    
     boxscore_pipeline = BoxscorePipeline(scoreboard, 'Production', iterations)
