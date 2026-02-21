@@ -13,7 +13,7 @@
             {
                 "gameId": "0022500802",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "7:00 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -57,7 +57,7 @@
             {
                 "gameId": "0022500803",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "7:00 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -101,7 +101,7 @@
             {
                 "gameId": "0022500804",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "7:00 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -145,7 +145,7 @@
             {
                 "gameId": "0022500805",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "7:30 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -189,7 +189,7 @@
             {
                 "gameId": "0022500806",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "7:30 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -233,7 +233,7 @@
             {
                 "gameId": "0022500807",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "8:00 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -277,7 +277,7 @@
             {
                 "gameId": "0022500808",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "8:00 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -321,7 +321,7 @@
             {
                 "gameId": "0022500809",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "10:00 pm ET",
                 "period": 4,
 				"gameClock": "",
@@ -365,7 +365,7 @@
             {
                 "gameId": "0022500810",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "10:00 pm ET",
                 "period": 4,
 				"gameClock": "",
