@@ -17,7 +17,7 @@ class BoxscorePipeline(Pipeline[dict]):
         self.source = StaticDataConnector(self)
         self.transformer = Transform(self)
         self.environment = environment
-        self.file_source = f'Refactor/tests/box/{self.GameID}'
+        self.file_source = f'tests/box/{self.GameID}'
         self.iterations = iterations
         
     def extract(self):

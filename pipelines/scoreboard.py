@@ -12,7 +12,7 @@ class ScoreboardPipeline(Pipeline[pl.DataFrame]):
 
         self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
         self.source = StaticDataConnector(self)
-        self.file_source = 'Refactor/tests/scoreboard'
+        self.file_source = 'tests/scoreboard'
         self.transformer = Transform(self)
         self.environment = environment
         self.iterations = iterations

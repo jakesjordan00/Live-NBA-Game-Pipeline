@@ -137,7 +137,7 @@ todays_scoreboard = f'''{{
 }}'''
 
 
-with open('Refactor/tests/generated_scoreboard.json', 'w') as f:
+with open('tests/generated_scoreboard.json', 'w') as f:
     f.write(todays_scoreboard)
 
 print(todays_scoreboard)

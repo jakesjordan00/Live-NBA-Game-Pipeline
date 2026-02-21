@@ -15,7 +15,7 @@ class PlayByPlayPipeline(Pipeline[dict]):
         self.url = f'https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_{self.GameIDStr}.json'
         self.source = StaticDataConnector(self)
         self.environment = environment
-        self.file_source = f'Refactor/tests/pbp/{self.GameID}'
+        self.file_source = f'tests/pbp/{self.GameID}'
         self.iterations = iterations
 
         

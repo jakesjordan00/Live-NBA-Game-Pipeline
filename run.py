@@ -16,6 +16,7 @@ scoreboard_data = completed_scoreboard_pipeline['loaded']
 bp = 'here'
 gameIDs_in_progress = [row['GameID'] for row in scoreboard_data.iter_rows(named=True)]
 print(f'\nGames in Progress: {', '.join(str(game) for game in gameIDs_in_progress)}\n------------------------------------')
+
 for scoreboard in scoreboard_data.iter_rows(named=True):    
     boxscore_pipeline = BoxscorePipeline(scoreboard, 'Production', iterations)
     completed_boxscore_pipeline = boxscore_pipeline.run()
