@@ -9,7 +9,7 @@ class Transform:
         pass
 
 
-    def scoreboard(self, data):
+    def scoreboard(self, data) -> pl.DataFrame:
         data = data['scoreboard']['games']        
         dfplScoreboard = pl.DataFrame(data)
         dfplScoreboard = dfplScoreboard.select([

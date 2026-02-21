@@ -66,7 +66,7 @@ def format(schedule):
             {{
                 "gameId": "00{game['GameID']}",
                 "gameCode": "",
-                "gameStatus": 3,
+                "gameStatus": 2,
                 "gameStatusText": "{game['Status']}",
                 "period": 4,
 				"gameClock": "",
