@@ -6,11 +6,6 @@ from sqlalchemy import create_engine, text, Numeric
 from transforms.stint_processor import StintResult
 import pyodbc
 import logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    datefmt='%m/%d/%Y %I:%M:%S %p'
-)
 
 class SQLConnector:
 
