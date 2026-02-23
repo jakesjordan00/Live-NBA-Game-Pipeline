@@ -103,8 +103,9 @@ insert into {table_name}({', '.join(sql_table['columns'])})
 values({', '.join(['?'] * len(sql_table['columns']))})
         '''
         try:
-            params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns']) for data_dict in data]
+            params = [self.dict_to_params(data_dict, sql_table['columns']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
+            cursor.fast_executemany = True
             cursor.executemany(insert_string, params)
             cursor.commit()
             self.logger.info(f'{table_name} ╍ Inserted {len(data)} rows')
@@ -146,7 +147,6 @@ end
             params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns'] + sql_table['update_columns'] + sql_table['keys']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
-            # self._parse_pyodbc_query(upsert_string, params)
             cursor.executemany(upsert_string, params)
             self.logger.info(f'{table_name} ╍ Upserted {len(data)} rows')
             cursor.commit()

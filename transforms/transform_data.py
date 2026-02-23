@@ -9,55 +9,34 @@ class Transform:
         pass
 
 
-    def scoreboard(self, data) -> pl.DataFrame:
-        data = data['scoreboard']['games']        
-        dfplScoreboard = pl.DataFrame(data)
-        dfplScoreboard = dfplScoreboard.select([
-            'gameId',
-            'gameCode',
-            'gameStatus',
-            'gameStatusText',
-            'period',
-            'gameClock',
-            'gameTimeUTC',
-            'gameEt',
-            'regulationPeriods',
-            'ifNecessary',
-            'seriesGameNumber',
-            'gameLabel',
-            'gameSubLabel',
-            'seriesText',
-            'seriesConference',
-            'poRoundDesc',
-            'gameSubtype',
-            'isNeutral',
-            'homeTeam',
-            'awayTeam', 
-        ]).rename({            
-            'gameId': 'GameID',
-            'gameCode': 'GameCode',
-            'gameStatus': 'GameStatus',
-            'gameStatusText': 'GameStatusText',
-            'period': 'Period',
-            'gameClock': 'GameClock',
-            'gameTimeUTC': 'GameTimeUTC',
-            'gameEt': 'GameEt',
-            'regulationPeriods': 'RegulationPeriods',
-            'ifNecessary': 'IfNecessary',
-            'seriesGameNumber': 'SeriesGameNumber',
-            'gameLabel': 'GameLabel',
-            'gameSubLabel': 'GameSubLabel',
-            'seriesText': 'SeriesText',
-            'seriesConference': 'SeriesConference',
-            'poRoundDesc': 'PoRoundDesc',
-            'gameSubtype': 'GameSubtype',
-            'isNeutral': 'IsNeutral',
-            'homeTeam': 'HomeTeam',
-            'awayTeam': 'AwayTeam',
-        })
-        dfplScoreboard = dfplScoreboard.with_columns(
-            pl.col('GameID').alias('GameIDStr')
-        ).cast({'GameID': pl.Int64})
-        # dfplScoreboard = dfplScoreboard.filter(pl.col('GameStatus') != 3)
-        return dfplScoreboard
+    def scoreboard(self, data) -> list:
+        data = data['scoreboard']['games']
+
+        scoreboard = [
+            {
+                'SeasonID': f'20{g['gameId'][3:5]}',
+                'GameID': int(g['gameId']),
+                'GameIDStr': g['gameId'],             
+                'GameCode': g['gameCode'],
+                'GameStatus': g['gameStatus'],
+                'GameStatusText': g['gameStatusText'],
+                'Period': g['period'],
+                'GameClock': g['gameClock'],
+                'GameTimeUTC': g['gameTimeUTC'],
+                'GameEt': g['gameEt'],
+                'RegulationPeriods': g['regulationPeriods'],
+                'IfNecessary': g['ifNecessary'],
+                'SeriesGameNumber': g['seriesGameNumber'],
+                'GameLabel': g['gameLabel'],
+                'GameSubLabel': g['gameSubLabel'],
+                'SeriesText': g['seriesText'],
+                'SeriesConference': g['seriesConference'],
+                'RoundDesc': g['poRoundDesc'],
+                'GameSubtype': g['gameSubtype'],
+                'IsNeutral': g['isNeutral'],
+                'HomeTeam': g['homeTeam'],
+                'AwayTeam': g['awayTeam'],
+                }             
+            for g in data]
+        return scoreboard
 

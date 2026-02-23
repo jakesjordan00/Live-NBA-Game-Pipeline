@@ -4,6 +4,7 @@ from transforms import transform_stints
 from transforms.stint_processor import StintProcessor
 import pandas as pd
 import polars as pl
+from datetime import datetime
 
 class Transform:
 
@@ -45,9 +46,10 @@ def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, start_action
         Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
         # PointInGame = CalculatePointInGame(Clock, Qtr)
         PointInGame = action['PointInGame']
-        TimeActual = action['timeActual']
-        ScoreHome = action['scoreHome']
-        ScoreAway = action['scoreAway']
+        time_formatted = f'{action['timeActual'][:-1].replace('T', ' ')}'
+        TimeActual = datetime.strptime(time_formatted, '%Y-%m-%d %H:%M:%S.%f')
+        ScoreHome = int(action['scoreHome'])
+        ScoreAway = int(action['scoreAway'])
         Possession = action.get('possession') if action.get('possession') != 0 else None
         TeamID = action.get('teamId')
         Tricode = action.get('teamTricode')

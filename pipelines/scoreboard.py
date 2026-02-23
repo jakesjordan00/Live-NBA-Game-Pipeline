@@ -5,7 +5,7 @@ from connectors.static_data import StaticDataConnector
 from transforms.transform_data import Transform
 
 
-class ScoreboardPipeline(Pipeline[pl.DataFrame]):
+class ScoreboardPipeline(Pipeline[list]):
 
     def __init__(self, environment: str, iterations: int):
         super().__init__('scoreboard')

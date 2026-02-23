@@ -13,11 +13,11 @@ completed_scoreboard_pipeline = scoreboard_pipeline.run()
 scoreboard_data = completed_scoreboard_pipeline['loaded']
 
 
-gameIDs_in_progress = [row['GameID'] for row in scoreboard_data.iter_rows(named=True) if row['GameStatus'] != 1]
+gameIDs_in_progress = [game['GameID'] for game in scoreboard_data if game['GameStatus'] != 1]
 print(f'\nGames in Progress: {', '.join(str(game) for game in gameIDs_in_progress)}\n------------------------------------')
-scoreboard_data = scoreboard_data.filter(pl.col('GameStatus') != 1)
+scoreboard_data = [game for game in scoreboard_data if game['GameStatus'] != 1]
 
-for scoreboard in scoreboard_data.iter_rows(named=True):
+for scoreboard in scoreboard_data:
     print(f'\n                                                 {scoreboard['GameID']}\n                                   -------------------------------------')
     
     boxscore_pipeline = BoxscorePipeline(scoreboard, 'Production', iterations)
