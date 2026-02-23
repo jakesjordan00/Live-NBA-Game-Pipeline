@@ -26,7 +26,7 @@ class Pipeline(ABC, Generic[T]):
         if not logging.root.handlers:
             handler = colorlog.StreamHandler()
             handler.setFormatter(MillisecondFormatter(
-                fmt='%(log_color)s%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                fmt='%(log_color)s%(asctime)s:  %(name)s ╍ %(levelname)s ╍ %(message)s',
                 datefmt='%m/%d/%Y %H:%M:%S.%f',
                 log_colors={
                     'DEBUG': 'cyan',

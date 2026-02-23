@@ -3,15 +3,17 @@ import pandas as pd
 import polars as pl
 #region Substitution Groups
 
-def find_next_action_number():
+def find_next_action_number(action: dict, i: int, playbyplay_data: list, game_end: int):
+    if game_end == 1 or i + 1 >= len(playbyplay_data):
+        return action['actionNumber']
+    next_action_number = [p['actionNumber'] for p in playbyplay_data[i:] if p['actionType'] != 'substitution'][0]
 
-    return
+    return next_action_number
 
 
 
 def determine_substitutions(data_extract: dict, boxscore_data: dict):
     playbyplay_data = data_extract['game']['actions']
-
     sub_in_actions = 0
     sub_out_actions = 0
     home_in = 0
@@ -22,6 +24,8 @@ def determine_substitutions(data_extract: dict, boxscore_data: dict):
     
     Periods = 4 if boxscore_data['sql_tables']['GameExt']['Periods'] <= 4 else boxscore_data['sql_tables']['GameExt']['Periods']
     for i, action in enumerate(playbyplay_data):
+        if i >= 556 and boxscore_data['GameID'] == 22500817:
+            bp = 'here'
         Qtr = action['period']
         Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')
         PointInGame, MinElapsed = CalculatePointInGame(Clock, Qtr, Periods)
@@ -33,24 +37,22 @@ def determine_substitutions(data_extract: dict, boxscore_data: dict):
         #This is where i need to handle if the most recent action is a substitution.
         if action['actionType'] == 'substitution' or (game_end == 1):
             SubTime = f'Q{Qtr} {Clock}'
-            game_end = 1 if action['actionType'] == 'game' and action['subType'] == 'end' else 0
-            NextActionNumber = playbyplay_data[i+1]['actionNumber'] if game_end == 0 and i+1 < len(playbyplay_data) else action['actionNumber']
+            NextActionNumberOld = playbyplay_data[i+1]['actionNumber'] if game_end == 0 and i+1 < len(playbyplay_data) else action['actionNumber']
+            next_action_number = find_next_action_number(action, i, playbyplay_data, game_end)
             test  = [s['SubTime'] for s in sub_groups]
-            if SubTime not in [s['SubTime'] for s in sub_groups]:
+            if (SubTime, next_action_number) not in [(s['SubTime'], s['NextActionNumber']) for s in sub_groups]:
                 sub_groups.append({
                     'PointInGame': PointInGame,
-                    'NextActionNumber': NextActionNumber,
+                    'NextActionNumber': next_action_number,
                     'SubTime': SubTime,
                     'Period': Qtr,
                     'Clock': Clock,
                     'MinElapsed': MinElapsed,
                     'Index': i
                 })
-                bp = 'here'
             else:
-                existing = next(s for s in sub_groups if s['SubTime'] == SubTime)
-                existing['NextActionNumber'] = NextActionNumber
-                bp = 'here'
+                existing = next(s for s in sub_groups if s['SubTime'] == SubTime and next_action_number == s['NextActionNumber'])
+                existing['NextActionNumber'] = next_action_number
 
             if action['subType'] == 'in':
                 sub_in_actions += 1

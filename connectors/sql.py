@@ -1,4 +1,5 @@
 from polars import Int64
+import pyperclip
 
 from config.settings import DATABASES 
 from urllib.parse import quote_plus
@@ -6,6 +7,7 @@ from sqlalchemy import create_engine, text, Numeric
 from transforms.stint_processor import StintResult
 import pyodbc
 import logging
+import datetime
 
 class SQLConnector:
 
@@ -45,17 +47,23 @@ class SQLConnector:
         
         for table_name, data in data_transformed.items():
             if type(data) == dict:
-                self.checked_insert(table_name, [data])
-
-            elif type(data) == list and table_name != 'PlayByPlay':
+                data = [data]
+            
+            if table_name in['Team', 'Arena', 'Official', 'Player', 'StartingLineups']:
                 self.checked_insert(table_name, data)
-
-            elif type(data) == list and table_name == 'PlayByPlay':
-                self.unchecked_insert(table_name, data)
-                
+            elif table_name in['Game', 'GameExt', 'TeamBox', 'PlayerBox']:
+                self.checked_upsert(table_name, data)
             elif type(data) == StintResult:
                 self.checked_upsert('jjs.Stint', data.Stint)
                 self.checked_upsert('jjs.StintPlayer', data.StintPlayer)
+            elif table_name == 'PlayByPlay':
+                if len(data) == 0:
+                    self.logger.info(f'No new PlayByPlay actions to insert. Skipping...')
+                else:
+                    self.unchecked_insert(table_name, data)
+
+
+                
 
         return data_transformed #change this to some sort of logging mechanism
     
@@ -73,15 +81,14 @@ begin
 insert into {table_name}({', '.join(sql_table['columns'])})
 values({', '.join(['?'] * len(sql_table['columns']))})
 end
-
 '''
         try:
             params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
             cursor.executemany(insert_string, params)
-            self.logger.info(f'Loaded {len(data)} rows to {table_name}')
             cursor.commit()
+            self.logger.info(f'{table_name} ╍ Ignored/inserted {len(data)} rows')
         except Exception as e:
             self.logger.error({
                 'Table': table_name,
@@ -100,7 +107,7 @@ values({', '.join(['?'] * len(sql_table['columns']))})
             cursor = self.pyodbc_connection.cursor()
             cursor.executemany(insert_string, params)
             cursor.commit()
-            self.logger.info(f'Loaded {len(data)} rows to {table_name}')
+            self.logger.info(f'{table_name} ╍ Inserted {len(data)} rows')
         except Exception as e:
             self.logger.error({
                 'Table': table_name,
@@ -119,7 +126,7 @@ values({', '.join(['?'] * len(sql_table['columns']))})
         bp = 'here'
 
 
-        insert_string = f'''
+        upsert_string = f'''
 if not exists(
 select 1 
 from {table_name}
@@ -139,11 +146,9 @@ end
             params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns'] + sql_table['update_columns'] + sql_table['keys']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
-            cursor.executemany(insert_string, params)
-            self.logger.info({
-                'Table': table_name,
-                'rows': len(data)
-            })
+            # self._parse_pyodbc_query(upsert_string, params)
+            cursor.executemany(upsert_string, params)
+            self.logger.info(f'{table_name} ╍ Upserted {len(data)} rows')
             cursor.commit()
         except Exception as e:
             self.logger.error({
@@ -221,10 +226,24 @@ end
 
 
 
-
-
-
-
-
     def dict_to_params(self, d: dict, keys: list) -> tuple:
         return tuple(d[k.replace('[', '').replace(']', '')] for k in keys)
+    
+
+    def _parse_pyodbc_query(self, query: str, params: list):
+        queries = []
+        for tuple in params:
+            for value in tuple:
+                if type(value) == str:
+                    value = f"'{value.replace("'", "''")}'"
+                elif type(value) == datetime.datetime:
+                    value = f"'{value.strftime('%Y-%m-%d %H:%M:%S.000')}'"
+                elif value == None:
+                    value = 'null'
+                index = query.find('?')
+                test = query[index + 1:]
+                query = f'{query[:index]}{value}{query[index + 1:]}'
+            pyperclip.copy(query)
+            queries.append(query)
+
+        a= 1
