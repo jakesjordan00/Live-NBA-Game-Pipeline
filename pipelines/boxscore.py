@@ -8,7 +8,7 @@ from transforms.transform_boxscore import Transform
 
 class BoxscorePipeline(Pipeline[dict]):
 
-    def __init__(self, scoreboard_data: pl.DataFrame, environment: str, iterations: int):
+    def __init__(self, scoreboard_data: pl.DataFrame, environment: str):
         super().__init__('Boxscore')
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']
@@ -18,7 +18,6 @@ class BoxscorePipeline(Pipeline[dict]):
         self.transformer = Transform(self)
         self.environment = environment
         self.file_source = f'tests/box/{self.GameID}'
-        self.iterations = iterations
         
     def extract(self):
         data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()

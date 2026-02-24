@@ -1,6 +1,3 @@
-from polars import Int64
-import pyperclip
-
 from config.settings import DATABASES 
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine, text, Numeric
@@ -243,7 +240,7 @@ end
                 index = query.find('?')
                 test = query[index + 1:]
                 query = f'{query[:index]}{value}{query[index + 1:]}'
-            pyperclip.copy(query)
+            # pyperclip.copy(query)
             queries.append(query)
 
         a= 1

@@ -37,6 +37,6 @@ class Transform:
                 'HomeTeam': g['homeTeam'],
                 'AwayTeam': g['awayTeam'],
                 }             
-            for g in data]
+            for g in data if g['gameStatus'] != 1]
         return scoreboard
 

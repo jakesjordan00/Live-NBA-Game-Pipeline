@@ -4,11 +4,10 @@ import logging
 import colorlog
 from typing import TypeVar, Generic
 import polars as pl
-import pandas as pd
 from connectors.sql import SQLConnector 
 
 
-T = TypeVar('T', pl.DataFrame, dict)
+T = TypeVar('T', list, dict)
 
 class MillisecondFormatter(colorlog.ColoredFormatter):
     def formatTime(self, time_record, datefmt = None):

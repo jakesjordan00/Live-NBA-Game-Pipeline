@@ -8,7 +8,7 @@ from connectors.api_data import APIDataConnector
 from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
-    def __init__(self, scoreboard_data, boxscore_data, start_action: int, home_stats: dict | None, away_stats: dict | None, environment: str, iterations: int):
+    def __init__(self, scoreboard_data, boxscore_data, start_action: int, home_stats: dict | None, away_stats: dict | None, environment: str):
         super().__init__('PlayByPlay')
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']
@@ -16,7 +16,6 @@ class PlayByPlayPipeline(Pipeline[dict]):
         self.source = StaticDataConnector(self)
         self.environment = environment
         self.file_source = f'tests/pbp/{self.GameID}'
-        self.iterations = iterations
 
         
         self.transformer = Transform(self)

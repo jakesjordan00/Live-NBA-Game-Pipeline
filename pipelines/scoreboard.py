@@ -7,7 +7,7 @@ from transforms.transform_data import Transform
 
 class ScoreboardPipeline(Pipeline[list]):
 
-    def __init__(self, environment: str, iterations: int):
+    def __init__(self, environment: str):
         super().__init__('scoreboard')
 
         self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
@@ -15,7 +15,6 @@ class ScoreboardPipeline(Pipeline[list]):
         self.file_source = 'tests/scoreboard'
         self.transformer = Transform(self)
         self.environment = environment
-        self.iterations = iterations
 
 
     def extract(self):
