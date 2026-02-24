@@ -2,8 +2,6 @@ from pipelines import Pipeline, ScoreboardPipeline, BoxscorePipeline, PlayByPlay
 from connectors import SQLConnector
 import polars as pl
 
-#Will replace the iterations with something better
-iterations = 4
 
 scoreboard_pipeline = ScoreboardPipeline('Production')
 completed_scoreboard_pipeline = scoreboard_pipeline.run()
@@ -19,7 +17,7 @@ for scoreboard in scoreboard_data:
     boxscore_pipeline = BoxscorePipeline(scoreboard, 'Production')
     completed_boxscore_pipeline = boxscore_pipeline.run()
     boxscore_data = completed_boxscore_pipeline['loaded']
-    bp = 'here'
+    
     start_action = boxscore_pipeline.destination.cursor_query('PlayByPlay', boxscore_data['start_action_keys'])['actions']
     home_stats, away_stats = (None, None) if start_action == 0 else boxscore_pipeline.destination.stint_cursor(boxscore_data['lineup_keys'])
     playbyplay_pipeline = PlayByPlayPipeline(boxscore_data, start_action, home_stats, away_stats, 'Production')

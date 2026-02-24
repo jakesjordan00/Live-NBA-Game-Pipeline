@@ -9,9 +9,16 @@ class Transform:
         pass
 
 
-    def scoreboard(self, data) -> list:
-        data = data['scoreboard']['games']
+    def scoreboard(self, data: dict) -> list:
+        '''
+        Returns a list of formatted Scoreboard dictionaries
 
+        :param data: Output of fetch(). Contains game information for today's games
+        :type data: dict
+        :return scoreboard: List of games taking place today that are **In progress** or **Completed**
+        :rtype: list
+        '''
+        data = data['scoreboard']['games']
         scoreboard = [
             {
                 'SeasonID': f'20{g['gameId'][3:5]}',
