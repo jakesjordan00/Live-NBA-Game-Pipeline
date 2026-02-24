@@ -22,7 +22,7 @@ for scoreboard in scoreboard_data:
     bp = 'here'
     start_action = boxscore_pipeline.destination.cursor_query('PlayByPlay', boxscore_data['start_action_keys'])['actions']
     home_stats, away_stats = (None, None) if start_action == 0 else boxscore_pipeline.destination.stint_cursor(boxscore_data['lineup_keys'])
-    playbyplay_pipeline = PlayByPlayPipeline(scoreboard, boxscore_data, start_action, home_stats, away_stats, 'Production')
+    playbyplay_pipeline = PlayByPlayPipeline(boxscore_data, start_action, home_stats, away_stats, 'Production')
     completed_playbyplay_pipeline = playbyplay_pipeline.run()
     playbyplay_data = completed_playbyplay_pipeline['loaded']
     bp = 'here'

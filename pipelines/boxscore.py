@@ -8,7 +8,7 @@ from transforms.transform_boxscore import Transform
 
 class BoxscorePipeline(Pipeline[dict]):
 
-    def __init__(self, scoreboard_data: pl.DataFrame, environment: str):
+    def __init__(self, scoreboard_data: dict, environment: str):
         super().__init__('Boxscore')
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']

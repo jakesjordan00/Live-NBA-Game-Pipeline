@@ -56,7 +56,7 @@ class StintProcessor:
         if self.start_action == 0 or len(self.sub_groups) == 1 or self.start_action == len(self.playbyplay_data):
             log_str = f'Starting at first action...Getting starting lineups and creating dictionaries...'
             if self.start_action == len(self.playbyplay_data):
-                log_str = "PlayByPlay already inserted, row count in db matches extracted data's row count...{log_str}"
+                log_str = f"PlayByPlay already inserted, row count in db matches extracted data's row count...{log_str}"
             self.logger.info(log_str)
             self.home, self.away = self._get_starting_lineups()
             self.home_stats, self.away_stats = self._create_initial_stats_dict(self.home, self.away, 1, 1)
