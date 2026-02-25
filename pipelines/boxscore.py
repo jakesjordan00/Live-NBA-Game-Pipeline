@@ -19,16 +19,56 @@ class BoxscorePipeline(Pipeline[dict]):
         self.environment = environment
         self.file_source = f'tests/box/{self.GameID}'
         
-    def extract(self):
+    def extract(self) -> dict:
+        '''Summary
+        -------------
+        Fetches data from NBA's static data feeds
+                
+        :return data (dict): Dict containing 'meta' and **'game'** dicts
+
+        Example
+        ------------
+        >>> {"meta": {}, "game":{}}
+        '''
         data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
         self.logger.info(f'Extracted {self.GameID} Box data')
         return data_extract
 
 
-    def transform(self, data_extract):
+    def transform(self, data_extract: dict) -> dict:
+        '''Summary
+        -------------
+        Transforms extracted Boxscore and Scoreboard data into 9 dicts formatted for SQL.
+
+        Also creates start_action_keys and lineup_keys, neccessary for PlayByPlay
+
+        :param dict data_extract: Box data extract
+        :return data_transformed: Formatted Box data
+        :rtype: dict
+
+        Example
+        ------------
+        >>> #
+        {
+            'SeasonID': 2025,
+            'GameID': 2025,
+            'sql_tables': {
+                'Team':[{}],
+                'Arena': {},
+                'Official': [{}],
+                'Player': [{}],
+                'Game': {},
+                'GameExt': {},
+                'TeamBox': [{}],
+                'PlayerBox': [{}],
+                'StartingLineups': [{}]
+                },
+            'start_action_keys': {},
+            'lineup_keys': {}
+        }
+        '''
         data_transformed = self.transformer.box(data_extract)
         self.logger.info(f'Transformed Box data to {', '.join(name for name, data in data_transformed['sql_tables'].items())}')
-        bp = 'here'
         return data_transformed
 
 

@@ -21,7 +21,7 @@ class Transform:
         data = data['scoreboard']['games']
         scoreboard = [
             {
-                'SeasonID': f'20{g['gameId'][3:5]}',
+                'SeasonID': int(f'20{g['gameId'][3:5]}'),
                 'GameID': int(g['gameId']),
                 'GameIDStr': g['gameId'],             
                 'GameCode': g['gameCode'],

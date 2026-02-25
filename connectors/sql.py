@@ -162,10 +162,14 @@ end
                 cursor.execute(query)
                 row = cursor.fetchone()
                 actions = row[0] if row else 0
+                last_action_number = row[1] if row else 0
             except Exception as e:
                 actions = 0
                 test = 1
-            return {'actions': actions}
+            return {
+                'actions': actions,
+                'last_action_number': last_action_number
+            }
         elif table_name == 'Schedule':
             cursor.execute(query)
             results = cursor.fetchall()

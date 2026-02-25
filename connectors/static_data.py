@@ -9,13 +9,18 @@ class StaticDataConnector:
         pass
     
     def fetch(self) -> dict:
-        '''
+        '''Summary
+        -------------
         Fetches data from NBA's static data feeds
-        
+                
         :return data (dict): Dict containing subdictionaries. Usually a 'meta' dict and then the dict that contains our data
 
-           - 'scoreboard', 'game'
-           
+            - 'scoreboard', 'game'
+
+        Examples
+        ------------
+        >>> {"meta": {},"scoreboard": {}}
+        >>> {"meta": {}, "game":{}}
         '''
         try:
             response = requests.get(self.pipeline.url)

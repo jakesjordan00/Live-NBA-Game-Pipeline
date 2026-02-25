@@ -21,7 +21,21 @@ class Transform:
     
 
 def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
-    SeasonID = 2000 + int(box_data['gameId'][3:5])
+    '''Summary
+-------------
+Transforms extracted Boxscore and Scoreboard data into 9 dicts formatted for SQL.<br>
+Also creates start_action_keys and lineup_keys, neccessary for PlayByPlay
+
+:param dict box_data: Extracted Boxscore data
+:param dict scoreboard_data: Transformed Scoreboard data
+:return prepared_box_data: Transformed Box data ready to be inserted to 9 SQL tables and used in PlayByPlay pipeline 
+:rtype: dict
+
+Function Calls
+-------------
+ **- PrepareTeam()<br>- FormatOfficial()<br>- FormatArena()<br>- FormatGame()**
+    '''
+    SeasonID = scoreboard_data['SeasonID']
     box_data['SeasonID'] = SeasonID
     box_data['GameID'] = scoreboard_data['GameID']
 
@@ -82,6 +96,17 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
 
 #region Game
 def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: int) -> tuple[dict[str, Any], dict[str, Any]]:
+    '''Summary
+-------------
+Transforms Box data to data formatted for Game and GameExt SQL tables 
+
+:param dict box_data: Extracted Boxscore data
+:param dict scoreboard_data: Transformed Scoreboard data
+:param list officials: Officials taking part in Game 
+:param int ArenaID: ArenaID in which Game is taking place
+:return Game, GameExt: Data formatted for Game and GameExt SQL tables
+:rtype: tuple[dict[str, Any], dict[str, Any]]
+    '''
     DateStr = box_data['gameEt'][:10]
     DatetimeStr = box_data['gameEt'][:-6]
     Date = datetime.strptime(DateStr, '%Y-%m-%d')
@@ -121,7 +146,6 @@ def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: 
         LoserID = None
         LScore = None
 
-    bp = 'here'
     formatted_Game = {
         'SeasonID': box_data['SeasonID'],
         'GameID': box_data['GameID'],
@@ -139,8 +163,6 @@ def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: 
         'Datetime': Datetime,
 
     }
-
-    bp = 'here'
     formatted_GameExt = {
         'SeasonID': box_data['SeasonID'],
         'GameID': box_data['GameID'],
@@ -156,7 +178,6 @@ def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: 
         'Status': box_data['gameStatusText'],
         'Periods': 4 if box_data['period'] <= 4 else box_data['period'],
     }
-    bp = 'here'
 
     return formatted_Game, formatted_GameExt
 #endregion Game
@@ -164,6 +185,29 @@ def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: 
 
 #region Team data
 def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int, selector: str, box_data: dict) -> dict:
+    '''Summary
+-------------
+Called for each team participating in a game.
+
+Formats Team table for SQL. Retrieves formatted TeamBox, Player and PlayerBox tables from calls
+
+__Calls FormatTeamBox() and PreparePlayer(), which format TeamBox, Player and PlayerBox__
+
+    _extended_summary_
+
+    :param dict teamBox: Team's data dictionary from Box data extract
+    :param dict teamScoreboard: Team's data dictionary from Scoreboard data extract
+    :param int TeamID: TeamID of Team
+    :param int MatchupID: TeamID of Matchup/Opponent Team
+    :param str selector: homeTeam or awayTeam
+    :param dict box_data: Full Box data dictionary extract
+    :return prepared_team: Prepared Team dictionary - Not formatted yet, but Team, TeamBox, Player and PlayerBox ready to be formatted once returned
+    :rtype: dict
+
+Function Calls
+-------------
+ **- FormatTeamBox()<br>- PreparePlayer()**
+    '''
     SeasonID = box_data['SeasonID']
     GameID = box_data['GameID']
     name = teamBox['teamName']
