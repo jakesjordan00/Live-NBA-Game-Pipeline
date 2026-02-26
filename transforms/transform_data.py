@@ -49,5 +49,21 @@ class Transform:
                 }             
             for g in data if g['gameStatus'] != 1]
         
+        #add T+10m to tipoff as a condition
+        not_started = [game['GameID'] for game in scoreboard if game['GameStatus'] == 1] 
+        log_ns = f'{len(not_started)} games yet to start' if len(not_started) != 1 else f'{len(not_started)} game yet to start'
+        log_ns = f'{log_ns}: {', '.join(g for g in not_started)}'
+        self.logger.info(log_ns)
+
+        in_progress = [game['GameID'] for game in self.scoreboard if game['GameStatus'] == 2]
+        log_ip = f'{len(in_progress)} games are in progress' if len(in_progress) != 1 else f'{len(in_progress)} game is in progress'
+        log_ip = f'{log_ip}: {', '.join(g for g in in_progress)}'
+        self.logger.info(log_ip)
+
+        completed = [game['GameID'] for game in self.scoreboard if game['GameStatus'] == 3]
+        log_c = f'{len(completed)} games have concluded' if len(completed) != 1 else f'{len(completed)} game has concluded'
+        log_c = f'{log_c}: {', '.join(g for g in completed)}'
+        self.logger.info(log_c)
+
         return scoreboard
 

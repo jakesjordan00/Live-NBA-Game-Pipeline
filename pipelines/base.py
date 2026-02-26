@@ -19,8 +19,9 @@ class MillisecondFormatter(colorlog.ColoredFormatter):
 
 class Pipeline(ABC, Generic[T]):
 
-    def __init__(self, pipeline_name):
+    def __init__(self, pipeline_name: str, pipeline_tag: str):
         self.pipeline_name = pipeline_name
+        self.pipeline_tag = pipeline_tag
         self.logger = logging.getLogger(pipeline_name)
         if not logging.root.handlers:
             handler = colorlog.StreamHandler()
@@ -37,7 +38,7 @@ class Pipeline(ABC, Generic[T]):
             ))
             logging.root.setLevel(logging.INFO)
             logging.root.addHandler(handler)
-        self.destination = SQLConnector(self, 'JJsNBA')
+        self.destination = SQLConnector(self.pipeline_name, 'JJsNBA')
         self.run_timestamp = None
 
     @abstractmethod
@@ -55,10 +56,10 @@ class Pipeline(ABC, Generic[T]):
 
     def run(self) -> dict:
         self.run_timestamp = datetime.now()
-        self.logger.info(f'Starting {self.pipeline_name}')
+        self.logger.info('Spinning up...')
 
         #Extract
-        self.logger.info(f'Extracting...')
+        self.logger.info(f'Extracting {self.pipeline_tag} via {self.source.tag}')
         data_extract = self.extract()
 
         #Transform

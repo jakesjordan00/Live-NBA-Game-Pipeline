@@ -8,16 +8,17 @@ import datetime
 
 class SQLConnector:
 
-    def __init__(self, pipeline, database_name: str):
+    def __init__(self, pipeline_name, database_name: str):
         if database_name not in DATABASES:
             raise ValueError(f'Unknown db!')
-        self.pipeline = pipeline
+        self.pipeline_name = pipeline_name
         self.database_name = database_name
         self.config = DATABASES[database_name]
         self.tables = self.config['Tables']
         self.engine = self._create_engine()
         self.pyodbc_connection = pyodbc.connect(self._get_pyodbc_connection())
-        self.logger = logging.getLogger(f'{pipeline.pipeline_name}.load')
+        self.logger = logging.getLogger(f'{pipeline_name}.load')
+        self.tag = 'sql'
         
 
 

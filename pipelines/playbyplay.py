@@ -9,7 +9,7 @@ from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
     def __init__(self, pipeline_name: str, boxscore_data: dict, db_actions: int, db_last_action_number: int, home_stats: dict | None, away_stats: dict | None, environment: str):  
-        super().__init__(pipeline_name)
+        super().__init__(pipeline_name, 'PlayByPlay')
         self.GameID = boxscore_data['GameID']
         self.GameIDStr = f'00{boxscore_data['GameID']}'
         self.url = f'https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_{self.GameIDStr}.json'

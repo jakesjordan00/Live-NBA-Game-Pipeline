@@ -7,6 +7,7 @@ class StaticDataConnector:
     def __init__(self, pipeline):
         self.pipeline = pipeline
         self.logger = logging.getLogger(f'{pipeline.pipeline_name}.extract')
+        self.tag = "NBA's static data feed"
         pass
     
     def fetch(self) -> dict:

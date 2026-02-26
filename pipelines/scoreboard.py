@@ -8,9 +8,10 @@ from transforms.transform_data import Transform
 class ScoreboardPipeline(Pipeline[list]):
 
     def __init__(self, environment: str):
-        super().__init__('scoreboard')
+        super().__init__('scoreboard', 'todaysScoreboard')
 
         self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
+        self.tag = 'todaysScoreboard'
         self.source = StaticDataConnector(self)
         self.file_source = 'tests/scoreboard'
         self.transformer = Transform(self)
