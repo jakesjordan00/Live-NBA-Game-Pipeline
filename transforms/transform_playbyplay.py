@@ -14,10 +14,11 @@ class Transform:
 
     def playbyplay(self, playbyplay_data):
         playbyplay_data, sub_groups = transform_stints.determine_substitutions(playbyplay_data, self.pipeline.boxscore_data)
-        start_action = self.pipeline.start_action
-        transformed_playbyplay = TransformPlayByPlay(playbyplay_data, self.pipeline.boxscore_data, start_action)
+        db_actions = self.pipeline.db_actions
+        db_last_action_number = self.pipeline.db_last_action_number
+        transformed_playbyplay = TransformPlayByPlay(playbyplay_data, self.pipeline.boxscore_data, db_actions, db_last_action_number)
         
-        stint_processor = StintProcessor(playbyplay_data, self.pipeline.boxscore_data, sub_groups, self.pipeline.home_stats, self.pipeline.away_stats, start_action)
+        stint_processor = StintProcessor(playbyplay_data, self.pipeline.boxscore_data, sub_groups, self.pipeline.home_stats, self.pipeline.away_stats, self.pipeline.db_actions, self.pipeline.db_last_action_number)
         stints = stint_processor.process()
         data_transformed = {
             'PlayByPlay': transformed_playbyplay,
@@ -30,15 +31,24 @@ class Transform:
 
     
 
-def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, start_action: int):
+def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, db_actions: int, db_last_action_number: int):
     transformed_playbyplay = []
     gameTime = 48 if boxscore_data['sql_tables']['GameExt']['Periods'] <= 4 else (5 * (boxscore_data['sql_tables']['GameExt']['Periods'] - 4))
 
+    matched_last_action = next(({'index': i, 'action': action} for i, action in enumerate(playbyplay_data) if action['actionNumber'] == db_last_action_number), {})
+    matched_last_index = matched_last_action['index'] if matched_last_action.get('index') else 0
 
-    for i, action in enumerate(playbyplay_data[start_action:]):
+    if matched_last_index > 0:
+        start_index = matched_last_index + 1
+    else:
+        start_index = 0
+    
+    test2 = playbyplay_data[db_actions:]
+    bp = 'here'
+    for i, action in enumerate(playbyplay_data[start_index:]):
         SeasonID = boxscore_data['SeasonID']
         GameID = boxscore_data['GameID']
-        ActionID = int(i + 1) if start_action == 0 else int(i + 1 + start_action)
+        ActionID = int(i + 1) if db_actions == 0 else int(i + start_index+ 1 )
         ActionNumber = action['actionNumber']
         Qtr = action['period']
         Clock = action['clock'].replace('PT', '').replace('M', ':').replace('S', '')

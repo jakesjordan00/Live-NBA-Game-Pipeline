@@ -48,8 +48,7 @@ class BoxscorePipeline(Pipeline[dict]):
 
         Example
         ------------
-        >>> #
-        {
+        >>> data_transformed = {
             'SeasonID': 2025,
             'GameID': 2025,
             'sql_tables': {
@@ -73,7 +72,35 @@ class BoxscorePipeline(Pipeline[dict]):
 
 
 
-    def load(self, data_transformed):
+    def load(self, data_transformed: dict):
+        '''Summary
+    -------------
+    Calls *initiate_insert()* which executes the SQL upsert process, but just returns transformed data.
+
+    :param dict data_transformed: Transformed Boxscore data ready to be inserted to SQL db.
+    :return data_transformed: _description_
+    :rtype: _type_
+
+    Example
+    ------------
+    >>> data_transformed = {
+        'SeasonID': 2025,
+        'GameID': 2025,
+        'sql_tables': {
+            'Team':[{}],
+            'Arena': {},
+            'Official': [{}],
+            'Player': [{}],
+            'Game': {},
+            'GameExt': {},
+            'TeamBox': [{}],
+            'PlayerBox': [{}],
+            'StartingLineups': [{}]
+            },
+        'start_action_keys': {},
+        'lineup_keys': {}
+    }
+    '''
         data_loaded = self.destination.initiate_insert(data_transformed['sql_tables'])
 
         return data_transformed

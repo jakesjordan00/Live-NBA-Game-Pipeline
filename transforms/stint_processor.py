@@ -19,11 +19,12 @@ class StintResult:
 
 #region StintProcessor
 class StintProcessor:
-    def __init__(self, playbyplay_data: list, boxscore_data: dict, sub_groups: list, home_stats: dict | None, away_stats: dict | None, start_action: int = 0, current_sub_group_index: int = 0):
+    def __init__(self, playbyplay_data: list, boxscore_data: dict, sub_groups: list, home_stats: dict | None, away_stats: dict | None, db_actions: int = 0, db_last_action_number: int = 0, current_sub_group_index: int = 0):
         self.playbyplay_data = playbyplay_data
         self.boxscore_data = boxscore_data
         self.sub_groups = sub_groups
-        self.start_action = start_action
+        self.db_actions = db_actions
+        self.db_last_action_number = db_last_action_number
         self.last_action = playbyplay_data[-1]
         self.current_sub_group_index = current_sub_group_index
         
@@ -53,19 +54,25 @@ class StintProcessor:
         else:
             self.current_sub_group = self.sub_groups[self.current_sub_group_index]
             
-        if self.start_action == 0 or len(self.sub_groups) == 1 or self.start_action == len(self.playbyplay_data):
+        if self.db_actions == 0 or len(self.sub_groups) == 1 or self.db_actions == len(self.playbyplay_data):
             log_str = f'Starting at first action...Getting starting lineups and creating dictionaries...'
-            if self.start_action == len(self.playbyplay_data):
+            if self.db_actions == len(self.playbyplay_data):
                 log_str = f"PlayByPlay already inserted, row count in db matches extracted data's row count...{log_str}"
             self.logger.info(log_str)
             self.home, self.away = self._get_starting_lineups()
             self.home_stats, self.away_stats = self._create_initial_stats_dict(self.home, self.away, 1, 1)
-            self.start_action = 0
+            self.db_actions = 0
+            matched_last_index = 0
         else:
             self.home = list(self.home_stats['Lineup'].keys())
             self.away = list(self.away_stats['Lineup'].keys())
-            current_action = self.playbyplay_data[self.start_action]
-            action_before = self.playbyplay_data[self.start_action-1]
+            matched_last_action = next({'index': i, 'action': action} for i, action in enumerate(self.playbyplay_data) if action['actionNumber'] == self.db_last_action_number)
+            matched_last_index = matched_last_action['index'] if matched_last_action.get('index') else 0
+
+            current_action = self.playbyplay_data[matched_last_index + 1]
+            action_before = self.playbyplay_data[matched_last_index + 1]
+            # current_action = self.playbyplay_data[self.db_actions]
+            # action_before = self.playbyplay_data[self.db_actions-1]
             for i, sub_group in enumerate(self.sub_groups):
                 if sub_group['NextActionNumber'] >= current_action['actionNumber']:
                     self.current_sub_group = sub_group
@@ -76,7 +83,11 @@ class StintProcessor:
         
         self.home_copy = self.home.copy()
         self.away_copy = self.away.copy()
-        self.condensed_playbyplay_data = self.playbyplay_data[self.start_action:]
+        if matched_last_index > 0:
+            start_index = matched_last_index + 1
+        else:
+            start_index = 0
+        self.condensed_playbyplay_data = self.playbyplay_data[start_index:]
         for i, action in enumerate(self.condensed_playbyplay_data):
             action_number = action['actionNumber']
             action_type = action['actionType'] 
@@ -92,8 +103,9 @@ class StintProcessor:
             is_home = TeamID == self.HomeID
             self.team_stats = self.home_stats if is_home else self.away_stats
             self.op_stats = self.away_stats if is_home else self.home_stats
+            action_before = self.playbyplay_data[matched_last_index]
 
-            last_possession = self.playbyplay_data[self.start_action+i-1]['possession'] if i > 0 else 0
+            last_possession = self.playbyplay_data[matched_last_index+i-1]['possession'] if i > 0 else 0
 
             if action_type == 'substitution':
                 if action_number != self.last_action['actionNumber']:
@@ -378,7 +390,7 @@ class StintProcessor:
 
             * **start_sub_group** (*dict*): We should get the sub group prior to the one we're on and start from their NextActionNumber value
         '''
-        current_action = self.playbyplay_data[self.start_action]
+        current_action = self.playbyplay_data[self.db_actions]
         current_sub_group_index = [i for i, sub in enumerate(self.sub_groups) if sub['PointInGame'] <= current_action['PointInGame']][::-1][0]
         current_sub_group = self.sub_groups[self.current_sub_group_index]
         start_sub_group = self.sub_groups[self.current_sub_group_index - 1]

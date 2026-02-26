@@ -18,9 +18,12 @@ for scoreboard in scoreboard_data:
     completed_boxscore_pipeline = boxscore_pipeline.run()
     boxscore_data = completed_boxscore_pipeline['loaded']
     
-    start_action = boxscore_pipeline.destination.cursor_query('PlayByPlay', boxscore_data['start_action_keys'])['actions']
-    home_stats, away_stats = (None, None) if start_action == 0 else boxscore_pipeline.destination.stint_cursor(boxscore_data['lineup_keys'])
-    playbyplay_pipeline = PlayByPlayPipeline(boxscore_data, start_action, home_stats, away_stats, 'Production')
+    start_action_info = boxscore_pipeline.destination.cursor_query('PlayByPlay', boxscore_data['start_action_keys'])
+    db_actions = start_action_info['actions']
+    db_last_action_number = start_action_info['last_action_number']
+
+    home_stats, away_stats = (None, None) if db_actions == 0 else boxscore_pipeline.destination.stint_cursor(boxscore_data['lineup_keys'])
+    playbyplay_pipeline = PlayByPlayPipeline(boxscore_data, db_actions, db_last_action_number, home_stats, away_stats, 'Production')
     completed_playbyplay_pipeline = playbyplay_pipeline.run()
     playbyplay_data = completed_playbyplay_pipeline['loaded']
     bp = 'here'

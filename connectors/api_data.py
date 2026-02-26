@@ -9,7 +9,7 @@ class APIDataConnector:
     def __init__(self, pipeline):
         self.pipeline = pipeline
         pass
-
+#test
 
     def fetch(self):
         response = requests.get(url=self.pipeline.api_map['url'], params=self.pipeline.api_map['params'], headers=self.pipeline.api_map['headers'])

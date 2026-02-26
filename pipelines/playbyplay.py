@@ -8,7 +8,7 @@ from connectors.api_data import APIDataConnector
 from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
-    def __init__(self, boxscore_data, start_action: int, home_stats: dict | None, away_stats: dict | None, environment: str):
+    def __init__(self, boxscore_data, db_actions: int, db_last_action_number: int, home_stats: dict | None, away_stats: dict | None, environment: str):
         super().__init__('PlayByPlay')
         self.GameID = boxscore_data['GameID']
         self.GameIDStr = f'00{boxscore_data['GameID']}'
@@ -19,12 +19,13 @@ class PlayByPlayPipeline(Pipeline[dict]):
 
         
         self.transformer = Transform(self)
-        self.start_action = start_action
+        self.db_actions = db_actions
+        self.db_last_action_number = db_last_action_number
         self.home_stats = home_stats
         self.away_stats = away_stats
         self.boxscore_data = boxscore_data
         
-
+ 
     def extract(self):
         static_data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
         if static_data_extract:
