@@ -5,11 +5,13 @@ from transforms.stint_processor import StintProcessor
 import pandas as pd
 import polars as pl
 from datetime import datetime
+import logging
 
 class Transform:
 
     def __init__(self, pipeline):
         self.pipeline = pipeline
+        self.logger = logging.getLogger(f'{pipeline.pipeline_name}.transform')
         pass
 
     def playbyplay(self, playbyplay_data):
@@ -31,7 +33,21 @@ class Transform:
 
     
 
-def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, db_actions: int, db_last_action_number: int):
+def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, db_actions: int, db_last_action_number: int) -> list:
+    '''TransformPlayByPlay
+==
+Transforms extracted PlayByPlay data and transformed Boxscore data into a list of pbp action dicts for SQL<br>
+
+
+:param dict playbyplay_data: Extracted PlayByPlay data
+:param dict boxscore_data: Transformed Boxscore data for Game
+:param int db_actions: Count of total actions or rows a game has in the PlayByPlay table in the db    
+:param int db_last_action_number: The max ActionNumber from the PlayByPlay table in the db for a game
+        * We'll use this to determine what index we start at: Index matching the actionNumber of db_last_action_number
+
+:return transformed_playbyplay: List of Transformed PlayByPlay actions to be inserted to SQL
+:rtype: list
+    '''
     transformed_playbyplay = []
     gameTime = 48 if boxscore_data['sql_tables']['GameExt']['Periods'] <= 4 else (5 * (boxscore_data['sql_tables']['GameExt']['Periods'] - 4))
 
@@ -152,7 +168,6 @@ def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, db_actions: 
         # test = transform_stints.Stint(action, transformed_action, transformed_playbyplay, HomeID, AwayID, home, away)
 
         transformed_playbyplay.append(transformed_action)
-        bp = 'here'
     return transformed_playbyplay
 
 

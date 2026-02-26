@@ -1,11 +1,14 @@
 import pandas as pd
 import polars as pl
+from datetime import datetime
+import logging
 
 
 
 class Transform:
     def __init__(self, pipeline):
         self.pipeline = pipeline
+        self.logger = logging.getLogger(f'{pipeline.pipeline_name}.transform')
         pass
 
 
@@ -45,5 +48,6 @@ class Transform:
                 'AwayTeam': g['awayTeam'],
                 }             
             for g in data if g['gameStatus'] != 1]
+        
         return scoreboard
 

@@ -8,8 +8,8 @@ from transforms.transform_boxscore import Transform
 
 class BoxscorePipeline(Pipeline[dict]):
 
-    def __init__(self, scoreboard_data: dict, environment: str):
-        super().__init__('Boxscore')
+    def __init__(self, pipeline_name: str, scoreboard_data: dict, environment: str):
+        super().__init__(pipeline_name)
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']
         self.Data = scoreboard_data

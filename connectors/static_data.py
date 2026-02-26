@@ -6,6 +6,7 @@ import json
 class StaticDataConnector:
     def __init__(self, pipeline):
         self.pipeline = pipeline
+        self.logger = logging.getLogger(f'{pipeline.pipeline_name}.extract')
         pass
     
     def fetch(self) -> dict:
@@ -27,7 +28,7 @@ class StaticDataConnector:
             data = response.json()
         except Exception as e:
             data = {}
-            logging.error(f'No data available. Error msg: {e}')
+            self.logging.error(f'No data available. Error msg: {e}')
         return data
     
     def fetch_file(self):

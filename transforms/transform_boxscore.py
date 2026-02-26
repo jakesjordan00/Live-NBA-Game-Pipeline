@@ -1,12 +1,15 @@
 import config.data_map
 from typing import Any
 from datetime import datetime
+import logging
 
 class Transform:
 
 
     def __init__(self, pipeline):
         self.pipeline = pipeline
+        self.logger = logging.getLogger(f'{pipeline.pipeline_name}.transform')
+
         pass
     
     def box(self, data_extract):
@@ -21,8 +24,8 @@ class Transform:
     
 
 def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
-    '''Summary
--------------
+    '''TransformBox
+==
 Transforms extracted Boxscore and Scoreboard data into 9 dicts formatted for SQL.<br>
 Also creates start_action_keys and lineup_keys, neccessary for PlayByPlay
 
@@ -107,8 +110,8 @@ Function Calls
 
 #region Game
 def FormatGame(box_data: dict, scoreboard_data: dict, officials: list, ArenaID: int) -> tuple[dict[str, Any], dict[str, Any]]:
-    '''Summary
--------------
+    '''FormatGame
+==
 Transforms Box data to data formatted for Game and GameExt SQL tables 
 
 :param dict box_data: Extracted Boxscore data
@@ -196,8 +199,8 @@ Transforms Box data to data formatted for Game and GameExt SQL tables
 
 #region Team data
 def PrepareTeam(teamBox: dict, teamScoreboard: dict, TeamID: int, MatchupID: int, selector: str, box_data: dict) -> dict:
-    '''Summary
--------------
+    '''PrepareTeam
+========
 Called for each team participating in a game.
 
 Formats Team table for SQL. Retrieves formatted TeamBox, Player and PlayerBox tables from calls
@@ -275,8 +278,8 @@ Function Calls
 
 
 def FormatTeamBox(team_data: dict, team_scoreboard_data: dict, game_data_payload: dict) -> dict:
-    '''Summary
--------------
+    '''FormatTeamBox
+========
 Formats TeamBox dictionary for each team. Called from *PrepareTeam()*.
     
     :param dict team_data: teamBox from *PrepareTeam()*. Statistics dict for team
@@ -371,8 +374,8 @@ Formats TeamBox dictionary for each team. Called from *PrepareTeam()*.
 
 #region Player data
 def PreparePlayer(players: list, team_data: dict, game_data_payload: dict) -> list:
-    '''Summary
--------------
+    '''PreparePlayer
+========
 Called once for each Team.<br> For each Player, calls are made to *FormatPlayer()*, *FormatPlayerBox()* and *FormatStartingLineups()* <br>
 Called from *PrepareTeam()*
     
@@ -418,8 +421,8 @@ Function Calls
 
 
 def FormatPlayer(player: dict, SeasonID: int) -> dict:
-    '''Summary
--------------
+    '''FormatPlayer
+========
 Formats Player dictionary for a each player on a team. <br>Called from *PreparePlayer()*.
     
     :param dict player: player dict from *PreparePlayer()*. Statistics and info dict for player

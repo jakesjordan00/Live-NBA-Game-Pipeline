@@ -40,6 +40,19 @@ class StintProcessor:
 
 
     def process(self):
+        '''process
+    ===
+    Drives StintProcessor
+    
+    Steps
+    
+
+
+
+    
+    :return transformed_playbyplay: List of Transformed PlayByPlay actions to be inserted to SQL
+    :rtype: list
+        '''
         self.logger.info(f'Processing Stints for {self.GameID}')
 
         self.team_stints = []

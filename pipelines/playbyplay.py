@@ -8,8 +8,8 @@ from connectors.api_data import APIDataConnector
 from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
-    def __init__(self, boxscore_data, db_actions: int, db_last_action_number: int, home_stats: dict | None, away_stats: dict | None, environment: str):
-        super().__init__('PlayByPlay')
+    def __init__(self, pipeline_name: str, boxscore_data: dict, db_actions: int, db_last_action_number: int, home_stats: dict | None, away_stats: dict | None, environment: str):  
+        super().__init__(pipeline_name)
         self.GameID = boxscore_data['GameID']
         self.GameIDStr = f'00{boxscore_data['GameID']}'
         self.url = f'https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_{self.GameIDStr}.json'
@@ -27,6 +27,16 @@ class PlayByPlayPipeline(Pipeline[dict]):
         
  
     def extract(self):
+        '''Summary
+        -------------
+        Fetches data from NBA's static data feeds
+                
+        :return data (dict): Dict containing 'meta' and **'game'** dicts
+
+        Example
+        ------------
+        >>> {"meta": {}, "game":{}}
+        '''
         static_data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
         if static_data_extract:
             self.logger.info(f'Extracted {self.GameID} Playbyplay data, {len(static_data_extract['game']['actions'])} actions')
@@ -40,7 +50,7 @@ class PlayByPlayPipeline(Pipeline[dict]):
 
     def transform(self, data_extract):
         data_transformed = self.transformer.playbyplay(data_extract)
-        self.logger.info(f'Transformed {len(data_transformed['PlayByPlay'])} actions')
+        self.logger.info(f'Transformed {len(data_transformed['PlayByPlay'])} actions, skipped {len(data_extract['game']['actions']) - len(data_transformed['PlayByPlay'])} actions')
         return data_transformed
 
 

@@ -29,6 +29,11 @@ class ScoreboardPipeline(Pipeline[list]):
         >>> {"meta": {},"scoreboard": {}}
         '''
         data_extract = self.source.fetch() if self.environment == 'Production' else self.source.fetch_file()
+        try:
+            scoreboard = data_extract['scoreboard']
+            self.logger.info(f'Extracted Scoreboard for {scoreboard['gameDate']} - {len(scoreboard['games'])} games')
+        except Exception as e:
+            self.logger.error(f'Scoreboard not found!')
         return data_extract
 
 
