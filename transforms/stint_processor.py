@@ -6,16 +6,34 @@ import pandas as pd
 
 @dataclass
 class StintError:
-    action_number: int
+    action: dict
+    type: str
     error_msg: str
+    type_detail: str | None
+    team_id: int | None
+    player_id: int | None
+    home_stats: dict
+    away_stats: dict
     last10: list
+
+    def __init__(self, action: dict, stint_processor, error_msg: str, type: str):
+        bp = 'here'
+        self.action = action
+        self.action_number = action['actionNumber']
+        self.type = type
+        self.error_msg = error_msg
+        self.team_id = action.get('teamId')
+        self.player_id = action.get('personId')
+        self.last10 = stint_processor.playbyplay_data[action['Index']-10:action['Index']]
+        self.home_stats = stint_processor.home_stats
+        self.away_stats = stint_processor.away_stats
 
 @dataclass
 class StintResult:
     Stint: list
     StintPlayer: list
     team_player_stints: list
-    error: StintError | None = None
+    errors: list[StintError] | None = None
 
 #region StintProcessor
 class StintProcessor:
@@ -37,6 +55,7 @@ class StintProcessor:
         self.away_stats = away_stats if away_stats else {}
 
         self.logger = logging.getLogger(f'StintProcessor.{self.GameID}')
+        self.stint_errors = []
 
 
     def process(self):
@@ -84,8 +103,6 @@ class StintProcessor:
 
             current_action = self.playbyplay_data[matched_last_index]
             action_before = self.playbyplay_data[matched_last_index-1]
-            # current_action = self.playbyplay_data[self.db_actions]
-            # action_before = self.playbyplay_data[self.db_actions-1]
             for i, sub_group in enumerate(self.sub_groups):
                 if sub_group['NextActionNumber'] >= current_action['actionNumber']:
                     self.current_sub_group = sub_group
@@ -100,6 +117,7 @@ class StintProcessor:
             start_index = matched_last_index + 1
         else:
             start_index = 0
+
         self.condensed_playbyplay_data = self.playbyplay_data[start_index:]
         for i, action in enumerate(self.condensed_playbyplay_data):
             action_number = action['actionNumber']
@@ -110,12 +128,14 @@ class StintProcessor:
                     bp = 'here'
                 self._switch_stint(action, action_prior)
 
+
             TeamID = action.get('teamId')
             if TeamID == None:
                 continue
             is_home = TeamID == self.HomeID
             self.team_stats = self.home_stats if is_home else self.away_stats
             self.op_stats = self.away_stats if is_home else self.home_stats
+
             action_before = self.playbyplay_data[matched_last_index]
 
             last_possession = self.playbyplay_data[matched_last_index+i-1]['possession'] if i > 0 else 0
@@ -125,14 +145,14 @@ class StintProcessor:
                     self._initiate_substitution(action)
             elif action_type != 'substitution':
                 self._increment_stats(action, last_possession)
-            bp = 'here'
+
 
 
         processed_stints = StintResult(
             Stint = self.team_stints, 
             StintPlayer = self.player_stints, 
             team_player_stints=self.tp_stints,
-            error = getattr(self, 'stint_error', None))
+            errors = getattr(self, 'stint_errors', None))
         bp = 'here'
         self.logger.info(f'Transformed {len(self.team_stints)} Team Stints and {len(self.player_stints)} Player Stints')
         return processed_stints
@@ -229,16 +249,25 @@ class StintProcessor:
 
 
     #region Action Parsing
-    def _initiate_substitution(self, action: dict):
-        try:
-            if(action['actionNumber'] > action['CorrespondingSubActionNumber']):
-                other_PlayerID = next((act['personId'] for act in self.playbyplay_data if act['actionNumber'] == action['CorrespondingSubActionNumber']), None)
-                if action['teamId'] == self.HomeID:
-                    home_copy = SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.home_copy)
-                if action['teamId'] == self.AwayID:
-                    away_copy = SubstitutePlayers(action['subType'], action['personId'], other_PlayerID, self.away_copy)
-        except TypeError as e:
-            self.logger.error('Subbing was not complete when data was pulled, no corresponding Player to sub in.')
+    def _initiate_substitution(self, action: dict):        
+        if(action['actionNumber'] > action['CorrespondingSubActionNumber']):
+            
+            other_PlayerID = next((act['personId'] for act in self.playbyplay_data if act['actionNumber'] == action['CorrespondingSubActionNumber']), None)
+            
+            if action['teamId'] == self.HomeID:
+                try:
+                    home_copy = SubstitutePlayers(action, other_PlayerID, self.home_copy)
+                except Exception as e:
+                    self.stint_errors.append(StintError(action, self, f'{e}', 'home-sub'))
+                    self.logger.error('Error during home team substitution!')
+            if action['teamId'] == self.AwayID:
+                try:
+                    away_copy = SubstitutePlayers(action, other_PlayerID, self.away_copy)
+                except Exception as e:
+                    self.stint_errors.append(StintError(action, self, f'{e}', 'away-sub'))
+                    self.logger.error('Error during away team substitution!')
+        # except TypeError as e:
+        #     self.logger.error('Subbing was not complete when data was pulled, no corresponding Player to sub in.')
         bp = 'here'
 
 
@@ -257,27 +286,27 @@ class StintProcessor:
                 #Assist
                 if action.get('assistPersonId'):
                     PlayerIDAst = action['assistPersonId']
-                    self._parse_assist(PlayerIDAst)
+                    self._parse_assist(action=action, PlayerIDAst=PlayerIDAst)
 
             #Rebound
             elif action_type == 'rebound':
-                self._parse_rebound(action)
+                self._parse_rebound(action=action)
 
             #Block
             elif action_type == 'block':
-                self._parse_block(player_id)
+                self._parse_block(action=action, PlayerID=player_id)
 
             #Steal
             elif action_type == 'steal':
-                self._parse_steal(player_id)
+                self._parse_steal(action=action, PlayerID=player_id)
 
             #Turnover
             elif action_type == 'turnover':
-                self._parse_turnover(player_id)
+                self._parse_turnover(action=action, PlayerID=player_id)
 
             #Foul
             elif action_type == 'foul':
-                self._parse_foul(action)
+                self._parse_foul(action=action)
 
 
             
@@ -334,13 +363,16 @@ class StintProcessor:
             self.team_stats['Lineup'][PlayerID]['FGM'] = self.team_stats['Lineup'][PlayerID]['FG2M'] + self.team_stats['Lineup'][PlayerID]['FG3M']
             self.team_stats['Lineup'][PlayerID]['FGA'] = self.team_stats['Lineup'][PlayerID]['FG2A'] + self.team_stats['Lineup'][PlayerID]['FG3A']
         except KeyError as e:
-            self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='field-goal'))
             self.logger.error(f'KeyError on Field Goal!')
             return
 
-    def _parse_assist(self, PlayerIDAst):
-        self.team_stats['Lineup'][PlayerIDAst]['AST'] += 1
-
+    def _parse_assist(self, action: dict, PlayerIDAst):
+        try:
+            self.team_stats['Lineup'][PlayerIDAst]['AST'] += 1
+        except KeyError as e:
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='assist'))
+            self.logger.error(f'KeyError on Assist!')
 
     def _parse_rebound(self, action:dict):
         try:
@@ -352,27 +384,41 @@ class StintProcessor:
                 self.team_stats['Lineup'][PlayerID]['REB'] += 1
                 self.team_stats['Lineup'][PlayerID][reb_type] += 1
         except KeyError as e:
-            self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='rebound'))
             self.logger.error(f'KeyError on Rebound!')
             return
 
-    def _parse_block(self, PlayerID: int):
-        self.team_stats['BLK'] += 1
-        self.team_stats['Lineup'][PlayerID]['BLK'] += 1
-        self.op_stats['BLKd'] += 1
 
-    def _parse_steal(self, PlayerID: int):
-        self.team_stats['STL'] += 1
-        self.team_stats['Lineup'][PlayerID]['STL'] += 1
-
-
-    def _parse_turnover(self, PlayerID: int):
-        self.team_stats['TOV'] += 1
-        if PlayerID != 0:
-            self.team_stats['Lineup'][PlayerID]['TOV'] += 1
+    def _parse_block(self, action: dict, PlayerID: int):
+        try:
+            self.team_stats['BLK'] += 1
+            self.team_stats['Lineup'][PlayerID]['BLK'] += 1
+            self.op_stats['BLKd'] += 1
+        except KeyError as e:
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='block'))
+            self.logger.error('KeyError on Block!')
 
 
-    def _parse_foul(self, action:dict):
+    def _parse_steal(self, action: dict, PlayerID: int):
+        try:
+            self.team_stats['STL'] += 1
+            self.team_stats['Lineup'][PlayerID]['STL'] += 1
+        except KeyError as e:
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='steal'))
+            self.logger.error('KeyError on Steal!')
+
+
+    def _parse_turnover(self, action: dict, PlayerID: int):
+        try:
+            self.team_stats['TOV'] += 1
+            if PlayerID != 0:
+                self.team_stats['Lineup'][PlayerID]['TOV'] += 1
+        except KeyError as e:
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='turnover'))
+            self.logger.error('KeyError on Turnover!')
+
+
+    def _parse_foul(self, action: dict):
         self.team_stats['F'] += 1
 
         PlayerID = action['personId']
@@ -382,7 +428,7 @@ class StintProcessor:
                     self.team_stats['Lineup'][PlayerID]['F'] += 1
                 except KeyError as e:
                     log_str = ' Probably due to a technical incurred by a Coach/Player not on court' if action['subType'] == 'technical' else ''
-                    self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+                    self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='foul'))
                     self.logger.error(f'KeyError on foul!{log_str}')
             PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
             if PlayerIDFoulDrawn:
@@ -390,7 +436,7 @@ class StintProcessor:
                 self.op_stats['Lineup'][PlayerIDFoulDrawn]['FDrwn'] += 1
         
         except KeyError as e:
-            self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='foul-drawn'))
             self.logger.error(f'KeyError on foul drawn!')
 
 
@@ -596,7 +642,9 @@ class StintProcessor:
 #endregion StintProcessor
 
 
-def SubstitutePlayers(SubType: str, PlayerID: int, otherPlayerID: int | None, lineup: list):
+def SubstitutePlayers(action: dict, otherPlayerID: int | None, lineup: list):
+    SubType = action['subType']
+    PlayerID = action['personId']
     if otherPlayerID == None:
         bp = 'here'
     if SubType == 'in':

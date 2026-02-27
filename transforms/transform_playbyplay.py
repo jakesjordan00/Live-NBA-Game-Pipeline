@@ -9,7 +9,6 @@ from datetime import datetime
 import logging
 import types
 from typing import TYPE_CHECKING
-
 if TYPE_CHECKING:
     from pipelines.playbyplay import PlayByPlayPipeline
 
@@ -46,7 +45,7 @@ class Transform:
         stints = stint_processor.process()
         data_transformed = {
             'PlayByPlay': transformed_playbyplay,
-            'Stints': stints
+            'Stints': stints,
         }
         return data_transformed
 

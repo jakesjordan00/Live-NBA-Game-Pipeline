@@ -2,7 +2,7 @@ import json
 import os
 import pyperclip
 from connectors.sql import SQLConnector
-connector = SQLConnector('JJsNBA')
+connector = SQLConnector('generate_unit_test_data', 'JJsNBA')
 
 print("cwd:", os.getcwd())
 print("'tests' exists:", os.path.exists('tests'))
