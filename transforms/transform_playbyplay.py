@@ -1,4 +1,5 @@
 
+from __future__ import annotations
 from multiprocessing import process
 from transforms import transform_stints
 from transforms.stint_processor import StintProcessor
@@ -6,18 +7,36 @@ import pandas as pd
 import polars as pl
 from datetime import datetime
 import logging
+import types
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pipelines.playbyplay import PlayByPlayPipeline
+
 
 class Transform:
 
-    def __init__(self, pipeline):
+    def __init__(self, pipeline: PlayByPlayPipeline):
         self.pipeline = pipeline
         self.logger = logging.getLogger(f'{pipeline.pipeline_name}.transform')
         pass
 
     def playbyplay(self, playbyplay_data):
-        playbyplay_data, sub_groups = transform_stints.determine_substitutions(playbyplay_data, self.pipeline.boxscore_data)
+        playbyplay_data = playbyplay_data['game']['actions']
         db_actions = self.pipeline.db_actions
         db_last_action_number = self.pipeline.db_last_action_number
+        matched_last_action = next({'index': i, 'action': action} for i, action in enumerate(playbyplay_data) if action['actionNumber'] == db_last_action_number)
+        matched_last_index = matched_last_action['index'] if matched_last_action.get('index') else 0
+        
+        if matched_last_index != db_actions - 1:
+            #delete data real quick
+            self.logger.warning(f"Index of the action matching db's last action number does not match! Deleting PlayByPlay data...")
+            self.pipeline.destination.delete_playbyplay_game(f'SeasonID = {self.pipeline.boxscore_data['SeasonID']} and GameID = {self.pipeline.GameID}')
+            self.pipeline.db_actions = 0
+            self.pipeline.db_last_action_number = 0
+            bp = 'here'
+
+        playbyplay_data, sub_groups = transform_stints.determine_substitutions(playbyplay_data, self.pipeline.boxscore_data)
         transformed_playbyplay = TransformPlayByPlay(playbyplay_data, self.pipeline.boxscore_data, db_actions, db_last_action_number)
         
         stint_processor = StintProcessor(playbyplay_data, self.pipeline.boxscore_data, sub_groups, self.pipeline.home_stats, self.pipeline.away_stats, self.pipeline.db_actions, self.pipeline.db_last_action_number)
@@ -33,13 +52,13 @@ class Transform:
 
     
 
-def TransformPlayByPlay(playbyplay_data: dict, boxscore_data: dict, db_actions: int, db_last_action_number: int) -> list:
+def TransformPlayByPlay(playbyplay_data: list, boxscore_data: dict, db_actions: int, db_last_action_number: int) -> list:
     '''TransformPlayByPlay
 ==
 Transforms extracted PlayByPlay data and transformed Boxscore data into a list of pbp action dicts for SQL<br>
 
 
-:param dict playbyplay_data: Extracted PlayByPlay data
+:param list playbyplay_data: Extracted PlayByPlay data
 :param dict boxscore_data: Transformed Boxscore data for Game
 :param int db_actions: Count of total actions or rows a game has in the PlayByPlay table in the db    
 :param int db_last_action_number: The max ActionNumber from the PlayByPlay table in the db for a game

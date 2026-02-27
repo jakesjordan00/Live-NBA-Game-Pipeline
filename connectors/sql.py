@@ -249,3 +249,11 @@ end
             queries.append(query)
 
         a= 1
+
+
+    def delete_playbyplay_game(self, where: str):
+        cursor = self.pyodbc_connection.cursor()
+        query = f'delete from PlayByPlay where {where}'
+        rows = cursor.execute(query)
+        cursor.commit()
+        bp = 'here'

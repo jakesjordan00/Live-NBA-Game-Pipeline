@@ -82,8 +82,8 @@ class StintProcessor:
             matched_last_action = next({'index': i, 'action': action} for i, action in enumerate(self.playbyplay_data) if action['actionNumber'] == self.db_last_action_number)
             matched_last_index = matched_last_action['index'] if matched_last_action.get('index') else 0
 
-            current_action = self.playbyplay_data[matched_last_index + 1]
-            action_before = self.playbyplay_data[matched_last_index + 1]
+            current_action = self.playbyplay_data[matched_last_index]
+            action_before = self.playbyplay_data[matched_last_index-1]
             # current_action = self.playbyplay_data[self.db_actions]
             # action_before = self.playbyplay_data[self.db_actions-1]
             for i, sub_group in enumerate(self.sub_groups):
@@ -128,7 +128,11 @@ class StintProcessor:
             bp = 'here'
 
 
-        processed_stints = StintResult(Stint = self.team_stints, StintPlayer = self.player_stints, team_player_stints=self.tp_stints)
+        processed_stints = StintResult(
+            Stint = self.team_stints, 
+            StintPlayer = self.player_stints, 
+            team_player_stints=self.tp_stints,
+            error = getattr(self, 'stint_error', None))
         bp = 'here'
         self.logger.info(f'Transformed {len(self.team_stints)} Team Stints and {len(self.player_stints)} Player Stints')
         return processed_stints
@@ -330,9 +334,9 @@ class StintProcessor:
             self.team_stats['Lineup'][PlayerID]['FGM'] = self.team_stats['Lineup'][PlayerID]['FG2M'] + self.team_stats['Lineup'][PlayerID]['FG3M']
             self.team_stats['Lineup'][PlayerID]['FGA'] = self.team_stats['Lineup'][PlayerID]['FG2A'] + self.team_stats['Lineup'][PlayerID]['FG3A']
         except Exception as e:
-            err = e
-            raise
-
+            self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+            self.logger.error(f'KeyError on Field Goal!')
+            return
 
     def _parse_assist(self, PlayerIDAst):
         self.team_stats['Lineup'][PlayerIDAst]['AST'] += 1
@@ -364,19 +368,24 @@ class StintProcessor:
 
 
     def _parse_foul(self, action:dict):
-        self.team_stats['F'] +=1
+        self.team_stats['F'] += 1
 
         PlayerID = action['personId']
-        if PlayerID != 0:
-            try:
-                self.team_stats['Lineup'][PlayerID]['F'] += 1
-            except KeyError as e:
-                log_str = ' Probably due to a technical incurred by a Coach/Player not on court' if action['subType'] == 'technical' else ''
-                self.logger.warning(f'KeyError on foul!{log_str}')
-        PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
-        if PlayerIDFoulDrawn:
-            self.op_stats['FDrwn'] += 1
-            self.op_stats['Lineup'][PlayerIDFoulDrawn]['FDrwn'] += 1
+        try:
+            if PlayerID != 0:
+                try:
+                    self.team_stats['Lineup'][PlayerID]['F'] += 1
+                except KeyError as e:
+                    log_str = ' Probably due to a technical incurred by a Coach/Player not on court' if action['subType'] == 'technical' else ''
+                    self.logger.warning(f'KeyError on foul!{log_str}')
+            PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
+            if PlayerIDFoulDrawn:
+                self.op_stats['FDrwn'] += 1
+                self.op_stats['Lineup'][PlayerIDFoulDrawn]['FDrwn'] += 1
+        
+        except KeyError as e:
+            test = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+            self.logger.error(f'KeyError on foul drawn!')
 
 
 

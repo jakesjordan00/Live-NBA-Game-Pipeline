@@ -5,13 +5,13 @@ import polars as pl
 
 
 
-def determine_substitutions(data_extract: dict, boxscore_data: dict):
+def determine_substitutions(playbyplay_data: list, boxscore_data: dict):
     '''Summary
 -------------
 Adds substitution information to playbyplay_data and creates sub_groups, which are used by StintProcessor. 
 
-:param dict box_data: Extracted Boxscore data
-:param dict scoreboard_data: Transformed Scoreboard data
+:param dict playbyplay_data: Extracted PlayByPlay data
+:param dict boxscore_data: Transformed Boxscore data
 
 Function Calls
 -------------
@@ -43,8 +43,8 @@ Function Calls
     * **action['SubOutNumber']**: Count of substitutions *out* that have taken place thus far
     * **action['TeamSubInNumber']**: Count of substitutions *in* **by team** that have taken place thus far
     * **action['TeamSubOutNumber']**: Count of substitutions *out* **by team** that have taken place thus far
+    * **action['Index']**: Index of action
     '''
-    playbyplay_data = data_extract['game']['actions']
     sub_in_actions = 0
     sub_out_actions = 0
     home_in = 0
@@ -61,6 +61,7 @@ Function Calls
         action['PointInGame'] = PointInGame
         action['MinElapsed'] = MinElapsed
         action['Clock'] = Clock
+        action['Index'] = i
 
         game_end = 1 if action['actionType'] == 'game' and action['subType'] == 'end' else 0
         #This is where i need to handle if the most recent action is a substitution.

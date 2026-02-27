@@ -7,7 +7,6 @@ class StaticDataConnector:
     def __init__(self, pipeline):
         self.pipeline = pipeline
         self.logger = logging.getLogger(f'{pipeline.pipeline_name}.extract')
-        self.tag = "NBA's static data feed"
         pass
     
     def fetch(self) -> dict:
@@ -29,7 +28,8 @@ class StaticDataConnector:
             data = response.json()
         except Exception as e:
             data = {}
-            self.logging.error(f'No data available. Error msg: {e}')
+            self.logger.error(f'No data available. Error msg: {e}')
+        self.logger.info(f'Extracted {', '.join(key.replace("'", "") for key in list(data.keys()))} dicts')
         return data
     
     def fetch_file(self):

@@ -9,7 +9,7 @@ from transforms.transform_boxscore import Transform
 class BoxscorePipeline(Pipeline[dict]):
 
     def __init__(self, pipeline_name: str, scoreboard_data: dict, environment: str):
-        super().__init__(pipeline_name, 'boxscore')
+        super().__init__(pipeline_name=pipeline_name, pipeline_tag='boxscore', source_tag='NBA static data feed')
         self.GameID = scoreboard_data['GameID']
         self.GameIDStr = scoreboard_data['GameIDStr']
         self.Data = scoreboard_data

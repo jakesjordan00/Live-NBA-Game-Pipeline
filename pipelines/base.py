@@ -19,9 +19,10 @@ class MillisecondFormatter(colorlog.ColoredFormatter):
 
 class Pipeline(ABC, Generic[T]):
 
-    def __init__(self, pipeline_name: str, pipeline_tag: str):
+    def __init__(self, pipeline_name: str, pipeline_tag: str, source_tag: str):
         self.pipeline_name = pipeline_name
         self.pipeline_tag = pipeline_tag
+        self.source_tag = source_tag
         self.logger = logging.getLogger(pipeline_name)
         if not logging.root.handlers:
             handler = colorlog.StreamHandler()
@@ -59,7 +60,7 @@ class Pipeline(ABC, Generic[T]):
         self.logger.info('Spinning up...')
 
         #Extract
-        self.logger.info(f'Extracting {self.pipeline_tag} via {self.source.tag}')
+        self.logger.info(f'Extracting {self.pipeline_tag} via {self.source_tag}')
         data_extract = self.extract()
 
         #Transform

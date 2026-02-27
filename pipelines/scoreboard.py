@@ -8,7 +8,7 @@ from transforms.transform_data import Transform
 class ScoreboardPipeline(Pipeline[list]):
 
     def __init__(self, environment: str):
-        super().__init__('scoreboard', 'todaysScoreboard')
+        super().__init__(pipeline_name='scoreboard', pipeline_tag='todaysScoreboard', source_tag='NBA static data feed')
 
         self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
         self.tag = 'todaysScoreboard'
