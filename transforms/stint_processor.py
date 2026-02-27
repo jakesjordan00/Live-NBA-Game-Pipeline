@@ -333,7 +333,7 @@ class StintProcessor:
             self.team_stats['FGA'] = self.team_stats['FG2A'] + self.team_stats['FG3A']
             self.team_stats['Lineup'][PlayerID]['FGM'] = self.team_stats['Lineup'][PlayerID]['FG2M'] + self.team_stats['Lineup'][PlayerID]['FG3M']
             self.team_stats['Lineup'][PlayerID]['FGA'] = self.team_stats['Lineup'][PlayerID]['FG2A'] + self.team_stats['Lineup'][PlayerID]['FG3A']
-        except Exception as e:
+        except KeyError as e:
             self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
             self.logger.error(f'KeyError on Field Goal!')
             return
@@ -343,13 +343,18 @@ class StintProcessor:
 
 
     def _parse_rebound(self, action:dict):
-        PlayerID = action['personId']
-        self.team_stats['REB'] += 1
-        reb_type = f'{action['subType'][0].upper()}REB'
-        self.team_stats[reb_type] += 1
-        if PlayerID not in [None, 0]:
-            self.team_stats['Lineup'][PlayerID]['REB'] += 1
-            self.team_stats['Lineup'][PlayerID][reb_type] += 1
+        try:
+            PlayerID = action['personId']
+            self.team_stats['REB'] += 1
+            reb_type = f'{action['subType'][0].upper()}REB'
+            self.team_stats[reb_type] += 1
+            if PlayerID not in [None, 0]:
+                self.team_stats['Lineup'][PlayerID]['REB'] += 1
+                self.team_stats['Lineup'][PlayerID][reb_type] += 1
+        except KeyError as e:
+            self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+            self.logger.error(f'KeyError on Rebound!')
+            return
 
     def _parse_block(self, PlayerID: int):
         self.team_stats['BLK'] += 1
@@ -377,14 +382,15 @@ class StintProcessor:
                     self.team_stats['Lineup'][PlayerID]['F'] += 1
                 except KeyError as e:
                     log_str = ' Probably due to a technical incurred by a Coach/Player not on court' if action['subType'] == 'technical' else ''
-                    self.logger.warning(f'KeyError on foul!{log_str}')
+                    self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+                    self.logger.error(f'KeyError on foul!{log_str}')
             PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
             if PlayerIDFoulDrawn:
                 self.op_stats['FDrwn'] += 1
                 self.op_stats['Lineup'][PlayerIDFoulDrawn]['FDrwn'] += 1
         
         except KeyError as e:
-            test = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
+            self.stint_error = StintError(action['actionNumber'], f'{e}', self.playbyplay_data[action['Index'] - 10:action['Index']])
             self.logger.error(f'KeyError on foul drawn!')
 
 

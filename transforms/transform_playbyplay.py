@@ -25,8 +25,11 @@ class Transform:
         playbyplay_data = playbyplay_data['game']['actions']
         db_actions = self.pipeline.db_actions
         db_last_action_number = self.pipeline.db_last_action_number
-        matched_last_action = next({'index': i, 'action': action} for i, action in enumerate(playbyplay_data) if action['actionNumber'] == db_last_action_number)
-        matched_last_index = matched_last_action['index'] if matched_last_action.get('index') else 0
+        try:
+            matched_last_action = next({'index': i, 'action': action} for i, action in enumerate(playbyplay_data) if action['actionNumber'] == db_last_action_number)
+        except StopIteration as e:
+            matched_last_action = {'index': -1} 
+        matched_last_index = matched_last_action['index']
         
         if matched_last_index != db_actions - 1:
             #delete data real quick

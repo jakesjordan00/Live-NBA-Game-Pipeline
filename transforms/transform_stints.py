@@ -172,6 +172,9 @@ When processing Stints, we'll switch our Stint when the current action_number = 
     '''
     if game_end == 1 or i + 1 >= len(playbyplay_data):
         return action['actionNumber']
-    next_action_number = [p['actionNumber'] for p in playbyplay_data[i:] if p['actionType'] != 'substitution'][0]
-
+    try:
+        next_action_number = [p['actionNumber'] for p in playbyplay_data[i:] if p['actionType'] != 'substitution'][0]
+    except IndexError as e:
+        #If there aren't any actions after this one that are substitutions
+        next_action_number = playbyplay_data[-1]['actionNumber']
     return next_action_number
