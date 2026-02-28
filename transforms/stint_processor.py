@@ -146,6 +146,11 @@ class StintProcessor:
             elif action_type != 'substitution':
                 self._increment_stats(action, last_possession)
 
+            if len(self.stint_errors) >= 3:
+                self.stint_status = 'fail'
+                self.logger.critical('Three errors accumulated in StintProcessor! Cancelling...')
+                break
+
 
 
         processed_stints = StintResult(
@@ -250,10 +255,8 @@ class StintProcessor:
 
     #region Action Parsing
     def _initiate_substitution(self, action: dict):        
-        if(action['actionNumber'] > action['CorrespondingSubActionNumber']):
-            
-            other_PlayerID = next((act['personId'] for act in self.playbyplay_data if act['actionNumber'] == action['CorrespondingSubActionNumber']), None)
-            
+        if(action['actionNumber'] > action['CorrespondingSubActionNumber']):            
+            other_PlayerID = next((act['personId'] for act in self.playbyplay_data if act['actionNumber'] == action['CorrespondingSubActionNumber']), None)            
             if action['teamId'] == self.HomeID:
                 try:
                     home_copy = SubstitutePlayers(action, other_PlayerID, self.home_copy)
@@ -363,7 +366,7 @@ class StintProcessor:
             self.team_stats['Lineup'][PlayerID]['FGM'] = self.team_stats['Lineup'][PlayerID]['FG2M'] + self.team_stats['Lineup'][PlayerID]['FG3M']
             self.team_stats['Lineup'][PlayerID]['FGA'] = self.team_stats['Lineup'][PlayerID]['FG2A'] + self.team_stats['Lineup'][PlayerID]['FG3A']
         except KeyError as e:
-            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='field-goal'))
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='field-goal'))
             self.logger.error(f'KeyError on Field Goal!')
             return
 
@@ -371,7 +374,7 @@ class StintProcessor:
         try:
             self.team_stats['Lineup'][PlayerIDAst]['AST'] += 1
         except KeyError as e:
-            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='assist'))
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='assist'))
             self.logger.error(f'KeyError on Assist!')
 
     def _parse_rebound(self, action:dict):
@@ -384,7 +387,7 @@ class StintProcessor:
                 self.team_stats['Lineup'][PlayerID]['REB'] += 1
                 self.team_stats['Lineup'][PlayerID][reb_type] += 1
         except KeyError as e:
-            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='rebound'))
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='rebound'))
             self.logger.error(f'KeyError on Rebound!')
             return
 
@@ -395,7 +398,7 @@ class StintProcessor:
             self.team_stats['Lineup'][PlayerID]['BLK'] += 1
             self.op_stats['BLKd'] += 1
         except KeyError as e:
-            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='block'))
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='block'))
             self.logger.error('KeyError on Block!')
 
 
@@ -404,7 +407,7 @@ class StintProcessor:
             self.team_stats['STL'] += 1
             self.team_stats['Lineup'][PlayerID]['STL'] += 1
         except KeyError as e:
-            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='steal'))
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='steal'))
             self.logger.error('KeyError on Steal!')
 
 
@@ -414,7 +417,7 @@ class StintProcessor:
             if PlayerID != 0:
                 self.team_stats['Lineup'][PlayerID]['TOV'] += 1
         except KeyError as e:
-            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='turnover'))
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='turnover'))
             self.logger.error('KeyError on Turnover!')
 
 
@@ -428,7 +431,7 @@ class StintProcessor:
                     self.team_stats['Lineup'][PlayerID]['F'] += 1
                 except KeyError as e:
                     log_str = ' Probably due to a technical incurred by a Coach/Player not on court' if action['subType'] == 'technical' else ''
-                    self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='foul'))
+                    self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='foul'))
                     self.logger.error(f'KeyError on foul!{log_str}')
             PlayerIDFoulDrawn = action.get('foulDrawnPersonId')
             if PlayerIDFoulDrawn:
@@ -436,7 +439,7 @@ class StintProcessor:
                 self.op_stats['Lineup'][PlayerIDFoulDrawn]['FDrwn'] += 1
         
         except KeyError as e:
-            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'{e}', type='foul-drawn'))
+            self.stint_errors.append(StintError(action=action, stint_processor=self, error_msg=f'KeyError({e})', type='foul-drawn'))
             self.logger.error(f'KeyError on foul drawn!')
 
 
