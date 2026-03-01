@@ -52,8 +52,14 @@ class SQLConnector:
             elif table_name in['Game', 'GameExt', 'TeamBox', 'PlayerBox']:
                 self.checked_upsert(table_name, data)
             elif type(data) == StintResult:
-                self.checked_upsert('jjs.Stint', data.Stint)
-                self.checked_upsert('jjs.StintPlayer', data.StintPlayer)
+                if data.Stint:
+                    self.checked_upsert('jjs.Stint', data.Stint)
+                else:
+                    bp = 'here' #debug this
+                if data.StintPlayer:
+                    self.checked_upsert('jjs.StintPlayer', data.StintPlayer)
+                else:
+                    bp = 'here' #debug this
             elif table_name == 'PlayByPlay':
                 if len(data) == 0:
                     self.logger.info(f'No new PlayByPlay actions to insert. Skipping...')

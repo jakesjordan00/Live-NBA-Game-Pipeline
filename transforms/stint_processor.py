@@ -27,6 +27,7 @@ class StintError:
         self.last10 = stint_processor.playbyplay_data[action['Index']-10:action['Index']]
         self.home_stats = stint_processor.home_stats
         self.away_stats = stint_processor.away_stats
+        self.type_detail = ''
 
 @dataclass
 class StintResult:
@@ -160,6 +161,9 @@ class StintProcessor:
             errors = getattr(self, 'stint_errors', None))
         bp = 'here'
         self.logger.info(f'Transformed {len(self.team_stints)} Team Stints and {len(self.player_stints)} Player Stints')
+        test = processed_stints.Stint[-2:]
+        test2 = processed_stints.StintPlayer[-10:]
+        test3 = processed_stints.errors
         return processed_stints
 
 
