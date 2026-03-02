@@ -55,11 +55,13 @@ class SQLConnector:
                 if data.Stint:
                     self.checked_upsert('jjs.Stint', data.Stint)
                 else:
-                    bp = 'here' #debug this
+                    self.logger.warning('No Stint records to upsert.')
                 if data.StintPlayer:
                     self.checked_upsert('jjs.StintPlayer', data.StintPlayer)
                 else:
-                    bp = 'here' #debug this
+                    self.logger.warning('No StintPlayer records to upsert.')
+                if data.status:
+                    self.checked_upsert('jjs.StintStatus', [data.status])
             elif table_name == 'PlayByPlay':
                 if len(data) == 0:
                     self.logger.info(f'No new PlayByPlay actions to insert. Skipping...')
@@ -170,12 +172,15 @@ end
                 row = cursor.fetchone()
                 actions = row[0] if row else 0
                 last_action_number = row[1] if row and row[1] != None else 0
+                stint_status = row[2] if row and row[2] not in['', None] else 'failure'
+                bp = 'here'
             except Exception as e:
                 actions = 0
                 test = 1
             return {
                 'actions': actions,
-                'last_action_number': last_action_number
+                'last_action_number': last_action_number,
+                'stint_status': stint_status
             }
         elif table_name == 'Schedule':
             cursor.execute(query)
@@ -192,10 +197,6 @@ end
 
     def stint_cursor(self, stint_keys: dict):  
         cursor = self.pyodbc_connection.cursor()
-        if stint_keys['game_id'] == '22500776':
-            bp = 'here'
-        else:
-            bp = 'here'
         stint = self.tables['jjs.Stint'].copy()
         stint_player = self.tables['jjs.StintPlayer'].copy()
         for table in [stint, stint_player]:
@@ -257,9 +258,8 @@ end
         a= 1
 
 
-    def delete_playbyplay_game(self, where: str):
+    def delete_rows(self, query: str):
         cursor = self.pyodbc_connection.cursor()
-        query = f'delete from PlayByPlay where {where}'
         rows = cursor.execute(query)
         cursor.commit()
         bp = 'here'

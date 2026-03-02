@@ -412,8 +412,19 @@ DATABASES = {
                 'update_columns': [],
                 'check_query': '''select count(p.ActionID) Actions
 	 , max(ActionNumber) LastActionNumber
+	 , s.Status
 from PlayByPlay p
-where p.SeasonID = season_id and p.GameID = game_id'''
+left join jjs.StintStatus s on p.SeasonID = s.SeasonID and p.GameID = s.GameID
+where p.SeasonID = season_id and p.GameID = game_id
+group by s.Status'''
+            },
+            'jjs.StintStatus':{
+                'keys': ['SeasonID', 'GameID'],
+                'columns': [
+                    'SeasonID',
+                    'GameID'
+                ],
+                'update_columns': ['status']
             },
             'jjs.Stint':{
                 'keys': ['SeasonID', 'GameID', 'TeamID', 'StintID'],

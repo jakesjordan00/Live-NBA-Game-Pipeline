@@ -34,11 +34,12 @@ class StintResult:
     Stint: list
     StintPlayer: list
     team_player_stints: list
+    status: dict
     errors: list[StintError] | None = None
 
 #region StintProcessor
 class StintProcessor:
-    def __init__(self, playbyplay_data: list, boxscore_data: dict, sub_groups: list, home_stats: dict | None, away_stats: dict | None, db_actions: int = 0, db_last_action_number: int = 0, current_sub_group_index: int = 0):
+    def __init__(self, playbyplay_data: list, boxscore_data: dict, sub_groups: list, home_stats: dict | None, away_stats: dict | None, stint_status: str, db_actions: int = 0, db_last_action_number: int = 0, current_sub_group_index: int = 0):
         self.playbyplay_data = playbyplay_data
         self.boxscore_data = boxscore_data
         self.sub_groups = sub_groups
@@ -54,6 +55,7 @@ class StintProcessor:
         self.GameStatus = boxscore_data['sql_tables']['GameExt']['Status']
         self.home_stats = home_stats if home_stats else {}
         self.away_stats = away_stats if away_stats else {}
+        self.stint_status = stint_status
 
         self.logger = logging.getLogger(f'StintProcessor.{self.GameID}')
         self.stint_errors = []
@@ -87,10 +89,12 @@ class StintProcessor:
         else:
             self.current_sub_group = self.sub_groups[self.current_sub_group_index]
             
-        if self.db_actions == 0 or len(self.sub_groups) == 1 or self.db_actions == len(self.playbyplay_data):
+        if self.db_actions == 0 or len(self.sub_groups) == 1 or self.db_actions == len(self.playbyplay_data) or self.stint_status == 'failure':
             log_str = f'Starting at first action...Getting starting lineups and creating dictionaries...'
             if self.db_actions == len(self.playbyplay_data):
                 log_str = f"PlayByPlay already inserted, row count in db matches extracted data's row count...{log_str}"
+            if self.stint_status == 'failure':
+                log_str = f'StintStatus value for game is failure...{log_str}'
             self.logger.info(log_str)
             self.home, self.away = self._get_starting_lineups()
             self.home_stats, self.away_stats = self._create_initial_stats_dict(self.home, self.away, 1, 1)
@@ -136,7 +140,7 @@ class StintProcessor:
             is_home = TeamID == self.HomeID
             self.team_stats = self.home_stats if is_home else self.away_stats
             self.op_stats = self.away_stats if is_home else self.home_stats
-
+            
             action_before = self.playbyplay_data[matched_last_index]
 
             last_possession = self.playbyplay_data[matched_last_index+i-1]['possession'] if i > 0 else 0
@@ -148,22 +152,33 @@ class StintProcessor:
                 self._increment_stats(action, last_possession)
 
             if len(self.stint_errors) >= 3:
-                self.stint_status = 'fail'
+                self.stint_status = 'failure'
                 self.logger.critical('Three errors accumulated in StintProcessor! Cancelling...')
                 break
 
 
+        if len(self.stint_errors) == 0:
+            self.stint_status = {
+                'SeasonID': self.SeasonID,
+                'GameID': self.GameID,
+                'status': 'success'
+            }
+        else:
+            self.stint_status = {
+                'SeasonID': self.SeasonID,
+                'GameID': self.GameID,
+                'status': 'failure'
+            }
+            
 
         processed_stints = StintResult(
             Stint = self.team_stints, 
             StintPlayer = self.player_stints, 
             team_player_stints=self.tp_stints,
+            status = self.stint_status,
             errors = getattr(self, 'stint_errors', None))
         bp = 'here'
-        self.logger.info(f'Transformed {len(self.team_stints)} Team Stints and {len(self.player_stints)} Player Stints')
-        test = processed_stints.Stint[-2:]
-        test2 = processed_stints.StintPlayer[-10:]
-        test3 = processed_stints.errors
+        self.logger.info(f'Transformed {len(self.team_stints)} Team Stints and {len(self.player_stints)} Player Stints. Status: {processed_stints.status['status']}')
         return processed_stints
 
 

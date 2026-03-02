@@ -30,10 +30,21 @@ class Transform:
             matched_last_action = {'index': -1} 
         matched_last_index = matched_last_action['index']
         
+        if self.pipeline.stint_status == 'failure':
+            self.logger.warning(f"stint_status is failure. Deleting Stint and StintPlayer rows for game.")
+            query = f'''delete from JJs.StintPlayer where SeasonID = {self.pipeline.boxscore_data['SeasonID']} and GameID = {self.pipeline.GameID}
+delete from JJs.Stint where SeasonID = {self.pipeline.boxscore_data['SeasonID']} and GameID = {self.pipeline.GameID}'''
+            self.pipeline.destination.delete_rows(query)
+            bp = 'here'
+
+
+
+
         if matched_last_index != db_actions - 1:
             #delete data real quick
             self.logger.warning(f"Index of the action matching db's last action number does not match! Deleting PlayByPlay data...")
-            self.pipeline.destination.delete_playbyplay_game(f'SeasonID = {self.pipeline.boxscore_data['SeasonID']} and GameID = {self.pipeline.GameID}')
+            query = f'delete from PlayByPlay where SeasonID = {self.pipeline.boxscore_data['SeasonID']} and GameID = {self.pipeline.GameID}'
+            self.pipeline.destination.delete_rows(query)
             self.pipeline.db_actions = 0
             self.pipeline.db_last_action_number = 0
             bp = 'here'
@@ -41,7 +52,7 @@ class Transform:
         playbyplay_data, sub_groups = transform_stints.determine_substitutions(playbyplay_data, self.pipeline.boxscore_data)
         transformed_playbyplay = TransformPlayByPlay(playbyplay_data, self.pipeline.boxscore_data, db_actions, db_last_action_number)
         
-        stint_processor = StintProcessor(playbyplay_data, self.pipeline.boxscore_data, sub_groups, self.pipeline.home_stats, self.pipeline.away_stats, self.pipeline.db_actions, self.pipeline.db_last_action_number)
+        stint_processor = StintProcessor(playbyplay_data, self.pipeline.boxscore_data, sub_groups, self.pipeline.home_stats, self.pipeline.away_stats, self.pipeline.stint_status, self.pipeline.db_actions, self.pipeline.db_last_action_number)
         stints = stint_processor.process()
         data_transformed = {
             'PlayByPlay': transformed_playbyplay,

@@ -2,6 +2,8 @@ from airflow.sdk import dag, task, BaseHook
 from datetime import datetime, timedelta
 from dataclasses import asdict
 
+from run import stint_status
+
 @dag(
     dag_id = 'nba_live_pipeline',
     start_date = datetime(2025, 1, 1),
@@ -37,13 +39,16 @@ def nba_pipeline():
         start_action_info = boxscore_pipeline.destination.cursor_query(table_name='PlayByPlay', keys=boxscore_data['start_action_keys'])
         db_actions = start_action_info['actions']
         db_last_action_number = start_action_info['last_action_number']
-        home_stats, away_stats = (None, None) if db_actions == 0 else boxscore_pipeline.destination.stint_cursor(stint_keys=boxscore_data['lineup_keys'])
+        stint_status = start_action_info['stint_status']
+
+        home_stats, away_stats = (None, None) if db_actions == 0 or stint_status == 'failure' else boxscore_pipeline.destination.stint_cursor(stint_keys=boxscore_data['lineup_keys'])
         boxscore_data = {
             'boxscore_data': boxscore_data,
             'db_actions': db_actions,
             'db_last_action_number': db_last_action_number,
             'home_stats': home_stats,
-            'away_stats': away_stats
+            'away_stats': away_stats,
+            'stint_status': stint_status
         }
         return boxscore_data
     
@@ -56,6 +61,7 @@ def nba_pipeline():
         db_last_action_number = boxscore_result['db_last_action_number']
         home_stats = boxscore_result['home_stats']
         away_stats = boxscore_result['away_stats']
+        stint_status = boxscore_result['stint_status']
 
         playbyplay_pipeline = PlayByPlayPipeline(
             pipeline_name = f'playbyplay.{GameID}',
@@ -64,6 +70,7 @@ def nba_pipeline():
             db_last_action_number = db_last_action_number,
             home_stats = home_stats,
             away_stats = away_stats,
+            stint_status=stint_status,
             environment = 'Production'
             )
         completed_playbyplay_pipeline = playbyplay_pipeline.run()
