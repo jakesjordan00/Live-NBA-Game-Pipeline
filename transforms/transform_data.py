@@ -2,7 +2,7 @@ import pandas as pd
 import polars as pl
 from datetime import datetime
 import logging
-
+from datetime import datetime
 
 
 class Transform:
@@ -14,7 +14,7 @@ class Transform:
 
     def scoreboard(self, data: dict) -> list:
         '''
-        Returns a list of formatted Scoreboard dictionaries
+        Returns a list of formatted Game dictionaries
 
         :param data: Output of fetch(). Contains game information for today's games
         :type data: dict
@@ -68,3 +68,85 @@ class Transform:
         games = [game for game in scoreboard if game['GameStatus'] != 1] 
         return games
 
+
+
+
+    def schedule(self, data: dict) -> list:
+        '''
+        Returns a list of formatted Game dictionaries
+
+        :param data: Output of fetch(). Contains game information for all games (Excluding All-Star) that are
+        Completed or In-Progress as of the time of fetch
+        :type data: dict
+        :return schedule: List of games that are **In progress** or **Completed** this season
+        :rtype: list
+        
+        '''
+        data = data['leagueSchedule']
+        SeasonID = data['seasonYear'][:4]
+        full_schedule_games = [game['games'] for game in data['gameDates']]
+        schedule_games = [game['games'] for game in data['gameDates'] if datetime.strptime(game['gameDate'], '%m/%d/%Y %H:%M:%S') <= datetime.today()]
+        today = datetime.today().strftime('%d/%m/%Y')
+        self.logger.info(f'Excluding games scheduled after {today}...{len(full_schedule_games)} dates -> {len(schedule_games)} dates')
+
+        schedule_unformatted = []
+        game_counts = {
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 0,
+            6: 0
+        }
+        i = 0
+        right_now = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+        for date in schedule_games:
+            for game in date:
+                if datetime.strptime(game['gameDateTimeEst'], '%Y-%m-%dT%H:%M:%SZ') >= datetime.now():
+                    continue
+                i+=1
+                gameType = int(game['gameId'][2])
+                game_counts[gameType] += 1
+                if gameType != 3:
+                    schedule_unformatted.append(game)
+                bp = 'here'
+        self.logger.info(f'Excluded games scheduled after {right_now}... {i} games total')
+
+        schedule = [
+            {
+                'SeasonID': SeasonID,
+                'GameID': int(g['gameId']),
+                'GameIDStr': g['gameId'],             
+                'GameCode': g['gameCode'],
+                'GameStatus': g['gameStatus'],
+                'GameStatusText': g['gameStatusText'],
+                # 'Period': g['period'],
+                # 'GameClock': g['gameClock'],
+                'GameTimeUTC': g['gameTimeUTC'],
+                # 'GameEt': g['gameEt'],
+                # 'RegulationPeriods': g['regulationPeriods'],
+                'IfNecessary': g['ifNecessary'],
+                'SeriesGameNumber': g['seriesGameNumber'],
+                'GameLabel': g['gameLabel'],
+                'GameSubLabel': g['gameSubLabel'],
+                'SeriesText': g['seriesText'],                
+                # 'SeriesConference': g['seriesConference'],
+                # 'RoundDesc': g['poRoundDesc'],
+
+                'GameSubtype': g['gameSubtype'],
+                'IsNeutral': g['isNeutral'],
+                'HomeTeam': g['homeTeam'],
+                'AwayTeam': g['awayTeam'],
+                }             
+            for g in schedule_unformatted]
+
+
+
+        self.logger.info(f'Preseason Games: {game_counts[1]}')
+        self.logger.info(f'Regular Season Games: {game_counts[2]}')
+        self.logger.info(f'Postseason Games: {game_counts[4]}')
+        self.logger.info(f'Play-In Games: {game_counts[5]}')
+        self.logger.info(f'NBA Cup Games: {game_counts[6]}')
+        self.logger.info(f'All-Star Games: {game_counts[3]} (Excluded)')
+        self.logger.info(f'{len(schedule)} Games queued for insert')
+        return schedule

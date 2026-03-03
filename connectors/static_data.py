@@ -16,11 +16,15 @@ class StaticDataConnector:
                 
         :return data (dict): Dict containing subdictionaries. Usually a 'meta' dict and then the dict that contains our data
 
-            - 'scoreboard', 'game'
+            - 'meta', 'scoreboard'
+            - 'meta', 'leagueSchedule'
+            - 'meta', 'game'
+            
 
         Examples
         ------------
-        >>> {"meta": {},"scoreboard": {}}
+        >>> {"meta": {}, "scoreboard": {}}
+        >>> {"meta": {}, "leagueSchedule": {}}
         >>> {"meta": {}, "game":{}}
         '''
         try:

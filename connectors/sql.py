@@ -1,4 +1,4 @@
-from config.settings import DATABASES 
+from config.settings import DATABASES, TABLES 
 from urllib.parse import quote_plus
 from sqlalchemy import create_engine, text, Numeric
 from transforms.stint_processor import StintResult
@@ -14,7 +14,7 @@ class SQLConnector:
         self.pipeline_name = pipeline_name
         self.database_name = database_name
         self.config = DATABASES[database_name]
-        self.tables = self.config['Tables']
+        self.tables = TABLES
         self.engine = self._create_engine()
         self.pyodbc_connection = pyodbc.connect(self._get_pyodbc_connection())
         self.logger = logging.getLogger(f'{pipeline_name}.load')
@@ -89,7 +89,7 @@ values({', '.join(['?'] * len(sql_table['columns']))})
 end
 '''
         try:
-            params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns']) for data_dict in data]
+            params = [self._dict_to_params(data_dict, sql_table['keys'] + sql_table['columns']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
             cursor.executemany(insert_string, params)
@@ -109,7 +109,7 @@ insert into {table_name}({', '.join(sql_table['columns'])})
 values({', '.join(['?'] * len(sql_table['columns']))})
         '''
         try:
-            params = [self.dict_to_params(data_dict, sql_table['columns']) for data_dict in data]
+            params = [self._dict_to_params(data_dict, sql_table['columns']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
             cursor.executemany(insert_string, params)
@@ -150,7 +150,7 @@ where {' = ? and '.join(sql_table['keys'])} = ?
 end
 '''
         try:
-            params = [self.dict_to_params(data_dict, sql_table['keys'] + sql_table['columns'] + sql_table['update_columns'] + sql_table['keys']) for data_dict in data]
+            params = [self._dict_to_params(data_dict, sql_table['keys'] + sql_table['columns'] + sql_table['update_columns'] + sql_table['keys']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
             cursor.executemany(upsert_string, params)
@@ -225,7 +225,6 @@ end
 
             home_stats['Lineup'] = home_players
             away_stats['Lineup'] = away_players
-            bp = 'here'
             return home_stats, away_stats
         except Exception as e:
             self.logger.error(f'Error getting OnCourt Lineups!')
@@ -234,8 +233,27 @@ end
             return None, None
 
 
+    def delete_rows(self, query: str):
+        cursor = self.pyodbc_connection.cursor()
+        rows = cursor.execute(query)
+        cursor.commit()
 
-    def dict_to_params(self, d: dict, keys: list) -> tuple:
+
+
+
+    def check_tables(self):
+        cursor = self.pyodbc_connection.cursor()
+        for table, config in self.tables.items():
+            query = config['create']
+            result = cursor.execute(query)
+            cursor.commit()
+            bp = 'here'
+
+
+
+
+
+    def _dict_to_params(self, d: dict, keys: list) -> tuple:
         return tuple(d[k.replace('[', '').replace(']', '')] for k in keys)
     
 
@@ -254,12 +272,3 @@ end
                 query = f'{query[:index]}{value}{query[index + 1:]}'
             # pyperclip.copy(query)
             queries.append(query)
-
-        a= 1
-
-
-    def delete_rows(self, query: str):
-        cursor = self.pyodbc_connection.cursor()
-        rows = cursor.execute(query)
-        cursor.commit()
-        bp = 'here'

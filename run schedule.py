@@ -3,17 +3,17 @@ from connectors import SQLConnector
 import polars as pl
 
 
-scoreboard_pipeline = ScoreboardPipeline('Production')
-completed_scoreboard_pipeline = scoreboard_pipeline.run()
-scoreboard_data = completed_scoreboard_pipeline['loaded']
-gameIDs_in_progress = [game['GameID'] for game in scoreboard_data]
-print(f'\nGames in Progress: {', '.join(str(game) for game in gameIDs_in_progress)}\n------------------------------------')
-
 schedule_pipeline = SchedulePipeline()
 completed_schedule_pipeline = schedule_pipeline.run()
 schedule_data = completed_schedule_pipeline['loaded']
 
 
+
+scoreboard_pipeline = ScoreboardPipeline('Production')
+completed_scoreboard_pipeline = scoreboard_pipeline.run()
+scoreboard_data = completed_scoreboard_pipeline['loaded']
+gameIDs_in_progress = [game['GameID'] for game in scoreboard_data]
+print(f'\nGames in Progress: {', '.join(str(game) for game in gameIDs_in_progress)}\n------------------------------------')
 
 
 for scoreboard in scoreboard_data:

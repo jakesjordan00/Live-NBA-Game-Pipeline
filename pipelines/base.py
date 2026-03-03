@@ -39,7 +39,7 @@ class Pipeline(ABC, Generic[T]):
             ))
             logging.root.setLevel(logging.INFO)
             logging.root.addHandler(handler)
-        self.destination = SQLConnector(self.pipeline_name, 'JJsNBA')
+        self.destination = SQLConnector(self.pipeline_name, 'JJsNBA3')
         self.run_timestamp = None
 
     @abstractmethod
