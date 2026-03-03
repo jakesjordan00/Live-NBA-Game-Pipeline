@@ -8,7 +8,7 @@ load_dotenv()
 DATABASES = {
     'JJsNBA3':{
         'server': os.getenv('ServerIP'),
-        'database': os.getenv('Database'),
+        'database': 'JJsNBA3', #os.getenv('Database'),
         'username': 'jjAdmin',
         'password': os.getenv('AdminPass')
     }
@@ -631,7 +631,6 @@ PlayerID		int,
 Unit			varchar(30),
 Position		varchar(10),
 Primary Key(SeasonID, GameID, TeamID, MatchupID, PlayerID),
-Foreign Key (SeasonID) references Season(SeasonID),
 Foreign Key (SeasonID, GameID) references Game(SeasonID, GameID),
 Foreign Key (SeasonID, TeamID) references Team(SeasonID, TeamID),
 Foreign Key (SeasonID, PlayerID) references Player(SeasonID, PlayerID),
