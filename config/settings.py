@@ -8,7 +8,7 @@ load_dotenv()
 DATABASES = {
     'JJsNBA':{
         'server': os.getenv('ServerIP'),
-        'database': 'JJsNBA3', #os.getenv('Database'),
+        'database': 'JJsNBA', #os.getenv('Database'),
         'username': 'jjAdmin',
         'password': os.getenv('AdminPass')
     }
