@@ -8,6 +8,9 @@ from connectors.api_data import APIDataConnector
 from transforms.transform_playbyplay import Transform
 
 class PlayByPlayPipeline(Pipeline[dict]):
+    '''PlayByPlayPipeline
+===
+    '''
     def __init__(self, pipeline_name: str, boxscore_data: dict, db_actions: int, db_last_action_number: int, home_stats: dict | None, away_stats: dict | None, stint_status: str, environment: str):  
         super().__init__(pipeline_name=pipeline_name, pipeline_tag='PlayByPlay', source_tag='NBA static data feed')
         self.GameID = boxscore_data['GameID']

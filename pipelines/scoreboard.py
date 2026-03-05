@@ -6,6 +6,32 @@ from transforms.transform_data import Transform
 
 
 class ScoreboardPipeline(Pipeline[list]):
+    '''ScoreboardPipeline
+===
+Fetches Games taking place today from NBA static data feed.
+___
+* https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json
+* Scoreboard resets each day at 12pm EST (Noon). If pulled before then, will show games from last night
+
+## Functions
+    ### ```def __init__```(self, environment: str):
+        - Initializes Pipeline
+        - Inherits logger, destination and run_timestamp from superclass
+        - Sets url, tag, source, transformer, environment and file_source
+
+    ### ```extract```(self):
+        - Fetches Scoreboard data from NBA's static data feed        
+            - Returns **data_extract**: Dict containing 'meta' and **'scoreboard'** dicts
+
+    ### ```transform```(self, data_extract):
+        - Given data_extract, returns a list of formatted Scoreboard dictionaries
+            - Parameter: **data_extract**: Output of fetch()/extract(). Contains game information for today's games
+            - Returns **data_transformed**: List of games taking place today that are **In progress** or **Completed**
+
+    ### ```load```(self, data_transformed):
+        - Does nothing and returns untouched data_transformed parameter
+
+    '''
 
     def __init__(self, environment: str):
         super().__init__(pipeline_name='scoreboard', pipeline_tag='todaysScoreboard', source_tag='NBA static data feed')
@@ -13,9 +39,9 @@ class ScoreboardPipeline(Pipeline[list]):
         self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
         self.tag = 'todaysScoreboard'
         self.source = StaticDataConnector(self)
-        self.file_source = 'tests/scoreboard'
         self.transformer = Transform(self)
         self.environment = environment
+        self.file_source = 'tests/scoreboard'
 
 
     def extract(self):
@@ -23,7 +49,7 @@ class ScoreboardPipeline(Pipeline[list]):
         -------------
         Fetches Scoreboard data from NBA's static data feed
 
-        :return data (dict): Dict containing 'meta' and **'scoreboard'** dicts
+        :return data_extract (dict): Dict containing 'meta' and **'scoreboard'** dicts
 
     Example
         ------------
@@ -45,7 +71,7 @@ class ScoreboardPipeline(Pipeline[list]):
 
         :param data_extract: Output of fetch()/extract(). Contains game information for today's games
         :type data: dict
-        :return scoreboard: List of games taking place today that are **In progress** or **Completed**
+        :return data_transformed: List of games taking place today that are **In progress** or **Completed**
         :rtype: list
         
         Example

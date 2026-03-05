@@ -18,6 +18,14 @@ class MillisecondFormatter(colorlog.ColoredFormatter):
         return time.isoformat()
 
 class Pipeline(ABC, Generic[T]):
+    '''Pipeline
+===
+
+    ### ```def __init__```(self, pipeline_name: str, pipeline_tag: str, source_tag: str):
+     - Sets pipeline_name, pipeline_tag, source_tag from subclass.
+     - Subclasses inherit logger, destination and run_timestamp
+    
+    '''
 
     def __init__(self, pipeline_name: str, pipeline_tag: str, source_tag: str):
         self.pipeline_name = pipeline_name
