@@ -46,42 +46,80 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
         'url': 'https://stats.nba.com/stats/leaguedashplayerstats',
         'headers': stats_headers,
         'params': {
-            'MeasureType':      'Base',             #'Base' = Traditional, 
-            'LeagueID':         '00',
-            'Season':           '2025-26',          #'2025-26', '2024-25', cont..., 1996-97
-            'SeasonType':       'Regular Season',   #'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
-            'TeamID':           0,                  #
-            'DateFrom':         '',                 #03/05/2026
-            'DateTo':           '',                 #03/05/2026
-            'LastNGames':       0,
-            'Month':            0,
-            'OpponentTeamID':   0,
-            'PORound':          0,
-            'PaceAdjust':       'N',
-            'PerMode':          'PerGame',
-            'Period':           0,
-            'PlusMinus':        'N',
-            'Rank':             'N',
-            'Outcome':          '',
-            'PlayerExperience': '',
-            'PlayerPosition':   '',
-            'SeasonSegment':    '',
-            'ShotClockRange':   '',
-            'StarterBench':     '',
-            'VsConference':     '',
-            'VsDivision':       '',
-            'Weight':           '',
-            'College':          '',
-            'Conference':       '',
-            'Country':          '',
-            'Division':         '',
-            'DraftPick':        '',
-            'DraftYear':        '',
-            'GameScope':        '',
-            'GameSegment':      '',
-            'Height':           '',
-            'ISTRound':         '',
-            'Location':         '',
+            'MeasureType':      'Base',             # 'Base' = Traditional, 'Advanced', 'Misc', 'Scoring', 'Usage', 'Defense', 'Violations'
+            'LeagueID':         '00',               # 
+            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., 1996-97
+            'SeasonType':       'Regular Season',   # 'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
+            'TeamID':           0,                  # 
+            'DateFrom':         '',                 # 03/05/2026
+            'DateTo':           '',                 # 03/05/2026
+            'LastNGames':       0,                  # 0-15
+            'Month':            0,                  # 1-12 (Starting October)
+            'OpponentTeamID':   0,                  # 
+            'PORound':          0,                  # 
+            'PaceAdjust':       'N',                # 
+            'PerMode':          'PerGame',          # 'Pergame', 'Totals', 'Per100Possessions', 'Per100Plays', 'Per48', 'Per40', 'Per36' 
+            'Period':           0,                  # 
+            'PlusMinus':        'N',                # 
+            'Rank':             'N',                # 
+            'Outcome':          '',                 # 
+            'PlayerExperience': '',                 # 
+            'PlayerPosition':   '',                 # 
+            'SeasonSegment':    '',                 # 'Pre All-Star', 'Post All-Star'
+            'ShotClockRange':   '',                 # 
+            'StarterBench':     '',                 # 
+            'VsConference':     '',                 # 
+            'VsDivision':       '',                 # 
+            'Weight':           '',                 # 
+            'College':          '',                 # 
+            'Conference':       '',                 # 
+            'Country':          '',                 # 
+            'Division':         '',                 # 
+            'DraftPick':        '',                 # 
+            'DraftYear':        '',                 # 
+            'GameScope':        '',                 # 
+            'GameSegment':      '',                 # 
+            'Height':           '',                 # 
+            'ISTRound':         '',                 # 
+            'Location':         '',                 # 
+        }
+    },
+    'leaguedashptstats': {
+        'url': 'https://stats.nba.com/stats/leaguedashptstats',
+        'headers': stats_headers,
+        'params': {
+            'PtMeasureType':    'Drives',           # 'Drives', 'Defense', 'CatchShoot', 'Passing', 'Possessions', 'PullUpShot', 
+                                                    # 'Rebounding', 'Efficiency', 'SpeedDistance', 'ElbowTouch', 'PostTouch', 'PaintTouch'
+            'PlayerOrTeam':     'Player',           # 'Player', 'Team'
+            'LeagueID':         '00',               # 
+            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., 1996-97
+            'SeasonType':       'Regular Season',   # 'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
+            'TeamID':           0,                  # 
+            'DateFrom':         '',                 # 03/05/2026
+            'DateTo':           '',                 # 03/05/2026
+            'LastNGames':       0,                  # 0-15
+            'Month':            0,                  # 1-12 (Starting October)
+            'OpponentTeamID':   0,                  # 
+            'PORound':          0,                  # 
+            'PerMode':          'PerGame',          # 'Pergame', 'Totals', 'Per100Possessions', 'Per100Plays', 'Per48', 'Per40', 'Per36' 
+            'Outcome':          '',                 # 
+            'PlayerExperience': '',                 # 
+            'PlayerPosition':   '',                 # 
+            'SeasonSegment':    '',                 # 'Pre All-Star', 'Post All-Star'
+            'StarterBench':     '',                 # 
+            'VsConference':     '',                 # 
+            'VsDivision':       '',                 # 
+            'Weight':           '',                 # 
+            'College':          '',                 # 
+            'Conference':       '',                 # 
+            'Country':          '',                 # 
+            'Division':         '',                 # 
+            'DraftPick':        '',                 # 
+            'DraftYear':        '',                 # 
+            'GameScope':        '',                 # 
+            'Height':           '',                 # 
+            'ISTRound':         '',                 # 
+            'Location':         '',                 # 
         }
     }
 }
