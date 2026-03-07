@@ -6,10 +6,9 @@ class SchedulePipeline(Pipeline[list]):
 
     def __init__(self):
         super().__init__(pipeline_name='schedule', pipeline_tag='leagueSchedule',source_tag='NBA static data feed')
-        self.url = 'https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_2.json'
-
         self.tag = 'leagueSchedule'
         self.source = StaticDataConnector(self)
+        self.url = self.source.schedule
         self.transformer = Transform(self)
         self.environment = 'Production'
         self.logger.info('Creating tables if they do not already exist')

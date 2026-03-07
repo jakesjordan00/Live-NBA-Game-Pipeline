@@ -15,12 +15,13 @@ ___
 
 ## Functions
     ### ```def __init__```(self, environment: str):
-        - Initializes Pipeline
+        - Initializes Schedule pipeline
         - Inherits logger, destination and run_timestamp from superclass
         - Sets url, tag, source, transformer, environment and file_source
 
     ### ```extract```(self):
-        - Fetches Scoreboard data from NBA's static data feed        
+        https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json
+        - Fetches Scoreboard data from NBA's static data feed
             - Returns **data_extract**: Dict containing 'meta' and **'scoreboard'** dicts
 
     ### ```transform```(self, data_extract):
@@ -36,9 +37,9 @@ ___
     def __init__(self, environment: str):
         super().__init__(pipeline_name='scoreboard', pipeline_tag='todaysScoreboard', source_tag='NBA static data feed')
 
-        self.url = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json'
         self.tag = 'todaysScoreboard'
         self.source = StaticDataConnector(self)
+        self.url = self.source.scoreboard
         self.transformer = Transform(self)
         self.environment = environment
         self.file_source = 'tests/scoreboard'

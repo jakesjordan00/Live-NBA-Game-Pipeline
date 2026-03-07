@@ -7,14 +7,60 @@ from transforms.transform_boxscore import Transform
 
 
 class BoxscorePipeline(Pipeline[dict]):
+    '''BoxscorePipeline
+===
+- Given a game's details from the Scoreboard/Schedule pipeline result, fetches Boxscore data from NBA static data feed. <br>
+-  Transforms extracted data to dictionaries matching the format of nine tables in SQL db
+    - **Team, Arena, Official, Player, Game, GameExt, TeamBox, PlayerBox, and StartingLineups**
+
+
+
+## Functions
+    ### ```def __init__```(self, pipeline_name: str, sc_data: dict, environment: str):
+        - Inherits logger, destination and run_timestamp from superclass.
+        - Sets self.Data equal to Scoreboard/Schedule data for that game.
+        - Sets GameID and GameIDStr
+        - Sets url, tag, source, transformer, environment and file_source
+
+    ### ```extract```(self):
+        https://cdn.nba.com/static/json/liveData/boxscore/boxscore_0022500001.json
+        - Fetches game's Boxscore data from NBA static data feed.
+
+    ### ```transform```(self, data_extract) -> dict:
+        - Given the extracted box data, transforms data to dictionaries matching the format of nine tables in SQL db
+
+
+    ### ```load```(self, data_transformed) -> dict:
+        - Upserts the trasformed data to SQL db.
+        ### Team
+            - Expected records: 2
+        ### Arena
+            - Expected records: 1
+        ### Official
+            - Expected records: 3-4
+        ### Player
+            - Expected records: 15-20ish (17.59 on avg)
+        ### Game
+            - Expected records: 1
+        ### GameExt
+            - Expected records: 1
+        ### TeamBox
+            - Expected records: 2
+        ### PlayerBox
+            - Expected records: 15-20ish (should match Player)
+        ### StartingLineups
+            - Expected records: 15-20ish (should match Player and PlayerBox)
+        
+
+'''
 
     def __init__(self, pipeline_name: str, sc_data: dict, environment: str):
         super().__init__(pipeline_name=pipeline_name, pipeline_tag='boxscore', source_tag='NBA static data feed')
-        self.GameID = sc_data['GameID']
-        self.GameIDStr = sc_data['GameIDStr']
         self.Data = sc_data
-        self.url = f'https://cdn.nba.com/static/json/liveData/boxscore/boxscore_{self.GameIDStr}.json'
+        self.GameID = self.Data['GameID']
+        self.GameIDStr = self.Data['GameIDStr']
         self.source = StaticDataConnector(self)
+        self.url = self.source.boxscore.replace('GameIDStr', self.GameIDStr)
         self.transformer = Transform(self)
         self.environment = environment
         self.file_source = f'tests/box/{self.GameID}'

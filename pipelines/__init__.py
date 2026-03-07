@@ -4,3 +4,4 @@ from .playbyplay import PlayByPlayPipeline
 from .scoreboard import ScoreboardPipeline
 from .schedule import SchedulePipeline
 from .player_positions import PlayerPositionPipeline
+from .daily_lineups import DailyLineupsPipeline

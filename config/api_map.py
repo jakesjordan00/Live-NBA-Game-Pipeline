@@ -1,4 +1,4 @@
-
+from typing import TypedDict
 
 
 stats_headers = {
@@ -34,7 +34,60 @@ common_box_params = {
 }
 
 
-nba_stats_endpoints ={
+
+
+class Endpoint(TypedDict):
+    url: str
+    headers: dict
+    params: dict
+
+nba_advanced_stats_endpoints: dict[str, Endpoint] = {
+    'leaguedashplayerstats':{
+        'url': 'https://stats.nba.com/stats/leaguedashplayerstats',
+        'headers': stats_headers,
+        'params': {
+            'MeasureType':      'Base',             #'Base' = Traditional, 
+            'LeagueID':         '00',
+            'Season':           '2025-26',          #'2025-26', '2024-25', cont..., 1996-97
+            'SeasonType':       'Regular Season',   #'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
+            'TeamID':           0,                  #
+            'DateFrom':         '',                 #03/05/2026
+            'DateTo':           '',                 #03/05/2026
+            'LastNGames':       0,
+            'Month':            0,
+            'OpponentTeamID':   0,
+            'PORound':          0,
+            'PaceAdjust':       'N',
+            'PerMode':          'PerGame',
+            'Period':           0,
+            'PlusMinus':        'N',
+            'Rank':             'N',
+            'Outcome':          '',
+            'PlayerExperience': '',
+            'PlayerPosition':   '',
+            'SeasonSegment':    '',
+            'ShotClockRange':   '',
+            'StarterBench':     '',
+            'VsConference':     '',
+            'VsDivision':       '',
+            'Weight':           '',
+            'College':          '',
+            'Conference':       '',
+            'Country':          '',
+            'Division':         '',
+            'DraftPick':        '',
+            'DraftYear':        '',
+            'GameScope':        '',
+            'GameSegment':      '',
+            'Height':           '',
+            'ISTRound':         '',
+            'Location':         '',
+        }
+    }
+}
+
+nba_advanced_stats_endpoints['leaguedashplayerstats']['params']
+nba_stats_endpoints: dict[str, Endpoint] = {
 ############################
 #region Play-By-Play
 #####################
