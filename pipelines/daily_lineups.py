@@ -14,6 +14,7 @@ class DailyLineupsPipeline(Pipeline):
         self.source = StaticDataConnector(self)
         self.transformer = Transform(self)
         self.url = self.source.daily_lineups.replace('YYYYmmdd', date)
+        self.destination.check_tables()
         bp = 'here'
 
     def extract(self):
@@ -29,7 +30,7 @@ class DailyLineupsPipeline(Pipeline):
         return data_transformed
     
     def load(self, data_transformed):
-        data_loaded = data_transformed
+        data_loaded = self.destination.checked_upsert('DailyLineups', data_transformed)
         return data_loaded
 
 

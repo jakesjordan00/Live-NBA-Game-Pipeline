@@ -1,5 +1,5 @@
 import logging
-
+from datetime import datetime
 class Transform:
 
     def __init__(self, pipeline):
@@ -23,10 +23,14 @@ class Transform:
             SeasonID = f'20{short_season}' if short_season < 90 else f'19{short_season}'
             GameID = int(game['gameId'])
             self.logger.info(f'{GameID} - {game['awayTeam']['teamAbbreviation']} @ {game['homeTeam']['teamAbbreviation']}')
-            for team in [game['homeTeam'], game['awayTeam']]:
+            teams = [game['homeTeam'], game['awayTeam']]
+            for team in teams:
+                TeamID = team['teamId']
+                MatchupID = next((t['teamId'] for t in teams if t['teamId'] != TeamID), None)
                 for player in team['players']:
                     player['seasonId'] = SeasonID
                     player['gameId'] = GameID
+                    player['matchupId'] = MatchupID
                     player_rows.append(format(player))
                 self.logger.info(f'{team['teamAbbreviation']}: {len(team['players'])} players')
         # self.logger.info(f'Transformed to {len(player_rows)} rows, one for each player.')
@@ -38,10 +42,11 @@ def format(player: dict):
         'SeasonID': player['seasonId'],
         'GameID': player['gameId'],
         'TeamID': player['teamId'],
+        'MatchupID': player['matchupId'],
         'PlayerID': player['personId'],
-        'Position': player['position'],
+        'Position': player['position'] if player['position'] != '' else None,
         'LineupStatus': player['lineupStatus'],
         'RosterStatus': player['rosterStatus'],
-        'Timestamp': player['timestamp']
+        'Timestamp': datetime.strptime(player['timestamp'], '%Y-%m-%dT%H:%M:%S')
     }
     return player_row

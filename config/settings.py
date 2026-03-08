@@ -829,8 +829,7 @@ end
             'F',
             'FDrwn'
         ],
-        'check_query':
-        '''
+        'check_query': '''
 with TeamsOnCourt as(
 select s.*
 , dense_rank() over(partition by TeamID order by StintID desc) OnCourt
@@ -1045,5 +1044,47 @@ SeriesText		varchar(255),
 Primary Key (SeasonID, GameID))
 end
 '''
+    },
+
+    'DailyLineups': {
+        'keys': ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID', 'Timestamp'],
+        'columns': [
+            'SeasonID', 
+            'GameID', 
+            'TeamID', 
+            'MatchupID', 
+            'PlayerID', 
+            'Position',
+            'LineupStatus',
+            'RosterStatus',
+            'Timestamp'
+        ],
+        'update_columns': [
+            'Position',
+            'LineupStatus',
+            'RosterStatus'
+        ],
+        'create': '''
+if not exists(
+select 1 from sys.tables t where t.name = 'DailyLineups'
+) 
+begin
+create table DailyLineups(
+SeasonID        int,
+GameID          int,
+TeamID          int,
+MatchupID       int,
+PlayerID        int,
+Position        varchar(10),
+LineupStatus    varchar(20),
+RosterStatus    varchar(20),
+Timestamp       datetime,
+Primary key (SeasonID, GameID, TeamID, MatchupID, PlayerID, Timestamp),
+Foreign key(SeasonID, TeamID) references Team(SeasonID, TeamID),
+Foreign key(SeasonID, MatchupID) references Team(SeasonID, TeamID),
+Foreign key(SeasonID, PlayerID) references Player(SeasonID, PlayerID))
+end
+'''
+
     }
 }
