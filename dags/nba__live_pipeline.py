@@ -94,8 +94,6 @@ def nba_pipeline():
         completed_playbyplay_pipeline = playbyplay_pipeline.run()
         loaded_playbyplay_data = completed_playbyplay_pipeline['loaded']
         
-
-        print('PlayByPlay')
         return {
             'playbyplay_actions': len(loaded_playbyplay_data['PlayByPlay']),
             'stint_errors': [asdict(err) for err in loaded_playbyplay_data['Stints'].errors]
