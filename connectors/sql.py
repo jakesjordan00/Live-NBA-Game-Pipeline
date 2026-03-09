@@ -161,6 +161,8 @@ end
                 'Table': table_name,
                 'err_msg': e
             })
+        if table_name == 'DailyLineups':
+            return data
 
     def cursor_query(self, table_name: str, keys: dict) -> dict :
         '''cursor_query
