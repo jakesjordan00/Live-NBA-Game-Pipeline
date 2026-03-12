@@ -14,7 +14,7 @@ import textwrap
         'retries': 2,
         'retry_delay': timedelta(seconds = 30)
     },
-    doc_md = """Uses **ScoreboardPipeline** to check today's games.
+    doc_md = textwrap.dedent("""Uses **ScoreboardPipeline** to check today's games.
     
     For each game that's *in progress* or *completed*, uses **BoxscorePipeline** to upsert real-time data to the following tables in db:
         Game, GameExt,
@@ -22,7 +22,8 @@ import textwrap
         Player, PlayerBox, StartingLineups
         Arena, Official
     
-    """,
+    """),
+    
     description="""test
     """
 )

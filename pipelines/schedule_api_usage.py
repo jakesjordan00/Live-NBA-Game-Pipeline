@@ -23,11 +23,19 @@ class ScheduleForAPI(Pipeline):
         db_schedule = data_extract.with_columns([
             (pl.col('GameTimeEST').dt.strftime('%m/%d/%Y')).alias('Date')
         ])
+        #TODO
+        test = db_schedule.group_by()
         distinct_dates = db_schedule.sql('select distinct Date from self').to_series().to_list()
-        data_transformed = {
-            'db_schedule': db_schedule,
-            'dates': distinct_dates
-        }
+
+        dates_with_game_data = []
+
+        for date in distinct_dates:
+            games = db_schedule.sql(f"select * from self where Date = '{date}'").to_dicts()
+            dates_with_game_data.append({
+                'date': date,
+                'games': games
+            })
+        data_transformed = dates_with_game_data
         return data_transformed
 
     def load(self, data_transformed):

@@ -62,7 +62,7 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
             'LastNGames':       0,                  # 0-15
             'LeagueID':         '00',               # 
             'Location':         '',                 # 
-            'MeasureType':      'Base',             # 'Base' = Traditional, 'Advanced', 'Misc', 'Scoring', 'Usage', 'Defense', 'Violations'
+            'MeasureType':      'Advanced',         # 'Base' = Traditional, 'Advanced', 'Misc', 'Scoring', 'Usage', 'Defense', 'Violations'
             'Month':            0,                  # 1-12 (Starting October), 0 = null
             'OpponentTeamID':   0,                  # 
             'Outcome':          '',                 # 
