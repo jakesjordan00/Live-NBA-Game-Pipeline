@@ -27,3 +27,14 @@ class SchedulePipeline(Pipeline[list]):
     def load(self, data_transformed):
         data_loaded = data_transformed
         return data_loaded
+
+
+class DailyBackfillSchedulePipeline(SchedulePipeline):
+    def __init__(self):
+        super().__init__()
+
+    def transform(self, data_extract):
+        db_schedule = self.destination.query_to_dataframe(self.destination.queries.schedule_backfill)
+        data_extract_formatted = self.transformer.schedule(data_extract)
+        data_transformed = self.transformer.schedule_backfill(data_extract_formatted, db_schedule)
+        return data_transformed

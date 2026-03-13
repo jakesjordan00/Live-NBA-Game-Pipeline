@@ -125,7 +125,8 @@ class Transform:
                             else int(g['gameStatusText'][1]) if g['gameStatus'] == 2 and g['gameStatusText'][0] == 'Q'
                             else 0,
                 # 'GameClock': g['gameClock'],
-                'GameTimeUTC': g['gameTimeUTC'],
+                'GameTimeUTC': g['gameDateTimeUTC'],
+                'GameTimeEST': g['gameDateTimeEst'],
                 # 'GameEt': g['gameEt'],
                 # 'RegulationPeriods': g['regulationPeriods'],
                 'IfNecessary': g['ifNecessary'],
@@ -153,3 +154,10 @@ class Transform:
         self.logger.info(f'All-Star Games: {game_counts[3]} (Excluded)')
         self.logger.info(f'{len(schedule)} Games queued for insert')
         return schedule
+
+    def schedule_backfill(self, data_extract_formatted: list, db_schedule: pl.DataFrame):
+        games = db_schedule['GameID'].to_list()
+        self.logger.info('Now filtering out games that are up to date...')
+        data_transformed = [game for game in data_extract_formatted if game['GameID'] in games]
+        self.logger.info(f'{len(data_transformed)} games to backfill')
+        return data_transformed

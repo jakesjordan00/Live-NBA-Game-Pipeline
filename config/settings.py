@@ -551,7 +551,10 @@ end
         ],
         'create': '''
 if not exists(
-select 1 from sys.tables t where t.name = 'PlayerBox'
+select 1 
+from sys.tables t 
+inner join sys.schemas s on t.schema_id = s.schema_id
+where t.name = 'PlayerBox' and s.name = 'dbo'
 ) begin
 create table PlayerBox(
 SeasonID					int,
@@ -1137,7 +1140,10 @@ end
         ],
         'create': '''
 if not exists(
-select 1 from sys.tables t where t.name = 'DailyLineups'
+select * 
+from sys.tables t 
+inner join sys.schemas s on t.schema_id = s.schema_id
+where t.name = 'PlayerBox' and s.name = 'adv'
 ) 
 begin
 create table adv.PlayerBox(
@@ -1172,23 +1178,23 @@ Foreign Key (SeasonID) references Season(SeasonID),
 Foreign Key (SeasonID, GameID) references Game(SeasonID, GameID),
 Foreign Key (SeasonID, TeamID) references Team(SeasonID, TeamID),
 Foreign Key (SeasonID, PlayerID) references Player(SeasonID, PlayerID),
-Foreign Key (SeasonID, GameID, TeamID, MatchupID) references TeamBox(SeasonID, GameID, TeamID, MatchupID))
+Foreign Key (SeasonID, GameID, TeamID, MatchupID) references TeamBox(SeasonID, GameID, TeamID, MatchupID),
+Foreign Key (SeasonID, GameID, TeamID, MatchupID, PlayerID) references PlayerBox(SeasonID, GameID, TeamID, MatchupID, PlayerID))
 end
 '''
     },
-    'placeholder': {
-        'keys': [],
-        'columns': [
-        ],
-        'update_columns': [
-        ],
-        'create': '''
-if not exists(
-select 1 from sys.tables t where t.name = 'DailyLineups'
-) 
-begin
+#     'placeholder': {
+#         'keys': [],
+#         'columns': [
+#         ],
+#         'update_columns': [
+#         ],
+#         'create': '''
+# if not exists(
+# select 1 from sys.tables t where t.name = 'DailyLineups'
+# ) 
+# begin
 
-end
-'''
-    }
+# end
+# '''    }
 }

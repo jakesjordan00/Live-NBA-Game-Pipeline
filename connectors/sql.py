@@ -6,14 +6,20 @@ import pyodbc
 import logging
 import datetime
 import polars as pl
-from typing import TypedDict
+from typing import TypedDict, ClassVar
 import types
 from dataclasses import dataclass
 
+@dataclass(frozen=True)
+class Query:
+    name: str
+    query: str
+
 class SQLConnector:
-    @dataclass
     class Queries:
-        schedule_for_api_usage = '''
+        schedule_for_api_usage: ClassVar[Query] = Query(
+            name= 'schedule_for_api_usage',
+            query='''
 select s.*
 	 , pb.PlayerID
 	 , case when pb.TeamID = s.HomeID then 'Home' else 'Away' end HomeAway
@@ -22,10 +28,26 @@ left join PlayerBox pb on s.SeasonID = pb.SeasonID and s.GameID = pb.GameID
 where s.SeasonID = 2025 and s.GameType != 'PRE' and s.GameTimeEST <= getdate()
 order by s.GameTimeEst, s.GameID
         '''
-        placeholder = '''
-select *
-from Game g
+        )
+        schedule_backfill: ClassVar[Query] = Query(
+            name = 'schedule_backfill',
+            query = '''select s.SeasonID
+	 , s.GameID
+	 , e.Status
+from Schedule s
+left join Game g on s.SeasonID = g.SeasonID and s.GameID = g.GameID and s.HomeID = g.HomeID and s.AwayID = g.AwayID
+left join GameExt e on s.SeasonID = e.SeasonID and s.GameID = e.GameID
+where s.SeasonID = 2025 
+and s.GameTimeEST < cast(getdate() as date)
+and (g.GameID is null or e.Status not like '%final%') 
+and left(s.GameID, 1) in(2, 4, 5) --Only get Regular Season, Playoffs and Play-in
 '''
+        )
+
+        placeholder: ClassVar[Query] = Query(
+            name = '',
+            query = ''''''
+        )
 
     def __init__(self, pipeline_name, database_name: str):
         if database_name not in DATABASES:
@@ -36,7 +58,7 @@ from Game g
         self.tables = TABLES
         self.engine = self._create_engine()
         self.pyodbc_connection = pyodbc.connect(self._get_pyodbc_connection())
-        self.logger = logging.getLogger(f'{pipeline_name}.load')
+        self.logger = logging.getLogger(f'{pipeline_name}.sql')
         self.tag = 'sql'
         self.queries = self.Queries()
 
@@ -349,6 +371,7 @@ end
         cursor = self.pyodbc_connection.cursor()
         for table, config in self.tables.items():
             query = config['create']
+            print(query)
             result = cursor.execute(query)
             cursor.commit()
             bp = 'here'
@@ -365,8 +388,10 @@ end
         cursor.commit()
         return db_msg.rowcount
 
-    def query_to_dataframe(self, query):
-        data = pl.read_database(query, self.engine)
+    def query_to_dataframe(self, query: Query):
+        self.logger.info(f'Running {query.name} query...')
+        data = pl.read_database(query.query, self.engine)
+        self.logger.info(f'{data.height} rows returned')
         return data
 
     def _dict_to_params(self, d: dict, keys: list) -> tuple:

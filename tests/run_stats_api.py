@@ -3,6 +3,13 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from connectors import APIDataConnector, SQLConnector, StaticDataConnector
 
+#TODO
+from pipelines import DailyBackfillSchedulePipeline
+backfill_pipe = DailyBackfillSchedulePipeline()
+go = backfill_pipe.run()
+bp = 'here'
+
+
 
 from pipelines import ScheduleForAPI
 schedule_pipeline = ScheduleForAPI()
@@ -20,4 +27,6 @@ for date in schedule_data:
         }
     completed_adv_stats_pipeline = adv_stats_pipeline.run()
     stats_data = completed_adv_stats_pipeline['loaded']
+
+
 
