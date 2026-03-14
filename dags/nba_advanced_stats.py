@@ -32,7 +32,7 @@ def nba_advanced_stats_pipeline():
     
 
     @task
-    def player_traditional(date):
+    def player_advanced(date):
         from pipelines import AdvancedStatsPipeline
         adv_stats_pipeline = AdvancedStatsPipeline(date['data'])
         adv_stats_pipeline.source.player_stats.params = {**adv_stats_pipeline.source.player_stats.params, 'DateFrom': date['date'], 'DateTo': date['date']}
@@ -41,6 +41,6 @@ def nba_advanced_stats_pipeline():
 
     schedule_data = get_schedule()
 
-    player_traditional_data = player_traditional.expand(date = schedule_data)
+    player_traditional_data = player_advanced.expand(date = schedule_data)
 
 nba_advanced_stats_pipeline()

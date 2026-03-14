@@ -24,7 +24,7 @@ for scoreboard in scoreboard_data:
     stint_status = start_action_info['stint_status']
 
     home_stats, away_stats = (None, None) if db_actions == 0 else boxscore_pipeline.destination.stint_cursor(boxscore_data['lineup_keys'])
-    playbyplay_pipeline = PlayByPlayPipeline(f'playbyplay.{GameID}', boxscore_data, db_actions, db_last_action_number, home_stats, away_stats, stint_status, 'Development')
+    playbyplay_pipeline = PlayByPlayPipeline(f'playbyplay.{GameID}', boxscore_data, db_actions, db_last_action_number, home_stats, away_stats, stint_status, 'Production')
     completed_playbyplay_pipeline = playbyplay_pipeline.run()
     playbyplay_data = completed_playbyplay_pipeline['loaded']
     bp = 'here'

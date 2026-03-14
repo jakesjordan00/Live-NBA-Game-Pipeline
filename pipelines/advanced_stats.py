@@ -26,10 +26,8 @@ class AdvancedStatsPipeline(Pipeline):
         return data_transformed
 
     def load(self, data_transformed):
-        data_loaded = data_transformed
-        for item in data_transformed[0].keys():
-            print(f"            '{item}',")
-        bp = 'here'
+        data_loaded = self.destination.checked_upsert('adv.PlayerBox', data_transformed)
+        return data_loaded
 
 
 

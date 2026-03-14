@@ -25,10 +25,6 @@ class SQLConnector:
             name = 'schedule_backfill',
             query = query('schedule_backfill')
         )
-        pbp_backfill: ClassVar[Query] = Query(
-            name = 'pbp_backfill',
-            query= query('pbp_backfill')
-        )
 
         placeholder: ClassVar[Query] = Query(
             name = '',
@@ -179,6 +175,7 @@ end
             params = [self._dict_to_params(data_dict, sql_table['keys'] + sql_table['columns'] + sql_table['update_columns'] + sql_table['keys']) for data_dict in data]
             cursor = self.pyodbc_connection.cursor()
             cursor.fast_executemany = True
+            # self._parse_pyodbc_query(upsert_string, params)
             cursor.executemany(upsert_string, params)
             self.logger.info(f'{table_name} ╍ Upserted {len(data)} rows')
             cursor.commit()
@@ -385,6 +382,7 @@ end
 
     def _parse_pyodbc_query(self, query: str, params: list):
         queries = []
+        import pyperclip
         for tuple in params:
             for value in tuple:
                 if type(value) == str:
@@ -396,7 +394,8 @@ end
                 index = query.find('?')
                 test = query[index + 1:]
                 query = f'{query[:index]}{value}{query[index + 1:]}'
-            # pyperclip.copy(query)
+            
+            pyperclip.copy(query)
             queries.append(query)
 
         

@@ -50,7 +50,7 @@ delete from Stint where SeasonID = {self.pipeline.boxscore_data['SeasonID']} and
             bp = 'here'
 
         playbyplay_data, sub_groups = transform_stints.determine_substitutions(playbyplay_data, self.pipeline.boxscore_data)
-        transformed_playbyplay = TransformPlayByPlay(playbyplay_data, self.pipeline.boxscore_data, db_actions, db_last_action_number)
+        transformed_playbyplay = TransformPlayByPlay(playbyplay_data, self.pipeline.boxscore_data, self.pipeline.db_actions, self.pipeline.db_last_action_number)
         
         stint_processor = StintProcessor(playbyplay_data, self.pipeline.boxscore_data, sub_groups, self.pipeline.home_stats, self.pipeline.away_stats, self.pipeline.stint_status, self.pipeline.db_actions, self.pipeline.db_last_action_number)
         stints = stint_processor.process()

@@ -1,32 +1,40 @@
 
 with NotDoneInGame as(
-select s.SeasonID
-	 , s.GameID
-	 , e.Status
-	 , s.GameTimeEST
-from Schedule s
-left join Game g on s.SeasonID = g.SeasonID and s.GameID = g.GameID and s.HomeID = g.HomeID and s.AwayID = g.AwayID
-left join GameExt e on s.SeasonID = e.SeasonID and s.GameID = e.GameID
-where s.SeasonID = 2025 
-and s.GameTimeEST < cast(getdate() as date)
-and (g.GameID is null or e.Status not like '%final%') 
-and left(s.GameID, 1) in(2, 4, 5) --Only get Regular Season, Playoffs and Play-in
+	select s.SeasonID
+		 , s.GameID
+		 , e.Status
+		 , s.GameTimeEST
+	from Schedule s
+	left join Game g on s.SeasonID = g.SeasonID and s.GameID = g.GameID and s.HomeID = g.HomeID and s.AwayID = g.AwayID
+	left join GameExt e on s.SeasonID = e.SeasonID and s.GameID = e.GameID
+	where s.SeasonID = 2025 
+	and s.GameTimeEST < cast(getdate() as date)
+	and (g.GameID is null or e.Status not like '%final%') 
+	and left(s.GameID, 1) in(2, 4, 5) --Only get Regular Season, Playoffs and Play-in
 ),
 LastAction as(
-select p.SeasonID, p.GameID, max(p.ActionID) LastAction
-from PlayByPlay p
-where SeasonID = 2025 and SubType != 'memo'
-group by p.SeasonID, p.GameID
-), NotInPlayByPlay as(
-select s.SeasonID, s.GameID sch_GameID, p.GameID pbp_GameID
-from Schedule s
-left join Game g on s.SeasonID = g.SeasonID and s.GameID = g.GameID and s.HomeID = g.HomeID and s.AwayID = g.AwayID
-left join GameExt e on s.SeasonID = e.SeasonID and s.GameID = e.GameID
-left join PlayByPlay p on s.SeasonID = p.SeasonID and s.GameID = p.GameID
-where s.SeasonID = 2025 
-and s.GameTimeEST < cast(getdate() as date)
-and p.GameID is null
-and left(s.GameID, 1) in(2, 4, 5) --Only get Regular Season, Playoffs and Play-in
+	select p.SeasonID, p.GameID, max(p.ActionID) LastAction
+	from PlayByPlay p
+	where SeasonID = 2025 and SubType != 'memo'
+	group by p.SeasonID, p.GameID
+),
+FirstAction as(
+	select p.SeasonID, p.GameID, min(p.ActionID) FirstAction
+	from PlayByPlay p
+	where SeasonID = 2025 and SubType != 'memo'
+	group by p.SeasonID, p.GameID
+	having min(p.ActionID) != 1
+),
+NotInPlayByPlay as(
+	select s.SeasonID, s.GameID sch_GameID, p.GameID pbp_GameID
+	from Schedule s
+	left join Game g on s.SeasonID = g.SeasonID and s.GameID = g.GameID and s.HomeID = g.HomeID and s.AwayID = g.AwayID
+	left join GameExt e on s.SeasonID = e.SeasonID and s.GameID = e.GameID
+	left join PlayByPlay p on s.SeasonID = p.SeasonID and s.GameID = p.GameID
+	where s.SeasonID = 2025 
+	and g.Date < cast(getdate() as date)
+	and p.GameID is null
+	and left(s.GameID, 1) in(2, 4, 5) --Only get Regular Season, Playoffs and Play-in
 )
 select la.SeasonID
 	 , la.GameID
@@ -41,3 +49,7 @@ union
 select p.SeasonID
 	 , p.GameID
 from NotDoneInGame p
+union
+select f.SeasonID
+	 , f.GameID
+from FirstAction f
