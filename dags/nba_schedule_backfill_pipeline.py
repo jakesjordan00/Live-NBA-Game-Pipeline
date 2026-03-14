@@ -46,7 +46,7 @@ def nba_pipeline():
         db_last_action_number = start_action_info['last_action_number']
         stint_status = start_action_info['stint_status']
         
-        home_stats, away_stats = (None, None) if db_actions == 0 or stint_status == 'failure' else boxscore_pipeline.destination.stint_cursor(boxscore_data['lineup_keys'])
+        home_stats, away_stats = (None, None) if db_actions == 0 or stint_status == 'failure' else boxscore_pipeline.destination.stint_cursor(stint_keys=boxscore_data['lineup_keys'])
         boxscore_data = {
             'boxscore_data': boxscore_data,
             'db_actions': db_actions,
