@@ -12,21 +12,21 @@ from connectors import APIDataConnector, SQLConnector, StaticDataConnector
 
 
 from pipelines import ScheduleForAPI
-schedule_pipeline = ScheduleForAPI()
-completed_schedule_pipeline = schedule_pipeline.run()
-schedule_data = completed_schedule_pipeline['loaded']
+for schema in [
+    # 'adv', 
+    # 'misc', 
+    'usage'
+    ]:
+    schedule_pipeline = ScheduleForAPI(schema=schema)
+    completed_schedule_pipeline = schedule_pipeline.run()
+    schedule_data = completed_schedule_pipeline['loaded']
 
-from pipelines import AdvancedStatsPipeline
-for date in schedule_data:
-    adv_stats_pipeline = AdvancedStatsPipeline(date['games'])
-    adv_stats_pipeline.source.player_stats.params = {
-        **adv_stats_pipeline.source.player_stats.params,
-        'DateFrom': date['date'],
-        'DateTo': date['date'],
-        
-        }
-    completed_adv_stats_pipeline = adv_stats_pipeline.run()
-    stats_data = completed_adv_stats_pipeline['loaded']
+    for date in schedule_data:
+        from pipelines import AdvancedStatsPipeline
+        adv_stats_pipeline = AdvancedStatsPipeline(date_data=date, schema=schema)
+        completed_adv_stats_pipeline = adv_stats_pipeline.run()
+        stats_data = completed_adv_stats_pipeline['loaded']
+    # adv_stats_pipeline = AdvancedStatsPipeline(data=date['games'], schema=schema)
 
 
-
+#Schemas: adv, misc, 

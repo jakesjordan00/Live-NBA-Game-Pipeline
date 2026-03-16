@@ -3,18 +3,21 @@ if __name__ == '__main__':
     import os
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pipelines import Pipeline
-from connectors import SQLConnector
+from connectors.sql import SQLConnector, Query
 import polars as pl
 
 class ScheduleForAPI(Pipeline):
-    def __init__(self):
+    def __init__(self, schema: str):
         self.pipeline_name = 'schedule_for_api'
         self.pipeline_tag = 'schedule'
+        self.schema = schema
         super().__init__(self.pipeline_name, self.pipeline_tag, 'SQL')
         self.source = self.destination
         
     def extract(self):
-        data_extract = self.source.query_to_dataframe(self.source.queries.schedule_for_api_usage)
+        schema_query = self.source.queries.schedule_api_playerbox.query.format(schema=self.schema)
+        query = Query(name=f'{self.pipeline_name}_{self.schema}', query = schema_query)
+        data_extract = self.source.query_to_dataframe(query=query)
         return {'data_extract': data_extract}
     
 
@@ -55,6 +58,6 @@ class ScheduleForAPI(Pipeline):
 
 
 if __name__ == '__main__':
-    pipe = ScheduleForAPI()
+    pipe = ScheduleForAPI('adv')
     go = pipe.run()
     bp = 'here'

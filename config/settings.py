@@ -684,18 +684,85 @@ where s.SeasonID = season_id and s.GameID in(game_id)
         ],
         'create': table('adv.PlayerBox')
     },
-#     'placeholder': {
+    'misc.PlayerBox': {
+        'keys': ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID'],
+        'columns': [
+            'SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID',
+            'PtsTurnover',
+            'PtsSecondChance',
+            'PtsFastBreak',
+            'PtsInThePaint',
+            'OpPtsTurnover',
+            'OpPtsSecondChance',
+            'OpPtsFastBreak',
+            'OpPtsInThePaint'
+        ],
+        'update_columns': [
+            'PtsTurnover',
+            'PtsSecondChance',
+            'PtsFastBreak',
+            'PtsInThePaint',
+            'OpPtsTurnover',
+            'OpPtsSecondChance',
+            'OpPtsFastBreak',
+            'OpPtsInThePaint'
+        ],
+        'create': table('misc.PlayerBox')
+        },
+    'usage.PlayerBox': {
+        'keys': ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID'],
+        'columns': [
+            'SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID',
+            '[Usage%]',
+            '[%TeamFGM]',
+            '[%TeamFGA]',
+            '[%TeamFG3M]',
+            '[%TeamFG3A]',
+            '[%TeamFTM]',
+            '[%TeamFTA]',
+            '[%TeamOREB]',
+            '[%TeamDREB]',
+            '[%TeamREB]',
+            '[%TeamAST]',
+            '[%TeamTOV]',
+            '[%TeamSTL]',
+            '[%TeamBLK]',
+            '[%TeamBLKd]',
+            '[%TeamPF]',
+            '[%TeamPFDrwn]',
+            '[%TeamPTS]'
+
+        ],
+        'update_columns': [
+            '[Usage%]',
+            '[%TeamFGM]',
+            '[%TeamFGA]',
+            '[%TeamFG3M]',
+            '[%TeamFG3A]',
+            '[%TeamFTM]',
+            '[%TeamFTA]',
+            '[%TeamOREB]',
+            '[%TeamDREB]',
+            '[%TeamREB]',
+            '[%TeamAST]',
+            '[%TeamTOV]',
+            '[%TeamSTL]',
+            '[%TeamBLK]',
+            '[%TeamBLKd]',
+            '[%TeamPF]',
+            '[%TeamPFDrwn]',
+            '[%TeamPTS]'
+        ],
+        'create': table('usage.PlayerBox')
+}
+
+
+# 'placeholder': {
 #         'keys': [],
 #         'columns': [
 #         ],
 #         'update_columns': [
 #         ],
-#         'create': '''
-# if not exists(
-# select 1 from sys.tables t where t.name = 'DailyLineups'
-# ) 
-# begin
-
-# end
-# '''    }
+#         'create': table()
+# }
 }

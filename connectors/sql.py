@@ -17,9 +17,9 @@ class Query:
 
 class SQLConnector:
     class Queries:
-        schedule_for_api_usage: ClassVar[Query] = Query(
-            name= 'schedule_for_api_usage',
-            query= query('schedule_for_api_usage')
+        schedule_api_playerbox: ClassVar[Query] = Query(
+            name= 'schedule_api_playerbox',
+            query= query('schedule_api_playerbox')
         )
         schedule_backfill: ClassVar[Query] = Query(
             name = 'schedule_backfill',
@@ -89,11 +89,7 @@ class SQLConnector:
                     self.logger.info(f'No new PlayByPlay actions to insert. Skipping...')
                 else:
                     self.unchecked_insert(table_name, data)
-
-
-                
-
-        return data_transformed #change this to some sort of logging mechanism
+        return data_transformed
     
 
 
@@ -148,13 +144,37 @@ values({', '.join(['?'] * len(sql_table['columns']))})
 
     
     def checked_upsert(self, table_name: str, data: list):
+        '''checked_upsert(self, table_name, data)
+    ===
+    
+    Given a table name and a list of rows to insert, performs an upsert to database.
+
+
+    :param str table_name: The name of the table to update
+
+    :param list data: list of dictionaries that correspond to the values in config/settings.py
+
+        * Each dictionary must match the format of the table's keys (or lookup values), table's columns, the columns to be updated (if necc), and then the keys again
+            * This results fills out the *upsert_string* value
+            >>> upsert_string = f"""
+                if not exists(
+                select 1 
+                from {table_name}
+                where {' = ? and '.join(sql_table['keys'])} = ?
+                )
+                begin
+                insert into {table_name}({', '.join(sql_table['columns'])})
+                values({', '.join(['?'] * len(sql_table['columns']))})
+                end
+                else
+                begin
+                update {table_name} set {' = ?, '.join(col for col in sql_table['update_columns'])} = ?
+                where {' = ? and '.join(sql_table['keys'])} = ?
+                end
+            """
+
+        '''
         sql_table = self.tables[table_name]
-
-        test = f'update {table_name} set {' = ?, '.join(col for col in sql_table['update_columns'])} = ?'
-        test2 = f'where {' = ? and '.join(sql_table['keys'])} = ?'
-        bp = 'here'
-
-
         upsert_string = f'''
 if not exists(
 select 1 
@@ -184,6 +204,7 @@ end
                 'Table': table_name,
                 'err_msg': e
             })
+            bp ='here'
         if table_name == 'DailyLineups':
             return data
 
