@@ -67,7 +67,7 @@ class Pipeline(ABC, Generic[T]):
         return {
             'pipeline': self.pipeline_name,
             'status': 'success',
-            'extracted': len(data_extract),
+            'extracted': len(data_extract) if data_extract else 0,
             'transformed': data_transformed,
             'loaded': data,
             'timestamp': self.run_timestamp.isoformat()

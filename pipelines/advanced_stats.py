@@ -16,7 +16,7 @@ SCHEMA_CONFIG = {
 
 class AdvancedStatsPipeline(Pipeline):
     def __init__(self, date_data: dict, schema: str):
-        self.pipeline_name = 'advanced_stats'
+        self.pipeline_name = f'advanced_stats.{schema}'
         self.tag = 'advancedStats'
         self.schema = schema
         super().__init__(self.pipeline_name, self.tag, 'NBA API')
@@ -43,10 +43,16 @@ class AdvancedStatsPipeline(Pipeline):
     
 
     def transform(self, data_extract):
+        if not data_extract:
+            self.logger.warning('No data extracted, skipping transform')
+            return None
         data_transformed = self.transformer.start_transform(data_extract)
         return data_transformed
 
     def load(self, data_transformed):
+        if not data_transformed:
+            self.logger.warning('No data transformed, skipping load')
+            return None
         data_loaded = self.destination.checked_upsert(table_name=f'{self.schema}.PlayerBox', data=data_transformed)
         return data_loaded
 

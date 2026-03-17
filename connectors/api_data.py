@@ -2,6 +2,8 @@ from urllib import response
 import config.api_map as map
 import requests
 import json
+import time
+import logging
 
 
 class APIDataConnector:   
@@ -12,19 +14,28 @@ class APIDataConnector:
             self.url = config['url']
             self.headers = config['headers']
             self.params = config['params']
+            
             pass
 
     def __init__(self, pipeline):
         self.pipeline = pipeline
+        self.logger = logging.getLogger(f'{pipeline.pipeline_name}.api')
         self._set_endpoints()
         pass    
 
 
 
-    def fetch(self, endpoint: Endpoint):
-        response = requests.get(url=endpoint.url, params=endpoint.params, headers=endpoint.headers)
-        api_extract = response.json()
-        return api_extract
+    def fetch(self, endpoint: Endpoint, retries=5, backoff=5):
+        for attempt in range(retries):
+            response = requests.get(url=endpoint.url, params=endpoint.params, headers=endpoint.headers)
+            if response.status_code == 500:
+                if attempt < retries:
+                    self.logger.warning(f'{response.status_code} ERROR on try {attempt}: Waiting {backoff * attempt} seconds...')
+                    time.sleep(backoff * attempt)
+                    continue
+                self.logger.warning(f'{response.status_code}: {response.reason}')
+            api_extract = response.json()
+            return api_extract
     
 
     def _set_endpoints(self):

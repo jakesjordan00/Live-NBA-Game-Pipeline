@@ -28,35 +28,6 @@ class Transform:
             data_transformed = self.measure_violations()
         return data_transformed
 
-    def measure_defensive(self):
-        '''measure_defensive(self)
-    ===
-    When MeasureType == 'Defensive', format results
-        '''
-        for i, column in enumerate(self.results['headers']):
-            print(f"                '{column}': player[{i}],")
-        result_dicts = []
-        for player in self.results['rowSet']:
-            self._match_game(player=player)
-            player = {
-                'SeasonID':     self.SeasonID,
-                'GameID':       self.GameID,
-                'TeamID':       self.TeamID,
-                'MatchupID':    self.MatchupID,
-                'PlayerID':     player[0],
-            }
-            result_dicts.append(player)
-            
-            print(f'create table {self.pipeline.schema}.PlayerBox(')
-            print('SeasonID          int,')
-            print('GameID            int,')
-            print('TeamID            int,')
-            print('MatchupID         int,')
-            print('PlayerID          int,')
-            for column in player.keys():
-                print(f'{column}          decimal(18,3),')
-        return result_dicts
-    
     def measure_violations(self):
         '''measure_violations(self)
     ===
@@ -204,6 +175,30 @@ class Transform:
 
         return(result_dicts)
     
+    
+    def measure_defensive(self):
+        '''measure_defensive(self)
+    ===
+    When MeasureType == 'Defensive', format results
+        '''
+        result_dicts = []
+        for player in self.results['rowSet']:
+            self._match_game(player=player)
+            player = {
+                'SeasonID':     self.SeasonID,
+                'GameID':       self.GameID,
+                'TeamID':       self.TeamID,
+                'MatchupID':    self.MatchupID,
+                'PlayerID':     player[0],
+                'DReb%': player[13],
+                '%TeamDReb': player[14],
+                '%TeamSTL': player[16],
+                '%TeamBLK': player[18],
+                'DefWinShare': player[23],
+            }
+            result_dicts.append(player)
+            
+        return result_dicts
     
 
     def _match_game(self, player: list):

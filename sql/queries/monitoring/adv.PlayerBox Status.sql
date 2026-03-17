@@ -1,6 +1,7 @@
 with Overview as(
 select pb.SeasonID
 	 , pb.GameID
+	 , g.Date
 	 , pb.TeamID
 	 , pb.MatchupID
 	 , pb.PlayerID
@@ -14,10 +15,10 @@ select pb.SeasonID
 from Game g
 inner join PlayerBox pb on g.SeasonID = pb.SeasonID and g.GameID = pb.GameID
 inner join Player p on pb.SeasonID = p.SeasonID and pb.PlayerID = p.PlayerID
-left join adv.PlayerBox a on pb.SeasonID = a.SeasonID and pb.GameID = a.GameID and pb.TeamID = a.TeamID and pb.MatchupID = a.MatchupID and pb.PlayerID = a.PlayerID
+left join def.PlayerBox a on pb.SeasonID = a.SeasonID and pb.GameID = a.GameID and pb.TeamID = a.TeamID and pb.MatchupID = a.MatchupID and pb.PlayerID = a.PlayerID
 where p.SeasonID = 2025 and left(pb.GameID, 1) not in(1, 3, 6)
 )
 select *
 from overview
 where Status = 'Bad'
-go
+order by Date

@@ -16,7 +16,7 @@ for schema in [
     'adv', 
     'misc', 
     'usage',
-    # 'def',
+    'def',
     'violations',
     ]:
     schedule_pipeline = ScheduleForAPI(schema=schema)

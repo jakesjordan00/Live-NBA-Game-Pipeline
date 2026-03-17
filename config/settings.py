@@ -759,25 +759,39 @@ where s.SeasonID = season_id and s.GameID in(game_id)
         'keys': ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID'],
         'columns': [
             'SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID',
-            ],
-            'update_columns': [
-                'Travel',
-                'DblDribble',
-                'Inbound',
-                'Backcourt',
-                'Palming',
-                'OffFoul',
-                'Off3',
-                'OffGoaltend',
-                'Def3',
-                'DefGoaltend',
-                'Charge',
-                'Lane',
-                'JumpBall',
-                'KickedBall',
-                'DiscDribble',
-            ],
-            'create': table('violations.PlayerBox')
+        ],
+        'update_columns': [
+            'Travel',
+            'DblDribble',
+            'Inbound',
+            'Backcourt',
+            'Palming',
+            'OffFoul',
+            'Off3',
+            'OffGoaltend',
+            'Def3',
+            'DefGoaltend',
+            'Charge',
+            'Lane',
+            'JumpBall',
+            'KickedBall',
+            'DiscDribble',
+        ],
+        'create': table('violations.PlayerBox')
+    },    
+    'def.PlayerBox': {
+        'keys': ['SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID'],
+        'columns': [
+            'SeasonID', 'GameID', 'TeamID', 'MatchupID', 'PlayerID',
+        ],
+        'update_columns': [
+            '[DReb%]',
+            '[%TeamDReb]',
+            '[%TeamSTL]',
+            '[%TeamBLK]',
+            'DefWinShare',
+        ],
+        'create': table('def.PlayerBox')
     }
 
 
