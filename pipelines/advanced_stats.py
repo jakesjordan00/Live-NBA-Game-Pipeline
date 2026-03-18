@@ -16,6 +16,7 @@ class AdvancedStatsPipeline(Pipeline):
         self.pipeline_name = f'advanced_stats.{schema}'
         self.tag = 'advancedStats'
         self.schema = schema
+        self.tracking_table = tracking_table
         self.params = params
         # self.tracking_measure = tracking_measure
         super().__init__(self.pipeline_name, self.tag, 'NBA API')

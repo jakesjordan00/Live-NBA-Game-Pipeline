@@ -26,6 +26,8 @@ class Transform:
             data_transformed = self.measure_defensive()
         elif self.pipeline.schema == 'violations':
             data_transformed = self.measure_violations()
+        elif self.pipeline.schema == 'tracking':
+            data_transformed = self.transform_tracking()
         return data_transformed
 
     def measure_violations(self):
@@ -201,6 +203,9 @@ class Transform:
         return result_dicts
     
 
+
+
+
     def _match_game(self, player: list):
         '''_match_game(self, player)
     ===
@@ -226,3 +231,87 @@ class Transform:
             self.MatchupID = self.matching_game['HomeID']            
         else:
             self.MatchupID = 0
+
+
+
+    def transform_tracking(self):
+        '''transform_tracking`(self)`
+    ===
+
+        Acts similarly to `start_transform`, but for the Tracking endpoint
+        '''
+        if self.pipeline.tracking_table == 'PlayerDrives':
+            self.tracking_player_drives()
+        bp = 'here'
+
+
+
+    def tracking_player_drives(self):
+        '''tracking_player_drives`(self)`
+    ===
+    When PtMeasureType == 'Drives', format Player results
+        '''
+        # for i, column in enumerate(self.results['headers']):
+        #     print(f"                '{column}': player[{i}],")
+        result_dicts = []
+        for player in self.results['rowSet']:
+            self._match_game(player=player)
+            player = {
+                'SeasonID':     self.SeasonID,
+                'GameID':       self.GameID,
+                'TeamID':       self.TeamID,
+                'MatchupID':    self.MatchupID,
+                'PlayerID':     player[0],
+                'Drives': player[8],
+                'FGM': player[9],
+                'FGA': player[10],
+                'FG%': player[11],
+                'FTM': player[12],
+                'FTA': player[13],
+                'FT%': player[14],
+                'PTS': player[15],
+                'PTS%': player[16],
+                'Passes': player[17],
+                'Pass%': player[18],
+                'AST': player[19],
+                'AST%': player[20],
+                'TOV': player[21],
+                'TOV%': player[22],
+                'PF': player[23],
+                'PF%': player[24],
+            }
+            check_string = f"""
+if not exists(
+select *
+from sys.schemas s
+where s.name = '{self.pipeline.schema}'
+)
+exec('create schema {self.pipeline.schema}');
+if not exists(
+select *
+from sys.tables t
+inner join sys.schemas s on t.schema_id = s.schema_id
+where t.name = '{self.pipeline.tracking_table}' and s.name = '{self.pipeline.schema}'
+)
+begin"""
+            key_string = f"""Primary Key(SeasonID, GameID, TeamID, MatchupID, PlayerID),
+Foreign Key (SeasonID, GameID) references Game(SeasonID, GameID),
+Foreign Key (SeasonID, TeamID) references Team(SeasonID, TeamID),
+Foreign Key (SeasonID, PlayerID) references Player(SeasonID, PlayerID),
+Foreign Key (SeasonID, GameID, TeamID, MatchupID) references TeamBox(SeasonID, GameID, TeamID, MatchupID),
+Foreign Key (SeasonID, GameID, TeamID, MatchupID, PlayerID) references PlayerBox(SeasonID, GameID, TeamID, MatchupID, PlayerID))
+end"""
+            print(check_string)
+            print(f'create table {self.pipeline.schema}.{self.pipeline.tracking_table}(')
+            for column in player.keys():
+                if '%' in column:
+                    col = f'[{column}]'
+                    spacer = f'{(18 - len(col)) * ' '}'
+                    col_string = f'[{column}]{spacer}decimal(18,3),'
+                else:
+                    spacer = f'{(18 - len(column)) * ' '}'
+                    col_string = f'{column}{spacer}int,'
+                print(col_string)
+            print(key_string)
+            result_dicts.append(player)
+        bp = 'here'

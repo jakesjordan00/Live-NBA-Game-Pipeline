@@ -105,6 +105,7 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
             'LeagueID':         '00',               # 
             'Location':         '',                 # 
             'Month':            0,                  # 1-12 (Starting October), 0 = null
+            'OpponentTeamID':   0,                  
             'Outcome':          '',                 # 
             'PORound':          0,                  # 
             'PerMode':          'PerGame',          # 'Pergame', 'Totals', 'Per100Possessions', 'Per100Plays', 'Per48', 'Per40', 'Per36' 

@@ -33,6 +33,11 @@ class APIDataConnector:
         for attempt in range(retries):
             response = requests.get(url=endpoint.url, params=endpoint.params, headers=endpoint.headers)
             if response.status_code == 500:
+                if '\n' in response.text:
+                    text = response.text.split('\n')[0]
+                else:
+                    text = 'ERROR'
+                self.logger.info(f'{response.status_code}: {text}')
                 if attempt < retries:
                     self.logger.warning(f'{response.status_code} ERROR on try {attempt}: Waiting {backoff * attempt} seconds...')
                     time.sleep(backoff * attempt)
