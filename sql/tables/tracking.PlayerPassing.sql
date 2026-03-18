@@ -1,40 +1,33 @@
+
 if not exists(
 select *
 from sys.schemas s
-where s.name = 'usage'
+where s.name = 'tracking'
 )
-exec('create schema usage');
+exec('create schema tracking');
 if not exists(
-select * 
-from sys.tables t 
+select *
+from sys.tables t
 inner join sys.schemas s on t.schema_id = s.schema_id
-where t.name = 'PlayerBox' and s.name = 'usage'
-) 
+where t.name = 'PlayerPassing' and s.name = 'tracking'
+)
 begin
-create table usage.PlayerBox(
+create table tracking.PlayerPassing(
 SeasonID          int,
 GameID            int,
 TeamID            int,
 MatchupID         int,
 PlayerID          int,
-[Usage%]          decimal(18,3),
-[%TeamFGM]          decimal(18,3),
-[%TeamFGA]          decimal(18,3),
-[%TeamFG3M]          decimal(18,3),
-[%TeamFG3A]          decimal(18,3),
-[%TeamFTM]          decimal(18,3),
-[%TeamFTA]          decimal(18,3),
-[%TeamOREB]          decimal(18,3),
-[%TeamDREB]          decimal(18,3),
-[%TeamREB]          decimal(18,3),
-[%TeamAST]          decimal(18,3),
-[%TeamTOV]          decimal(18,3),
-[%TeamSTL]          decimal(18,3),
-[%TeamBLK]          decimal(18,3),
-[%TeamBLKd]          decimal(18,3),
-[%TeamPF]          decimal(18,3),
-[%TeamPFDrwn]          decimal(18,3),
-[%TeamPTS]          decimal(18,3),
+PassMade          int,
+PassRcvd          int,
+Ast               int,
+AstFT             int,
+AstSecondary      int,
+AstPotential      int,
+AstPointsCreated  int,
+AstAdj            int,
+[AstToPass%]      decimal(18,3),
+[AstToPass%Adj]   decimal(18,3),
 Primary Key(SeasonID, GameID, TeamID, MatchupID, PlayerID),
 Foreign Key (SeasonID, GameID) references Game(SeasonID, GameID),
 Foreign Key (SeasonID, TeamID) references Team(SeasonID, TeamID),

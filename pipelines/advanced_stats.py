@@ -12,13 +12,14 @@ TRACKING_MEASURE_CONFIG ={
 
 
 class AdvancedStatsPipeline(Pipeline):
-    def __init__(self, schema: str, params: dict, tracking_table: str | None = None):
+    def __init__(self, schema: str, params: dict, tracking_table: str | None = None, player_team: str | None = None):
         self.pipeline_name = f'advanced_stats.{schema}'
         self.tag = 'advancedStats'
         self.schema = schema
         self.tracking_table = tracking_table
+        self.full_table_name = f'{player_team}{tracking_table}'
+        self.player_team = player_team
         self.params = params
-        # self.tracking_measure = tracking_measure
         super().__init__(self.pipeline_name, self.tag, 'NBA API')
         self.schedule_source = StaticDataConnector(self)
         self.url = self.schedule_source.schedule        
@@ -26,15 +27,20 @@ class AdvancedStatsPipeline(Pipeline):
         
         if not tracking_table:
             self._endpoint = self.source.player_stats
+            self.full_table_name = 'PlayerBox'
         elif tracking_table:
             self._endpoint = self.source.player_tracking
         self._params = {
             **self._endpoint.params,
             **params
         }
+        try:
+            self.destination.check_specific_table(f'{self.schema}.{self.full_table_name}')
+        except Exception as e:
+            test = e
+            self.logger.critical(f"Table doesn't exist in config/settings.py! Continuing to allow for debugging, but nothing will be inserted.")
+            bp = 'here'
 
-
-        # self.destination.check_tables()
 
     def extract(self):
         self.logger.info(f'Extracting data from {self.date}')
@@ -53,7 +59,7 @@ class AdvancedStatsPipeline(Pipeline):
         if not data_transformed:
             self.logger.warning('No data transformed, skipping load')
             return None
-        data_loaded = self.destination.checked_upsert(table_name=f'{self.schema}.PlayerBox', data=data_transformed)
+        data_loaded = self.destination.checked_upsert(table_name=f'{self.schema}.{self.full_table_name}', data=data_transformed)
         return data_loaded
 
     def run(self, date_data: dict) -> dict:

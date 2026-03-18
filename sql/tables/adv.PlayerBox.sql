@@ -1,4 +1,9 @@
-
+if not exists(
+select *
+from sys.schemas s
+where s.name = 'adv'
+)
+exec('create schema adv');
 if not exists(
 select * 
 from sys.tables t 
@@ -36,6 +41,7 @@ FGA							int,
 Primary Key(SeasonID, GameID, TeamID, MatchupID, PlayerID),
 Foreign Key (SeasonID, GameID) references Game(SeasonID, GameID),
 Foreign Key (SeasonID, TeamID) references Team(SeasonID, TeamID),
+Foreign Key (SeasonID, MatchupID) references Team(SeasonID, TeamID),
 Foreign Key (SeasonID, PlayerID) references Player(SeasonID, PlayerID),
 Foreign Key (SeasonID, GameID, TeamID, MatchupID) references TeamBox(SeasonID, GameID, TeamID, MatchupID),
 Foreign Key (SeasonID, GameID, TeamID, MatchupID, PlayerID) references PlayerBox(SeasonID, GameID, TeamID, MatchupID, PlayerID))

@@ -378,6 +378,15 @@ end
             result = cursor.execute(query)
             cursor.commit()
             bp = 'here'
+            
+    def check_specific_table(self, table: str):
+        self.logger.info(f'Creating {table} table')
+        cursor = self.pyodbc_connection.cursor()
+        table_config = self.tables[table]
+        query = table_config['create']
+        result = cursor.execute(query)
+        cursor.commit()
+        bp = 'here'
 
 
     def raw_execute(self, query):

@@ -17,16 +17,16 @@ from pipelines import AdvancedStatsPipeline
 for tracking_measure in[
     'Drives',
     'Defense',
-    'CatchShoot',
+    # 'CatchShoot',
     'Passing',
-    'Possessions',
-    'PullUpShot',
-    'Rebounding',
-    'Efficiency',
-    'SpeedDistance',
-    'ElbowTouch',
-    'PostTouch',
-    'PaintTouch'
+    # 'Possessions',
+    # 'PullUpShot',
+    # 'Rebounding',
+    # 'Efficiency',
+    # 'SpeedDistance',
+    # 'ElbowTouch',
+    # 'PostTouch',
+    # 'PaintTouch'
 ]:
     schedule_pipeline = ScheduleForAPI(tracking_measure=tracking_measure)
     completed_schedule_pipeline = schedule_pipeline.run()
@@ -34,12 +34,13 @@ for tracking_measure in[
     for date in schedule_data:
         for pt in ['Player', 'Team']:
             adv_stats_pipeline = AdvancedStatsPipeline(
-                schema='tracking',
+                schema = 'tracking',
                 params = {
                     'PlayerOrTeam': pt,
                     'PtMeasureType': tracking_measure,
                 },
-                tracking_table = f'{pt}{tracking_measure}'
+                tracking_table = tracking_measure,
+                player_team = pt
             )
             completed_adv_stats_pipeline = adv_stats_pipeline.run(date_data=date)
             stats_data = completed_adv_stats_pipeline['loaded']

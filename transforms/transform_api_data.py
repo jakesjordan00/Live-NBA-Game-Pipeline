@@ -37,7 +37,7 @@ class Transform:
         '''
         result_dicts = []
         for player in self.results['rowSet']:
-            self._match_game(player=player)
+            self._match_player_game(player=player)
             player = {
                 'SeasonID':             self.SeasonID,
                 'GameID':               self.GameID,
@@ -69,11 +69,9 @@ class Transform:
     ===
     When MeasureType == 'Advanced', format results
         '''
-        # for i, column in enumerate(self.results['headers']):
-        #     print(f"                '{column}': player[{i}],")
         result_dicts = []
         for player in self.results['rowSet']:
-            self._match_game(player=player)
+            self._match_player_game(player=player)
             player = {
                 'SeasonID':     self.SeasonID,
                 'GameID':       self.GameID,
@@ -112,7 +110,7 @@ class Transform:
         '''
         result_dicts = []
         for player in self.results['rowSet']:
-            self._match_game(player=player)
+            self._match_player_game(player=player)
             player = {
                 'SeasonID':             self.SeasonID,
                 'GameID':               self.GameID,
@@ -138,7 +136,7 @@ class Transform:
         '''
         result_dicts = []
         for player in self.results['rowSet']:
-            self._match_game(player)
+            self._match_player_game(player)
             player = {
                 'SeasonID':             self.SeasonID,
                 'GameID':               self.GameID,
@@ -165,16 +163,7 @@ class Transform:
                 '%TeamPTS':             player[28],
                 
             }
-            '''print(f'create table {self.pipeline.schema}.PlayerBox(')
-            print('SeasonID          int,')
-            print('GameID            int,')
-            print('TeamID            int,')
-            print('MatchupID         int,')
-            print('PlayerID          int,')
-            for column in player.keys():
-                print(f'{column}          decimal(18,3),')'''
             result_dicts.append(player)
-
         return(result_dicts)
     
     
@@ -185,7 +174,7 @@ class Transform:
         '''
         result_dicts = []
         for player in self.results['rowSet']:
-            self._match_game(player=player)
+            self._match_player_game(player=player)
             player = {
                 'SeasonID':     self.SeasonID,
                 'GameID':       self.GameID,
@@ -206,8 +195,8 @@ class Transform:
 
 
 
-    def _match_game(self, player: list):
-        '''_match_game(self, player)
+    def _match_player_game(self, player: list):
+        '''_match_player_game(self, player)
     ===
     Using the self.games_on_date value, finds the GameIDs and PlayerBox entries for all games that took place on that date in question.
 
@@ -216,6 +205,7 @@ class Transform:
     If found, sets **SeasonID**, **GameID**, **self.TeamID**, **self.MatchupID**    
 
         :param player list: list of values returned from the API for a single player
+
         '''
         self.matching_game = next((
             game for game in self.games_on_date 
@@ -232,55 +222,203 @@ class Transform:
         else:
             self.MatchupID = 0
 
+    def _match_team_game(self, team: list):
+        '''_match_team_game(self, team)
+    ===
+    Using the self.games_on_date value, finds the GameIDs and their respective HomeID and AwayID entries for all games that took place on that date in question.
+
+    For each game taking place on the date in question, check if the **team** parameter, TeamID, is equal to HomeID or AwayID
+
+    If found, sets **SeasonID**, **GameID**, **self.TeamID**, **self.MatchupID**    
+
+        :param team list: list of values returned from the API for a single Team
+
+        '''
+        self.matching_game = next((
+            game for game in self.games_on_date 
+                if team[0] == game['HomeID']
+                or team[0] == game['AwayID']), {})
+        self.SeasonID = self.matching_game.get('SeasonID')
+        self.GameID = self.matching_game.get('GameID')
+        if team[0] == self.matching_game['HomeID']:
+            self.TeamID = self.matching_game['HomeID']
+            self.MatchupID = self.matching_game['AwayID']
+        elif team[0] == self.matching_game['AwayID']:
+            self.TeamID = self.matching_game['AwayID']
+            self.MatchupID = self.matching_game['HomeID']            
+        else:
+            self.MatchupID = 0
 
 
+
+#region Tracking
     def transform_tracking(self):
         '''transform_tracking`(self)`
     ===
 
         Acts similarly to `start_transform`, but for the Tracking endpoint
         '''
-        if self.pipeline.tracking_table == 'PlayerDrives':
-            self.tracking_player_drives()
+        self.result_dicts = []
+        for result in self.results['rowSet']:
+            self.index_diff = 0
+            if self.pipeline.player_team == 'Team':
+                self._match_team_game(team=result)
+                self.result_formatted = {
+                    'SeasonID': self.SeasonID,
+                    'GameID': self.GameID,
+                    'TeamID':       self.TeamID,
+                    'MatchupID':    self.MatchupID,
+                }
+            elif self.pipeline.player_team == 'Player':
+                self._match_player_game(player=result)
+                self.index_diff = 1
+                self.result_formatted = {
+                    'SeasonID':     self.SeasonID,
+                    'GameID':       self.GameID,
+                    'TeamID':       self.TeamID,
+                    'MatchupID':    self.MatchupID,
+                    'PlayerID':     result[0],
+                }
+
+            if self.pipeline.tracking_table == 'Drives':
+                self.result_dicts.append(self.tracking_drives(result=result))
+            elif self.pipeline.tracking_table == 'Defense':
+                self.result_dicts.append(self.tracking_defensive_impact(result=result))
+            elif self.pipeline.tracking_table == 'Passing':
+                self.result_dicts.append(self.tracking_passing(result=result))
+            bp = 'here'
+        bp = 'here'
+        data_transformed = self.result_dicts
+        return data_transformed
+
+
+    def tracking_passing(self, result: list):
+        '''tracking_passing`(self, result)`
+    ===
+        When PtMeasureType == 'Passing', format results<br>
+        Depending on whether or not player_team is Player or Team, format dictionaries accordingly for **Passing** data
+
+
+    Parameters
+    -------------
+    <hr>
+
+        __result__ (list): A list of either Player or Team data for a single Date
+
+
+    Returns
+    -------------
+    <hr>
+
+        __result_dict__ (dict): Formatted dict of **Passing** tracking data
+    '''
+        result_dict = {
+            **self.result_formatted,
+            'PassMade': result[7 + self.index_diff],
+            'PassRcvd': result[8 + self.index_diff],
+            'Ast': result[9 + self.index_diff],
+            'AstFT': result[10 + self.index_diff],
+            'AstSecondary': result[11 + self.index_diff],
+            'AstPotential': result[12 + self.index_diff],
+            'AstPointsCreated': result[13 + self.index_diff],
+            'AstAdj': result[14 + self.index_diff],
+            'AstToPass%': result[15 + self.index_diff],
+            'AstToPass%Adj': result[16 + self.index_diff],
+        }
+        # self._print_table_creates(result_dict)
+        return result_dict
+
+    def tracking_defensive_impact(self, result: list):
+        '''tracking_defensive_impact`(self, result)`
+    ===
+        When PtMeasureType == 'Defense', format results<br>
+        Depending on whether or not player_team is Player or Team, format dictionaries accordingly for Defensive Impact data
+
+
+    Parameters
+    -------------
+    <hr>
+
+        __result__ (list): A list of either Player or Team data for a single Date
+
+
+    Returns
+    -------------
+    <hr>
+
+        __result_dict__ (dict): Formatted dict of **Defended Field Goal** tracking data
+    '''
+        result_dict = {
+            **self.result_formatted,  
+            'DefRimFGM': result[10 + self.index_diff],
+            'DefRimFGA': result[11 + self.index_diff],
+            'DefRimFG%': result[12 + self.index_diff],
+        }
+        # self._print_table_creates(result_dict)
+        return result_dict
+
+
+    def tracking_drives(self, result: list):
+        '''tracking_drives`(self, result)`
+    ===
+        When PtMeasureType == 'Drives', format results<br>
+        Depending on whether or not player_team is Player or Team, format dictionaries accordingly for Drive data
+
+
+    Parameters
+    -------------
+    <hr>
+
+        __result__ (list): A list of either Player or Team data for a single Date
+
+
+    Returns
+    -------------
+    <hr>
+
+        __result_dict__ (dict): Formatted dict of **Drives** tracking data
+    '''
+        result_dict = {
+            **self.result_formatted,                
+            'Drives': result[7 + self.index_diff],
+            'FGM': result[8 + self.index_diff],
+            'FGA': result[9 + self.index_diff],
+            'FG%': result[10 + self.index_diff],
+            'FTM': result[11 + self.index_diff],
+            'FTA': result[12 + self.index_diff],
+            'FT%': result[13 + self.index_diff],
+            'PTS': result[14 + self.index_diff],
+            'PTS%': result[15 + self.index_diff],
+            'Passes': result[16 + self.index_diff],
+            'Pass%': result[17 + self.index_diff],
+            'AST': result[18 + self.index_diff],
+            'AST%': result[19 + self.index_diff],
+            'TOV': result[20 + self.index_diff],
+            'TOV%': result[21 + self.index_diff],
+            'PF': result[22 + self.index_diff],
+            'PF%': result[23 + self.index_diff],
+        }
+        # self._print_table_creates(result)
+        bp = 'here'
+        return result_dict
+
+#endregion Tracking
+
+
+
+
+
+
+#region Printing Utilities/Helpers
+    def _print_columns_for_naming(self):
+        for i, column in enumerate(self.results['headers']):
+            i_nbr = i if self.pipeline.player_team == 'Team' else i - 1
+            print(f"            '{column}': result[{i_nbr} + self.index_diff],")
         bp = 'here'
 
-
-
-    def tracking_player_drives(self):
-        '''tracking_player_drives`(self)`
-    ===
-    When PtMeasureType == 'Drives', format Player results
-        '''
-        # for i, column in enumerate(self.results['headers']):
-        #     print(f"                '{column}': player[{i}],")
-        result_dicts = []
-        for player in self.results['rowSet']:
-            self._match_game(player=player)
-            player = {
-                'SeasonID':     self.SeasonID,
-                'GameID':       self.GameID,
-                'TeamID':       self.TeamID,
-                'MatchupID':    self.MatchupID,
-                'PlayerID':     player[0],
-                'Drives': player[8],
-                'FGM': player[9],
-                'FGA': player[10],
-                'FG%': player[11],
-                'FTM': player[12],
-                'FTA': player[13],
-                'FT%': player[14],
-                'PTS': player[15],
-                'PTS%': player[16],
-                'Passes': player[17],
-                'Pass%': player[18],
-                'AST': player[19],
-                'AST%': player[20],
-                'TOV': player[21],
-                'TOV%': player[22],
-                'PF': player[23],
-                'PF%': player[24],
-            }
-            check_string = f"""
+    def _print_table_creates(self, dictionary):
+        import pyperclip
+        check_string = f"""
 if not exists(
 select *
 from sys.schemas s
@@ -291,27 +429,48 @@ if not exists(
 select *
 from sys.tables t
 inner join sys.schemas s on t.schema_id = s.schema_id
-where t.name = '{self.pipeline.tracking_table}' and s.name = '{self.pipeline.schema}'
+where t.name = '{self.pipeline.full_table_name}' and s.name = '{self.pipeline.schema}'
 )
 begin"""
-            key_string = f"""Primary Key(SeasonID, GameID, TeamID, MatchupID, PlayerID),
+        full_str = check_string
+        key_string = f"""Primary Key(SeasonID, GameID, TeamID, MatchupID, PlayerID),
 Foreign Key (SeasonID, GameID) references Game(SeasonID, GameID),
 Foreign Key (SeasonID, TeamID) references Team(SeasonID, TeamID),
+Foreign Key (SeasonID, MatchupID) references Team(SeasonID, TeamID),
 Foreign Key (SeasonID, PlayerID) references Player(SeasonID, PlayerID),
 Foreign Key (SeasonID, GameID, TeamID, MatchupID) references TeamBox(SeasonID, GameID, TeamID, MatchupID),
 Foreign Key (SeasonID, GameID, TeamID, MatchupID, PlayerID) references PlayerBox(SeasonID, GameID, TeamID, MatchupID, PlayerID))
 end"""
-            print(check_string)
-            print(f'create table {self.pipeline.schema}.{self.pipeline.tracking_table}(')
-            for column in player.keys():
+        print(check_string)
+        print(f'create table {self.pipeline.schema}.{self.pipeline.full_table_name}(')
+        for column in dictionary.keys():
+            if '%' in column:
+                col = f'[{column}]'
+                spacer = f'{(18 - len(col)) * ' '}'
+                col_string = f'[{column}]{spacer}decimal(18,3),'
+            else:
+                spacer = f'{(18 - len(column)) * ' '}'
+                col_string = f'{column}{spacer}int,'
+            
+            full_str += f'\n{col_string}'
+            print(col_string)
+        full_str += f'\n{key_string}'
+        print(key_string)
+        pyperclip.copy(full_str)
+
+        print("\n\n        'columns': [")
+        for column in dictionary.keys():
+            if '%' in column:
+                print(f"            '[{column}]',")
+            else:
+                print(f"            '{column}',")
+        
+        print("        ],")
+        print("        'update_columns': [")
+        for column in dictionary.keys():
+            if 'ID' not in column:
                 if '%' in column:
-                    col = f'[{column}]'
-                    spacer = f'{(18 - len(col)) * ' '}'
-                    col_string = f'[{column}]{spacer}decimal(18,3),'
+                    print(f"            '[{column}]',")
                 else:
-                    spacer = f'{(18 - len(column)) * ' '}'
-                    col_string = f'{column}{spacer}int,'
-                print(col_string)
-            print(key_string)
-            result_dicts.append(player)
-        bp = 'here'
+                    print(f"            '{column}',")
+        print("        ],")

@@ -29,11 +29,18 @@ def TransformBox(box_data: dict, scoreboard_data: dict) -> dict:
 Transforms extracted Boxscore and Scoreboard data into 9 dicts formatted for SQL.<br>
 Also creates start_action_keys and lineup_keys, neccessary for PlayByPlay
 
-:param dict box_data: Extracted Boxscore data
-:param dict scoreboard_data: Transformed Scoreboard data
+Parameters
+-------------
+<hr>
+
+    __box_data__ (dict): Extracted Boxscore data
+    __scoreboard_data__ (dict): Transformed Scoreboard data
+
 
 Function Calls
 -------------
+<hr>
+
 *   **PrepareTeam(teamBox, teamScoreboard, TeamID, MatchupID, selector, box_data)**
     - Drives formatting of Team, TeamBox, Player, PlayerBox and StartingLineups dicts and lists of dicts
 
@@ -46,8 +53,12 @@ Function Calls
 *   **FormatGame(box_data, scoreboard_data, formatted_officials, formatted_arena['ArenaID'])**
     - Formats Game and GameExt dictionaries
 
-:return prepared_box_data: Transformed Box data ready to be inserted to 9 SQL tables and used in PlayByPlay pipeline 
-:rtype: dict
+
+Returns
+-------------
+<hr>
+
+    __prepared_box_data__ (dict): Transformed Box data ready to be inserted to 9 SQL tables and used in PlayByPlay pipeline 
     '''
     SeasonID = scoreboard_data['SeasonID']
     box_data['SeasonID'] = SeasonID
