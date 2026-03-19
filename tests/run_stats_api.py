@@ -17,11 +17,11 @@ from pipelines import AdvancedStatsPipeline
 for tracking_measure in[
     #'Drives',           #done
     #'Defense',          #done
-    #'CatchShoot',
+    #'CatchShoot',       #done?
     #'Passing',          #done
-    # 'Possessions',
-    # 'PullUpShot',
-    # 'Rebounding',
+    'Possessions',
+    'PullUpShot',
+    'Rebounding',
     'Efficiency',
     'SpeedDistance',
     'ElbowTouch',
