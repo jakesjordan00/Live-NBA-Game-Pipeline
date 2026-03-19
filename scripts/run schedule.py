@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pipelines import Pipeline, ScoreboardPipeline, BoxscorePipeline, PlayByPlayPipeline, SchedulePipeline
 from connectors import SQLConnector
 import polars as pl

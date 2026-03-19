@@ -19,7 +19,7 @@ for pt in [
     # 'Team', 
     'Player'
 ]:
-    schedule_pipeline = ScheduleForAPI(tracking_measure=f'{pt}Hustle')
+    schedule_pipeline = ScheduleForAPI(tracking_measure=f'Hustle')
     completed_schedule_pipeline = schedule_pipeline.run()
     schedule_data = completed_schedule_pipeline['loaded']
     for date in schedule_data:
