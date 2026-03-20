@@ -16,7 +16,7 @@ from pipelines import AdvancedStatsPipeline
 
 
 for pt in [
-    # 'Team', 
+    'Team', 
     'Player'
 ]:
     schedule_pipeline = ScheduleForAPI(tracking_measure=f'Hustle')
@@ -36,10 +36,10 @@ for pt in [
 
 
 for tracking_measure in[
-    #'Drives',           #done
-    #'Defense',          #done
-    #'CatchShoot',       #done?
-    #'Passing',          #done
+    'Drives',           #done
+    'Defense',          #done
+    'CatchShoot',       #done
+    'Passing',          #done
     'Possessions',
     'PullUpShot',
     'Rebounding',
