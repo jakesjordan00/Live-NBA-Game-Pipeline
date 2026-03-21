@@ -37,7 +37,13 @@ common_box_params = {
 
 
 
-
+friendly_name_map = {
+    'player_stats':          'leaguedashplayerstats',
+    'pt_tracking':           'leaguedashptstats',
+    'player_hustle':         'leaguehustlestatsplayer',
+    'team_hustle':           'leaguehustlestatsteam',
+    'pt_play_type':          'synergyplaytypes'
+}
 class Endpoint(TypedDict):
     url: str
     headers: dict
@@ -76,7 +82,7 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
             'PlayerPosition':   '',                 # 'F', 'C', 'G'
             'PlusMinus':        'N',                # 
             'Rank':             'N',                # 
-            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., 1996-97
+            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., '1996-97'
             'SeasonSegment':    '',                 # 'Pre All-Star', 'Post All-Star'
             'SeasonType':       'Regular Season',   # 'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
             'ShotClockRange':   '',                 # '24-22', '22-18 Very Early', '18-15 Early', '15-7 Average', '7-4 Late', '4-0 Very Late'
@@ -116,7 +122,7 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
             'PlayerPosition':   '',                 # 'F', 'C', 'G'
 ''''''      'PtMeasureType':    'Drives',           # 'Drives', 'Defense', 'CatchShoot', 'Passing', 'Possessions', 'PullUpShot', 
                                                     # 'Rebounding', 'Efficiency', 'SpeedDistance', 'ElbowTouch', 'PostTouch', 'PaintTouch'
-            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., 1996-97
+            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., '1996-97'
             'SeasonSegment':    '',                 # 'Pre All-Star', 'Post All-Star'
             'SeasonType':       'Regular Season',   # 'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
             'StarterBench':     '',                 # 'Starters', 'Bench'            
@@ -154,7 +160,7 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
             'PlayerPosition':   '',                 # 'F', 'C', 'G'
             'PlusMinus':        'N',                # 
             'Rank':             'N',                # 
-            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., 1996-97
+            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., '1996-97'
             'SeasonSegment':    '',                 # 'Pre All-Star', 'Post All-Star'
             'SeasonType':       'Regular Season',   # 'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
             'TeamID':           0,                  # 
@@ -192,7 +198,7 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
             'PlayerPosition':   '',                 # 'F', 'C', 'G'
             'PlusMinus':        'N',                # 
             'Rank':             'N',                # 
-            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., 1996-97
+            'Season':           '2025-26',          # '2025-26', '2024-25', cont..., '1996-97'
             'SeasonSegment':    '',                 # 'Pre All-Star', 'Post All-Star'
             'SeasonType':       'Regular Season',   # 'Pre Season', 'Regular Season', 'Playoffs', 'PlayIn', 'IST', 'All Star'
             'ShotClockRange':   '',                 #
@@ -201,6 +207,19 @@ nba_advanced_stats_endpoints: dict[str, Endpoint] = {
             'VsDivision':       '',                 # 
             'Weight':           '',                 # 
 
+        }
+    },
+    'synergyplaytypes': {
+        'url': 'https://stats.nba.com/stats/synergyplaytypes',
+        'headers': stats_headers,
+        'params': {
+            'LeagueID':         '00',               # 
+            'PerMode':          'PerGame',          # 'Pergame', 'Totals',
+            'PlayType':         'Isolation',        # 'Isolation', 'Transition', 'PRBallHandler', 'PRRollman', 'Postup', 'Spotup', 'Handoff', 'Cut', 'OffScreen', 'OffRebound', 'Misc'
+            'PlayerOrTeam':     'P',                # 'P', 'T'
+            'SeasonType':       'Regular Season',   # 'Regular Season', 'Playoffs',
+            'SeasonYear':       '2025-26',          # '2025-26', '2024-25', cont..., '2015-16'
+            'TypeGrouping':     'Offensive'         # 'Offensive', 'Defensive'
         }
     }
 

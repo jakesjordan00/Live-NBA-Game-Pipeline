@@ -9,7 +9,6 @@ class Transform:
         pass
 
 
-
     def start_transform(self, data_extract):
         self.data_extract = data_extract
         self.games_on_date = self.data if self.data else []
@@ -28,8 +27,14 @@ class Transform:
             data_transformed = self.measure_violations()
         elif self.pipeline.schema == 'tracking':
             data_transformed = self.transform_tracking()
+        elif self.pipeline.schema == 'plays':
+            data_transformed = self.transform_play_types()
         return data_transformed
 
+
+
+
+#region MeasureTypes
     def measure_violations(self):
         '''measure_violations(self)
     ===
@@ -191,13 +196,57 @@ class Transform:
             
         return result_dicts
     
+#endregion MeasureTypes
 
 
+
+
+
+#region Utility - Game Match
+    def _set_result_formatted(self, result: list):
+        '''_set_result_formatted(self, result)
+    ===
+
+    Determines **SeasonID**, **GameID**, **sf.TeamID** and **MatchupID** values for result_formatted. 
+    
+    If *self.pipeline.player_team* == 'Player', sets **PlayerID** for result_formatted. 
+
+    Parameters
+    ---
+
+        __result__ (list): list of values for a particular Player or Team
+
+    Function Calls
+    ---
+
+        self._match_team_game(result)
+        '''
+        self.index_diff = 0
+        if self.pipeline.player_team == 'Team':
+            self._match_team_game(team=result)
+            self.result_formatted = {
+                'SeasonID': self.SeasonID,
+                'GameID': self.GameID,
+                'TeamID':       self.TeamID,
+                'MatchupID':    self.MatchupID,
+            }
+        elif self.pipeline.player_team == 'Player':
+            self._match_player_game(player=result)
+            self.index_diff = 1
+            self.result_formatted = {
+                'SeasonID':     self.SeasonID,
+                'GameID':       self.GameID,
+                'TeamID':       self.TeamID,
+                'MatchupID':    self.MatchupID,
+                'PlayerID':     result[0],
+            }
 
 
     def _match_player_game(self, player: list):
         '''_match_player_game(self, player)
     ===
+        <hr>
+
     Using the self.games_on_date value, finds the GameIDs and PlayerBox entries for all games that took place on that date in question.
 
     For each game taking place on the date in question, check for the **player** parameter, PlayerID, in home_players and away_players. 
@@ -221,6 +270,7 @@ class Transform:
             self.MatchupID = self.matching_game['HomeID']            
         else:
             self.MatchupID = 0
+
 
     def _match_team_game(self, team: list):
         '''_match_team_game(self, team)
@@ -249,7 +299,75 @@ class Transform:
         else:
             self.MatchupID = 0
 
+#endregion Utility - Game Match
 
+
+
+#region PlayTypes
+    def transform_play_types(self):
+        '''transform_play_types`(self)`
+    ===
+        <hr>
+
+    Acts similarly to `transform_tracking`, but for the Synergy PlayType endpoint
+        '''
+        self.result_dicts = []
+        for result in self.results['rowSet']:
+            
+
+            if self.pipeline.tracking_table == 'Isolation':
+                self.play_type_isolation(result)
+        bp = 'here'
+
+
+    def play_type_isolation(self, result: list):
+        '''play_type_isolation`(self, result)`
+    ===
+        When PlayType == 'Isolation', format results from Synergy api<br>
+        Depending on whether or not player_team is Player or Team, format dictionaries accordingly for Isolation Synergy play type data
+
+
+    Parameters
+    -------------
+    <hr>
+
+        __result__ (list): A list of either Player or Team data for a single Date
+
+
+    Returns
+    -------------
+    <hr>
+
+        __result_dict__ (dict): Formatted dict of **Isolation** play type data
+    '''
+        result_dict = {
+            **self.result_formatted,                
+            # 'Drives': result[7 + self.index_diff],
+            # 'FGM': result[8 + self.index_diff],
+            # 'FGA': result[9 + self.index_diff],
+            # 'FG%': result[10 + self.index_diff],
+            # 'FTM': result[11 + self.index_diff],
+            # 'FTA': result[12 + self.index_diff],
+            # 'FT%': result[13 + self.index_diff],
+            # 'PTS': result[14 + self.index_diff],
+            # 'PTS%': result[15 + self.index_diff],
+            # 'Passes': result[16 + self.index_diff],
+            # 'Pass%': result[17 + self.index_diff],
+            # 'AST': result[18 + self.index_diff],
+            # 'AST%': result[19 + self.index_diff],
+            # 'TOV': result[20 + self.index_diff],
+            # 'TOV%': result[21 + self.index_diff],
+            # 'PF': result[22 + self.index_diff],
+            # 'PF%': result[23 + self.index_diff],
+        }
+        self._print_columns_for_naming()
+        self._print_table_creates(result_dict)
+        bp = 'here'
+        return result_dict
+
+
+
+#endregion PlayTypes
 
 #region Tracking
     def transform_tracking(self):
@@ -260,25 +378,7 @@ class Transform:
         '''
         self.result_dicts = []
         for result in self.results['rowSet']:
-            self.index_diff = 0
-            if self.pipeline.player_team == 'Team':
-                self._match_team_game(team=result)
-                self.result_formatted = {
-                    'SeasonID': self.SeasonID,
-                    'GameID': self.GameID,
-                    'TeamID':       self.TeamID,
-                    'MatchupID':    self.MatchupID,
-                }
-            elif self.pipeline.player_team == 'Player':
-                self._match_player_game(player=result)
-                self.index_diff = 1
-                self.result_formatted = {
-                    'SeasonID':     self.SeasonID,
-                    'GameID':       self.GameID,
-                    'TeamID':       self.TeamID,
-                    'MatchupID':    self.MatchupID,
-                    'PlayerID':     result[0],
-                }
+            self._set_result_formatted(result=result)
 
             if self.pipeline.tracking_table == 'Drives':
                 self.result_dicts.append(self.tracking_drives(result=result))
@@ -460,8 +560,6 @@ class Transform:
         # self._print_table_creates(result_dict)
         return result_dict
 
-
-
     def tracking_possessions(self, result: list):
         '''tracking_possessions`(self, result)`
     ===
@@ -501,11 +599,6 @@ class Transform:
         # self._print_columns_for_naming()
         # self._print_table_creates(result_dict)
         return result_dict
-    
-
-    
-
-
 
     def tracking_shot_pull_up(self, result:list):
         '''tracking_shot_pull_up`(self, result)`
@@ -541,7 +634,6 @@ class Transform:
         # self._print_columns_for_naming()
         # self._print_table_creates(result_dict)
         return result_dict
-
 
     def tracking_rebounding(self, result:list):
         '''tracking_rebounding`(self, result)`
@@ -596,7 +688,6 @@ class Transform:
         # self._print_columns_for_naming()
         # self._print_table_creates(result_dict)
         return result_dict
-
 
     def tracking_efficiency(self, result:list):
         '''tracking_efficiency`(self, result)`
@@ -707,7 +798,7 @@ class Transform:
             'Ast': result[17 + self.index_diff],
             'TOV': result[19 + self.index_diff],
             'Fouls': result[21 + self.index_diff],
-            'Pts%': result[24 + self.index_diff],
+            '%ofPts': result[24 + self.index_diff],
             'Pass%': result[22 + self.index_diff],
             'Ast%': result[18 + self.index_diff],
             'TOV%': result[20 + self.index_diff],
@@ -752,7 +843,7 @@ class Transform:
             'Ast': result[19 + self.index_diff],
             'TOV': result[21 + self.index_diff],
             'Fouls': result[23 + self.index_diff],
-            'Pts%': result[16 + self.index_diff],
+            '%ofPts': result[16 + self.index_diff],
             'Pass%': result[18 + self.index_diff],
             'Ast%': result[20 + self.index_diff],
             'TOV%': result[22 + self.index_diff],
@@ -797,7 +888,7 @@ class Transform:
             'Ast': result[19 + self.index_diff],
             'TOV': result[21 + self.index_diff],
             'Fouls': result[23 + self.index_diff],
-            'Pts%': result[16 + self.index_diff],
+            '%ofPts': result[16 + self.index_diff],
             'Pass%': result[18 + self.index_diff],
             'Ast%': result[20 + self.index_diff],
             'TOV%': result[22 + self.index_diff],
@@ -807,11 +898,11 @@ class Transform:
         # self._print_table_creates(result_dict)
         return result_dict
 
-
 #endregion Tracking
 
-#region Hustle
 
+
+#region Hustle
     def tracking_team_hustle(self, result:list):
         '''tracking_hustle`(self, result)`
     ===
@@ -856,7 +947,6 @@ class Transform:
         # self._print_columns_for_naming()
         # self._print_table_creates(result_dict)
         return result_dict
-
 
     def tracking_player_hustle(self, result:list):
         '''tracking_player_hustle`(self, result)`
@@ -912,7 +1002,9 @@ class Transform:
 
 
 
-#region Printing Utilities/Helpers
+
+
+#region Helper - result printing
     def _print_columns_for_naming(self):
         for i, column in enumerate(self.results['headers']):
             i_nbr = i if self.pipeline.player_team == 'Team' else i - 1

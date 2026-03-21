@@ -15,8 +15,6 @@ class APIDataConnector:
             self.url = config['url']
             self.headers = config['headers']                
             self.params = config['params']
-            
-            
             pass
 
     def __init__(self, pipeline):
@@ -47,8 +45,28 @@ class APIDataConnector:
             return api_extract
     
 
+    def get_endpoint(self, friendly_name: str) -> Endpoint:
+        endpoint_name = map.friendly_name_map[friendly_name]
+        return self.Endpoint(friendly_name, endpoint_name)
+
     def _set_endpoints(self):
-        self.player_stats = self.Endpoint('player_stats', 'leaguedashplayerstats')
-        self.player_tracking = self.Endpoint('player_tracking_stats', 'leaguedashptstats')
-        self.player_hustle = self.Endpoint('player_hustle', 'leaguehustlestatsplayer')
-        self.team_hustle = self.Endpoint('team_hustle', 'leaguehustlestatsteam')
+        self.player_stats   = self.Endpoint(
+            friendly_name='player_stats', 
+            endpoint_name='leaguedashplayerstats'
+        )
+        self.pt_tracking    = self.Endpoint(
+            friendly_name='player_tracking_stats',
+            endpoint_name='leaguedashptstats'
+        )
+        self.player_hustle  = self.Endpoint(
+            friendly_name='player_hustle',
+            endpoint_name='leaguehustlestatsplayer'
+        )
+        self.team_hustle    = self.Endpoint(
+            friendly_name = 'team_hustle',
+            endpoint_name='leaguehustlestatsteam'
+        )
+        self.pt_play_type   = self.Endpoint(
+            friendly_name = 'pt_play_type',
+            endpoint_name = 'synergyplaytypes'
+        )

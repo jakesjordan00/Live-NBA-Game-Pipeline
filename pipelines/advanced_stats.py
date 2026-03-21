@@ -7,7 +7,7 @@ import polars as pl
 
 
 class AdvancedStatsPipeline(Pipeline):
-    def __init__(self, schema: str, params: dict, tracking_table: str | None = None, player_team: str | None = None):
+    def __init__(self, schema: str, params: dict,  endpoint_friendly_name: str, tracking_table: str | None = None, player_team: str | None = None):
         self.pipeline_name = f'advanced_stats.{schema}'
         self.tag = 'advancedStats'
         self.schema = schema
@@ -20,15 +20,16 @@ class AdvancedStatsPipeline(Pipeline):
         self.url = self.schedule_source.schedule        
         self.source = APIDataConnector(self)
         
+        self._endpoint = self.source.get_endpoint(friendly_name=endpoint_friendly_name)
         if not tracking_table:
-            self._endpoint = self.source.player_stats
             self.full_table_name = 'PlayerBox'
-        elif tracking_table and tracking_table != 'Hustle':
-            self._endpoint = self.source.player_tracking
-        elif tracking_table and self.full_table_name == 'PlayerHustle':
-            self._endpoint = self.source.player_hustle
-        elif tracking_table and self.full_table_name == 'TeamHustle':
-            self._endpoint = self.source.team_hustle
+            # self._endpoint = self.source.player_stats
+        # elif tracking_table and tracking_table != 'Hustle':
+            # self._endpoint = self.source.pt_tracking
+        # elif tracking_table and self.full_table_name == 'PlayerHustle':
+            # self._endpoint = self.source.player_hustle
+        # elif tracking_table and self.full_table_name == 'TeamHustle':
+            # self._endpoint = self.source.team_hustle
 
         self._params = {
             **self._endpoint.params,
@@ -65,7 +66,8 @@ class AdvancedStatsPipeline(Pipeline):
     def run(self, date_data: dict) -> dict:
         self.date = date_data['date']
         self.data = date_data['games']
-        self._params = {**self._params, 'DateFrom': self.date, 'DateTo': self.date}
+        if self.schema != 'plays':
+            self._params = {**self._params, 'DateFrom': self.date, 'DateTo': self.date}
         self.transformer = Transform(self)
         return super().run()
 

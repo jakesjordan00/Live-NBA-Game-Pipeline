@@ -17,9 +17,21 @@ class Query:
 
 class SQLConnector:
     class Queries:
-        schedule_api_playerbox: ClassVar[Query] = Query(
-            name= 'schedule_api_playerbox',
-            query= query('schedule_api_playerbox')
+        schedule_api_player_check: ClassVar[Query] = Query(
+            name= 'schedule_api_player_check',
+            query= query('schedule_api_player_check')
+        )
+        schedule_api_player_backfill: ClassVar[Query] = Query(
+            name = 'schedule_api_player_backfill',
+            query = query('schedule_api_player_backfill')
+        )
+        schedule_api_team_check: ClassVar[Query] = Query(
+            name= 'schedule_api_team_check',
+            query= query('schedule_api_team_check')
+        )
+        schedule_api_team_backfill: ClassVar[Query] = Query(
+            name= 'schedule_api_team_backfill',
+            query= query('schedule_api_team_backfill')
         )
         schedule_backfill: ClassVar[Query] = Query(
             name = 'schedule_backfill',
